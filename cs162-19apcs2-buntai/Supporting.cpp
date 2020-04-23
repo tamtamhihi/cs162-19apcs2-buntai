@@ -46,13 +46,25 @@ Date getDob(string dob) {
 	Dob.year = stoi(year);
 	return Dob;
 }
+string toFormalCase(string name) {
+	stringstream text(name);
+	string word, formalName = "";
+	while (text >> word) {
+		if (formalName != "")
+			formalName += " ";
+		toLower(word);
+		word[0] = toupper(word[0]);
+		formalName += word;
+	}
+	return formalName;
+}
 
 
 // ====== APP-RELATED ======
 void writeClassToFile(Student*& students, string className) {
 	ofstream out;
 	toUpper(className);
-	out.open("Database/Class/" + className + ".txt");
+	out.open("Database/Class/" + className + ".txt", ios::app);
 	Student* currentStudent = students;
 	while (currentStudent != nullptr) {
 		out << currentStudent->username << "\n";
@@ -113,7 +125,7 @@ string getValidUsername(string name) {
 }
 void addUser(string username, string password, int type) {
 	ofstream out("Database/User.txt", ios::app);
-	out << username << password << type << "\n";
+	out << username << "\n" << password << "\n" << type << "\n";
 	out.close();
 }
 void addStudentUsers(Student*& studentList) {
@@ -127,6 +139,16 @@ void addStudentUsers(Student*& studentList) {
 	out.close();
 }
 void addClass(string className) {
+	ifstream in("Database/Class/Classes.txt");
+	if (in.is_open()) {
+		string name;
+		while (in >> name)
+			if (name == className) {
+				in.close();
+				return;
+			}
+		in.close();
+	}
 	ofstream out("Database/Class/Classes.txt", ios::app);
 	out << className << "\n";
 	out.close();

@@ -1,13 +1,15 @@
 #include "Struct.h"
 
+
 // ========= ALL FUNCTION PROTOTYPES =========
 
 
 // ====== ALL-ROLES ======
-void login(string username, string pass);
+
 
 // ====== STAFF - CLASS ======
 void importStudentFromCsv();
+void manuallyAddStudent();
 
 
 // ====== STAFF - COURSE ======
@@ -31,6 +33,7 @@ void toLower(string& text);
 string toUsername(string fullName);
 string toPassword(Date dob);
 Date getDob(string dob);
+string toFormalCase(string name);
 
 
 // ====== APP-RELATED ======
