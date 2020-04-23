@@ -4,7 +4,7 @@
 
 
 // ====== ALL-ROLES ======
-
+void login(string username, string pass);
 
 // ====== STAFF - CLASS ======
 void importStudentFromCsv();
