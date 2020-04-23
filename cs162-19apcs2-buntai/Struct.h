@@ -1,8 +1,15 @@
+#ifndef _FUNCTION_H_
+#define _FUNCTION_H_
+
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <sstream>
+#include <ctype.h>
 using namespace std;
 
+const int FEMALE = 0, MALE = 1;
+const int STAFF = 0, LECTURER = 1, STUDENT = 2;
 // ========= ALL STRUCTURES' DEFINITION =========
 
 
@@ -12,6 +19,7 @@ struct Date {
 };
 struct Time {
 	int hour, minute;
+	Time* next;
 };
 
 
@@ -19,6 +27,7 @@ struct Time {
 struct CourseInfo {
 	int academicYear;
 	string semester, courseName;
+	CourseInfo* next;
 };
 struct Student {
 	string username, password;
@@ -30,6 +39,7 @@ struct Student {
 	string myClass;
 	int numberOfCourse;
 	CourseInfo* myCourse;
+	Student* next;
 };
 
 
@@ -44,12 +54,22 @@ struct Lecturer {
 
 
 // ====== STAFF ======
+struct DayOfWeek {
+	int day;
+	DayOfWeek* next;
+};
 struct Score {
 	double midterm, final, lab, bonus;
+	Score* next;
 };
 struct Attendance {
 	Date* date;
 	Time* time;
+	Attendance* next;
+};
+struct Status {
+	int status;
+	Status* next;
 };
 struct Course {
 	string courseId;
@@ -57,12 +77,12 @@ struct Course {
 	string defaultClass;
 	Lecturer lecturer;
 	Date startDate, endDate;
-	int* dayOfWeek;
+	DayOfWeek* dayOfWeek;
 	Time* startTime, * endTime;
 	int numberOfSessions;
 	string room;
 	Student* students;
-	int* status;
+	Status* status;
 	Score* score;
 	Attendance* attendance;
 };
@@ -72,3 +92,5 @@ struct Staff {
 	string name;
 	int gender;
 };
+
+#endif

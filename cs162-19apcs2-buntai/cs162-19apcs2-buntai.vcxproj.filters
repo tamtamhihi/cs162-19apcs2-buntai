@@ -38,5 +38,8 @@
     <ClCompile Include="All-roles.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Supporting.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
