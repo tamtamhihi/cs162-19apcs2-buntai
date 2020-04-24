@@ -3,7 +3,7 @@
 
 // ========= STAFF'S FUNCTIONS DEFINITION =========
 
-
+// 2.1
 void importStudentFromCsv() {
 	string filepath, className; // store the path to CSV file
 	cout << "Class: ";
@@ -80,6 +80,7 @@ void importStudentFromCsv() {
 	cout << "Import succesful. You can find the database at folder Database/Class.\n\n";
 }
 
+// 2.2
 void manuallyAddStudent() {
 	// Ask for information in one line.
 	cout << "Please input the following information with the same format:\n";
@@ -133,6 +134,7 @@ void manuallyAddStudent() {
 	cout << "Student added successfully.\n\n";
 }
 
+// 2.3
 void editExistingStudent() {
 	// Ask for class and student ID.
 	cout << "Please input student class with the same format:\n";
@@ -252,4 +254,19 @@ void editExistingStudent() {
 	deleteStudentList(studentList);
 
 	cout << "Edit student successfully.\n\n";
+}
+
+// 2.6
+void viewListOfClasses() {
+	ifstream in;
+	in.open("Database/Class/Classes.txt");
+
+	if (in.is_open()) {
+		cout << "List of classes:\n";
+		string className;
+		while (in >> className)
+			cout << className << endl;
+
+		in.close();
+	}
 }
