@@ -8,9 +8,10 @@
 
 
 // ====== STAFF - CLASS ======
-void importStudentFromCsv();
-void manuallyAddStudent();
-void editExistingStudent();
+void importStudentFromCsv(); // 2.1
+void manuallyAddStudent(); // 2.2
+void editExistingStudent(); // 2.3
+void viewListOfClasses(); // 2.6
 
 
 // ====== STAFF - COURSE ======
