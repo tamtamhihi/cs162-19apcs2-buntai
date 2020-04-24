@@ -132,3 +132,124 @@ void manuallyAddStudent() {
 
 	cout << "Student added successfully.\n\n";
 }
+
+void editExistingStudent() {
+	// Ask for class and student ID.
+	cout << "Please input student class with the same format:\n";
+	cout << "<class-name>,<studentId>\n\t";
+	string row, className, id, password;
+	getline(cin, row);
+	cout << "\n";
+	stringstream info(row);
+	getline(info, className, ',');
+	toUpper(className);
+	getline(info, id);
+
+	// Check if class exists.
+	if (!isClassExist(className)) {
+		cout << "Edit failed. Error: Can't find class.\n\n";
+		return;
+	}
+
+	// Read all students' information in class.
+	Student* studentList = nullptr;
+	readClassFromFile(className, studentList);
+	Student* current = studentList, * editedStudent = nullptr;
+	while (current != nullptr) {
+		if (current->studentId == id) {
+			editedStudent = current;
+			break;
+		}
+		current = current->next;
+	}
+	if (editedStudent == nullptr) {
+		cout << "Edit failed. Error: Can't find student in class.\n\n";
+		return;
+	}
+
+	// Find password
+	editedStudent->password = findPasswordFromUsername(editedStudent->username);
+
+	// Confirm student info.
+	printStudentInfo(editedStudent);
+
+	// Ask for field to edit and prompt editing.
+	cout << "What field do you want to edit?\n";
+	cout << "\t1-Name\n\t2-Gender\n\t3-Date of birth\n";
+	cout << "Input in increasing order with a space between.\n\t";
+	getline(cin, row);
+	cout << "\n";
+	info = stringstream(row);
+	int choice = 0;
+	while (info >> choice) {
+		if (choice == 1) {
+			string name;
+			cout << "New name: ";
+			getline(cin, name);
+			name = toFormalCase(name);
+			cout << "Do you want to change name from "
+				<< editedStudent->name << " to " << name << "? Y/N\n\t";
+			cin >> row;
+			cout << "\n";
+			toUpper(row);
+			if (row == "Y")
+				editedStudent->name = name;
+		}
+		else if (choice == 2) {
+			cout << "Do you want to change gender of this student? Y/N\n\t";
+			cin >> row;
+			cout << "\n";
+			toUpper(row);
+			if (row == "Y") {
+				if (editedStudent->gender == FEMALE)
+					editedStudent->gender = MALE;
+				else
+					editedStudent->gender = FEMALE;
+			}
+		}
+		else {
+			cout << "New date of birth yyyy-mm-dd: ";
+			cin >> row;
+			Date Dob = getDob(row);
+			cout << "Do you want to change date of birth from "
+				<< editedStudent->dob.day << "-"
+				<< editedStudent->dob.month << "-"
+				<< editedStudent->dob.year << " to "
+				<< Dob.day << "-" << Dob.month << "-" << Dob.year << "? Y/N\n\t";
+			cin >> row;
+			cout << "\n";
+			toUpper(row);
+			if (row == "Y")
+				editedStudent->dob = Dob;
+		}
+		
+	}
+
+	// Edit in course files that this student enrolls.
+	CourseInfo* currentCourse = editedStudent->myCourse;
+	while (currentCourse != nullptr) {
+		Course* course = new Course;
+		readCourseFromFile(currentCourse, course);
+		Student* currentStudent = course->students;
+		while (currentStudent != nullptr) {
+			if (currentStudent->studentId == editedStudent->studentId)
+				break;
+			currentStudent = currentStudent->next;
+		}
+		// Edit 3 fields that might be edited.
+		currentStudent->name = editedStudent->name;
+		currentStudent->gender = editedStudent->gender;
+		currentStudent->dob = editedStudent->dob;
+		currentCourse = currentCourse->next;
+		writeCourseToFile(course);
+		deleteCourse(course);
+	}
+
+	// Save students to class file.
+	writeClassToFile(studentList, className);
+
+	// Delete linked lists.
+	deleteStudentList(studentList);
+
+	cout << "Edit student successfully.\n\n";
+}

@@ -10,6 +10,8 @@ using namespace std;
 
 const int FEMALE = 0, MALE = 1;
 const int STAFF = 0, LECTURER = 1, STUDENT = 2;
+
+
 // ========= ALL STRUCTURES' DEFINITION =========
 
 
@@ -54,37 +56,36 @@ struct Lecturer {
 
 
 // ====== STAFF ======
-struct DayOfWeek {
-	int day;
-	DayOfWeek* next;
-};
-struct Score {
-	double midterm, final, lab, bonus;
-	Score* next;
-};
 struct Attendance {
-	Date* date;
-	Time* time;
+	Date date;
+	Time time, startTime, endTime;
 	Attendance* next;
 };
-struct Status {
+struct StudentCourseInfo {
+	double midterm, final, lab, bonus;
 	int status;
-	Status* next;
+	Attendance* attendance;
+	StudentCourseInfo* next;
+};
+struct SessionInfo {
+	int day;
+	Time startTime, endTime;
+	SessionInfo* next;
 };
 struct Course {
+	int academicYear;
+	string semester;
 	string courseId;
 	string courseName;
 	string defaultClass;
 	Lecturer lecturer;
 	Date startDate, endDate;
-	DayOfWeek* dayOfWeek;
-	Time* startTime, * endTime;
-	int numberOfSessions;
+	int totalSessions;
+	int sessionsPerWeek;
+	SessionInfo* sessionInfo;
 	string room;
 	Student* students;
-	Status* status;
-	Score* score;
-	Attendance* attendance;
+	StudentCourseInfo* studentCourseInfo;
 };
 struct Staff {
 	string username;

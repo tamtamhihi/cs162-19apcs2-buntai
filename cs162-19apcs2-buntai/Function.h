@@ -10,6 +10,7 @@
 // ====== STAFF - CLASS ======
 void importStudentFromCsv();
 void manuallyAddStudent();
+void editExistingStudent();
 
 
 // ====== STAFF - COURSE ======
@@ -34,6 +35,7 @@ string toUsername(string fullName);
 string toPassword(Date dob);
 Date getDob(string dob);
 string toFormalCase(string name);
+bool isClassExist(string className);
 
 
 // ====== APP-RELATED ======
@@ -44,3 +46,14 @@ void addUser(string username, string password, int type);
 void addStudentUsers(Student*& studentList);
 void addClass(string className);
 void deleteStudentList(Student*& studentList);
+void deleteCourseInfo(CourseInfo*& courseInfo);
+string findPasswordFromUsername(string username);
+void printStudentInfo(Student*& student);
+void readClassFromFile(string className, Student*& studentList);
+void readCourseFromFile(CourseInfo* courseInfo, Course*& course);
+void writeCourseToFile(Course*& course);
+void deleteSessionInfo(SessionInfo*& sessionInfo);
+void deleteStudent(Student*& students);
+void deleteAttendance(Attendance*& attendance);
+void deleteStudentCourseInfo(StudentCourseInfo*& studentCourseInfo);
+void deleteCourse(Course*& myCourse);
