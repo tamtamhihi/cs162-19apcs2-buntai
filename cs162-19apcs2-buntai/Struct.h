@@ -23,7 +23,11 @@ struct Time {
 	int hour, minute;
 	Time* next;
 };
-
+struct allRole {
+	string username;
+	string password;
+	int role; //0.staff 1.lecturer 2.student
+};
 
 // ====== STUDENT ======
 struct CourseInfo {
