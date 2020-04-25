@@ -1,32 +1,34 @@
 #include "Function.h"
 
 // ========= ALL-ROLES' FUNCTIONS DEFINITION =========
-void login() {
-	string newturnname, newturnpassword, checkname, checkpassword;
-	int newturnrole;
+
+//1.1
+
+void login(string& username,int& userrole) {
+	string userpassword, checkname, checkpassword;
 	//get login info from user
-	cout << "\tHello, Welcome to the program" << endl;
-	cout << "\tFor login, please enter your username and password" << endl;
+	cout << "Hello, Welcome to the program" << endl;
+	cout << "For login, please enter your username and password" << endl;
 	cout << "\tUsername:";
-	getline(std::cin, newturnname);
+	getline(std::cin, username);
 	cout << endl;
 	cout << "\tPassword:";
-	getline(std::cin, newturnpassword);
+	getline(std::cin, userpassword);
 	cout << endl;
 	//check the login information
 	ifstream in;
-	in.open("user.txt");
+	in.open("User.txt");
 	if (!in) cout << "\tCannot open user file, please try it later" << endl;
 	else
 	{
 		while (in) {
 			getline(in, checkname);
 			getline(in, checkpassword);
-			if (newturnname == checkname && newturnpassword == checkpassword)
+			if (username == checkname && userpassword == checkpassword)
 			{
-				in >> newturnrole;
+				in >> userrole;
 				in.close();
-				cout << "\tHello " << newturnname << endl;
+				cout << "\tHello " << username << endl;
 				return ;
 			}
 		}
@@ -34,4 +36,5 @@ void login() {
 
 	in.close();
 	cout << "\tLogin failed" << endl;
+	cout << endl;
 }

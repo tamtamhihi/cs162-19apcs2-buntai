@@ -150,7 +150,7 @@
     <ClCompile Include="Supporting.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="user.txt" />
+    <Text Include="User.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

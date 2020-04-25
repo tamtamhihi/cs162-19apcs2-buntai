@@ -43,6 +43,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="user.txt" />
+    <Text Include="User.txt" />
   </ItemGroup>
 </Project>
