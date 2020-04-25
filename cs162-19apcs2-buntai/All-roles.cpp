@@ -1,11 +1,8 @@
 #include "Function.h"
 
 // ========= ALL-ROLES' FUNCTIONS DEFINITION =========
-#include "Function.h"
-
-// ========= ALL-ROLES' FUNCTIONS DEFINITION =========
 void login() {
-	allRole newturn, check;
+	AllRole newturn, check;
 	//get login info from user
 	cout << "\tHello, Welcome to the program" << endl;
 	cout << "\tFor login, please enter your username and password" << endl;
