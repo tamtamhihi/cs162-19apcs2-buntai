@@ -15,7 +15,7 @@ void login() {
 	cout << "\tPassword:";
 	getline(std::cin, newturn.password);
 	cout << endl;
-	//check the login info
+	//check the login information
 	ifstream in;
 	in.open("user.txt");
 	if (!in) cout << "\tCannot open user file, please try it later" << endl;
