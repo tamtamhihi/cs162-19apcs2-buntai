@@ -50,7 +50,7 @@ string toPassword(Date dob) {
 
 // Retrieve date of birth from a string of form "yyyy-mm-dd".
 Date getDate(string date) {
-	stringstream DOB(dob);
+	stringstream DATEss(date);
 	string year, month, day;
 	getline(DATEss, year, '-');
 	getline(DATEss, month, '-');
@@ -227,6 +227,7 @@ string findPasswordFromUsername(string username) {
 	return NULL;
 }
 
+// Search "Lecturer.txt" to find a lecture from username.
 Lecturer findLecturerFromUsername(string username) {
 	Lecturer result;
 	ifstream in("Database/Lecturer.txt");
