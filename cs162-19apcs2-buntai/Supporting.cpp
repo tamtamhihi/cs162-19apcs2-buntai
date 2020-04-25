@@ -1,18 +1,29 @@
 #include "Function.h"
 
 
-// ========= SUPPORTING FUNCTIONS DEFINITION =========
+/*
+========= SUPPORTING FUNCTIONS DEFINITION =========
+*/
 
 
-// ====== GENERAL ======
+
+/*
+====== GENERAL ======
+*/
+
+// Turn a string to uppercase.
 void toUpper(string& text) {
 	for (char& c : text)
 		c = toupper(c);
 }
+
+// Turn a string to lowercase.
 void toLower(string& text) {
 	for (char& c : text)
 		c = tolower(c);
 }
+
+// Generate username from full name for new students.
 string toUsername(string fullName) {
 	stringstream name(fullName);
 	string word, username = "";
@@ -23,6 +34,8 @@ string toUsername(string fullName) {
 	toLower(username);
 	return username;
 }
+
+// Generate password from date of birth for new students.
 string toPassword(Date dob) {
 	string password = "";
 	if (dob.day < 10)
@@ -34,6 +47,8 @@ string toPassword(Date dob) {
 	password += to_string(dob.year);
 	return password;
 }
+
+// Retrieve date of birth from a string of form "yyyy-mm-dd".
 Date getDob(string dob) {
 	stringstream DOB(dob);
 	string year, month, day;
@@ -46,6 +61,9 @@ Date getDob(string dob) {
 	Dob.year = stoi(year);
 	return Dob;
 }
+
+// Turn a full name string to formal case 
+// (uppercase for first letter of each word).
 string toFormalCase(string name) {
 	stringstream text(name);
 	string word, formalName = "";
@@ -58,6 +76,8 @@ string toFormalCase(string name) {
 	}
 	return formalName;
 }
+
+// Check if a class exist.
 bool isClassExist(string className) {
 	ifstream in("Database/Class/Classes.txt");
 	if (in.is_open()) {
@@ -69,7 +89,13 @@ bool isClassExist(string className) {
 	return false;
 }
 
-// ====== APP-RELATED ======
+
+
+/* 
+====== APP-RELATED ======
+*/
+
+// Write/overwrite a "<class-name>.txt" file from a Student linked list.
 void writeClassToFile(Student*& students, string className) {
 	ofstream out;
 	toUpper(className);
@@ -98,6 +124,9 @@ void writeClassToFile(Student*& students, string className) {
 	}
 	out.close();
 }
+
+// Check if an existent username is a version of the new username.
+// E.g: "nnbtam1" is a version of "nnbtam" -> returns 1.
 int getVersion(string existent, string username) {
 	/*
 	Check if the username and the existent username in User.txt is the same (with numbers).
@@ -114,6 +143,8 @@ int getVersion(string existent, string username) {
 		version = version * 10 + (existent[i] - '0');
 	return version;
 }
+
+// Get a valid username for new students from their full name.
 string getValidUsername(string name) {
 	string username = toUsername(name);
 	ifstream in("Database/User.txt");
@@ -132,11 +163,15 @@ string getValidUsername(string name) {
 	}
 	return username;
 }
+
+// Add a single user to "User.txt" file using username, password and account type.
 void addUser(string username, string password, int type) {
 	ofstream out("Database/User.txt", ios::app);
 	out << username << "\n" << password << "\n" << type << "\n";
 	out.close();
 }
+
+// Add a Student linked list to "User.txt".
 void addStudentUsers(Student*& studentList) {
 	ofstream out("Database/User.txt", ios::app);
 	Student* current = studentList;
@@ -147,6 +182,8 @@ void addStudentUsers(Student*& studentList) {
 	}
 	out.close();
 }
+
+// Add a className to "Classes.txt" if it hasn't been there.
 void addClass(string className) {
 	ifstream in("Database/Class/Classes.txt");
 	if (in.is_open()) {
@@ -162,6 +199,8 @@ void addClass(string className) {
 	out << className << "\n";
 	out.close();
 }
+
+// Delete a Student linked list with CourseInfo.
 void deleteStudentList(Student*& studentList) {
 	while (studentList != nullptr) {
 		deleteCourseInfo(studentList->myCourse);
@@ -177,6 +216,8 @@ void deleteCourseInfo(CourseInfo*& courseInfo) {
 		delete temp;
 	}
 }
+
+// Search "User.txt" to find password of a username.
 string findPasswordFromUsername(string username) {
 	ifstream in("Database/User.txt");
 	string user, pw, type;
@@ -185,6 +226,8 @@ string findPasswordFromUsername(string username) {
 			return pw;
 	return NULL;
 }
+
+// Print a single student's info.
 void printStudentInfo(Student*& student) {
 	cout << "Student info:\n";
 	cout << "\tUsername: " << student->username << "\n";
@@ -209,6 +252,8 @@ void printStudentInfo(Student*& student) {
 	}
 	cout << "\n";
 }
+
+// Read a "<class-name>.txt" file to a Student linked list.
 void readClassFromFile(string className, Student*& studentList) {
 	ifstream in("Database/Class/" + className + ".txt");
 	Student* current = studentList;
@@ -257,6 +302,8 @@ void readClassFromFile(string className, Student*& studentList) {
 	}
 	in.close();
 }
+
+// Read a "<course-name>.txt" file to a Course.
 void readCourseFromFile(CourseInfo* courseInfo, Course*& course) {
 	// File path of course including academic year, semester and course name.
 	string filepath = "Database/"
@@ -363,6 +410,8 @@ void readCourseFromFile(CourseInfo* courseInfo, Course*& course) {
 		in.close();
 	}
 }
+
+// Write/overwrite a "<course-name>.txt" file from a Course.
 void writeCourseToFile(Course*& course) {
 	// File path of course including academic year, semester and course name.
 	string filepath = "Database/"
@@ -414,6 +463,8 @@ void writeCourseToFile(Course*& course) {
 	}
 	out.close();
 }
+
+// Delete linked lists associated with Course.
 void deleteSessionInfo(SessionInfo*& sessionInfo) {
 	while (sessionInfo != nullptr) {
 		SessionInfo* temp = sessionInfo;
