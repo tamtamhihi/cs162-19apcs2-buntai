@@ -15,6 +15,7 @@ void viewListOfClasses(); // 2.6
 
 
 // ====== STAFF - COURSE ======
+void importCourseFromCsv(); // 3.2
 
 
 // ====== STAFF - SCOREBOARD ======
@@ -34,7 +35,7 @@ void toUpper(string& text);
 void toLower(string& text);
 string toUsername(string fullName);
 string toPassword(Date dob);
-Date getDob(string dob);
+Date getDate(string dob);
 string toFormalCase(string name);
 bool isClassExist(string className);
 

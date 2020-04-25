@@ -3,6 +3,9 @@
 
 // ========= STAFF'S FUNCTIONS DEFINITION =========
 
+
+// ====== STAFF - CLASS ======
+
 // 2.1
 void importStudentFromCsv() {
 	string filepath, className; // store the path to CSV file
@@ -60,12 +63,12 @@ void importStudentFromCsv() {
 			currentStudent = currentStudent->next;
 		}
 		currentStudent->username = getValidUsername(lastName + " " + firstName);
-		currentStudent->password = toPassword(getDob(dob));
+		currentStudent->password = toPassword(getDate(dob));
 		currentStudent->status = 1;
 		currentStudent->name = lastName + " " + firstName;
 		currentStudent->studentId = studentId;
 		currentStudent->gender = (gender == "male") ? MALE : FEMALE;
-		currentStudent->dob = getDob(dob);
+		currentStudent->dob = getDate(dob);
 		currentStudent->numberOfCourse = 0;
 		currentStudent->myCourse = nullptr;
 		currentStudent->next = nullptr;
@@ -97,7 +100,7 @@ void manuallyAddStudent() {
 	getline(info, className, ',');
 	toUpper(className);
 	getline(info, dob, ',');
-	Date Dob = getDob(dob);
+	Date Dob = getDate(dob);
 	getline(info, gender, ',');
 	toLower(gender);
 	string username = getValidUsername(name), password = toPassword(Dob);
@@ -212,7 +215,7 @@ void editExistingStudent() {
 		else {
 			cout << "New date of birth yyyy-mm-dd: ";
 			cin >> row;
-			Date Dob = getDob(row);
+			Date Dob = getDate(row);
 			cout << "Do you want to change date of birth from "
 				<< editedStudent->dob.day << "-"
 				<< editedStudent->dob.month << "-"
@@ -265,8 +268,14 @@ void viewListOfClasses() {
 		cout << "List of classes:\n";
 		string className;
 		while (in >> className)
-			cout << className << endl;
+			cout << "\t" << className << endl;
+		cout << endl;
 
 		in.close();
 	}
 }
+
+
+// ====== STAFF - COURSE ======
+
+// 3.2

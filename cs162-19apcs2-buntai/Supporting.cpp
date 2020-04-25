@@ -34,17 +34,17 @@ string toPassword(Date dob) {
 	password += to_string(dob.year);
 	return password;
 }
-Date getDob(string dob) {
-	stringstream DOB(dob);
+Date getDate(string date) {
+	stringstream DATEss(date);
 	string year, month, day;
-	getline(DOB, year, '-');
-	getline(DOB, month, '-');
-	getline(DOB, day, '-');
-	Date Dob;
-	Dob.day = stoi(day);
-	Dob.month = stoi(month);
-	Dob.year = stoi(year);
-	return Dob;
+	getline(DATEss, year, '-');
+	getline(DATEss, month, '-');
+	getline(DATEss, day, '-');
+	Date DATE;
+	DATE.day = stoi(day);
+	DATE.month = stoi(month);
+	DATE.year = stoi(year);
+	return DATE;
 }
 string toFormalCase(string name) {
 	stringstream text(name);
