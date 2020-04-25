@@ -2,7 +2,7 @@
 
 
 // ========= STAFF'S FUNCTIONS DEFINITION =========
-
+// ================ STAFF - CLASS =================
 // 2.1
 void importStudentFromCsv() {
 	string filepath, className; // store the path to CSV file
@@ -292,7 +292,7 @@ void removeStudent() {
 	}
 
 	// Change status of student
-	current->status = 0;
+	removeStudent->status = 0;
 
 	// Save students to class file.
 	writeClassToFile(studentList, className);
@@ -302,7 +302,10 @@ void removeStudent() {
 
 	cout << "Remove student successfully.\n\n";
 }
+// 2.5 
+void changeStudentClass() {
 
+}
 // 2.6
 void viewListOfClasses() {
 	ifstream in;
@@ -316,4 +319,35 @@ void viewListOfClasses() {
 
 		in.close();
 	}
+}
+
+// 2.7 
+void viewListOfStudentInAClass() {
+	// Ask for class name.
+	cout << "Please enter class name: ";
+	string className;
+	getline(cin, className);
+
+	// Check if class exists.
+	if (!isClassExist(className)) {
+		cout << "Edit failed. Error: Can't find class.\n\n";
+		return;
+	}
+
+	// Read all students' information in class.
+	Student* studentList = nullptr;
+	readClassFromFile(className, studentList);
+
+	// Print all students' name in class.
+	Student* studentCur = studentList;
+	cout << "The list of students in class " << className << " :\n";
+	while (studentCur != nullptr) {
+		if(studentCur->status == 1)
+		    cout << "\t" << studentCur->name << endl;
+		studentCur = studentCur->next;
+	}
+	cout << "The list has been loaded successfully.\n\n";
+
+	// Delete linked lists.
+	deleteStudentList(studentList);
 }
