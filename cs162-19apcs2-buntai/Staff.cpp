@@ -256,6 +256,53 @@ void editExistingStudent() {
 	cout << "Edit student successfully.\n\n";
 }
 
+// 2.4
+void removeStudent() {
+	// Ask for class and student ID.
+	cout << "Please input student class with the same format:\n";
+	cout << "<class-name>,<studentId>\n\t";
+	string row, className, id, password;
+	getline(cin, row);
+	cout << "\n";
+	stringstream info(row);
+	getline(info, className, ',');
+	toUpper(className);
+	getline(info, id);
+
+	// Check if class exists.
+	if (!isClassExist(className)) {
+		cout << "Edit failed. Error: Can't find class.\n\n";
+		return;
+	}
+
+	// Read all students' information in class.
+	Student* studentList = nullptr;
+	readClassFromFile(className, studentList);
+	Student* current = studentList, * removeStudent = nullptr;
+	while (current != nullptr) {
+		if (current->studentId == id) {
+			removeStudent = current;
+			break;
+		}
+		current = current->next;
+	}
+	if (removeStudent == nullptr) {
+		cout << "Edit failed. Error: Can't find student in class.\n\n";
+		return;
+	}
+
+	// Change status of student
+	current->status = 0;
+
+	// Save students to class file.
+	writeClassToFile(studentList, className);
+
+	// Delete linked lists.
+	deleteStudentList(studentList);
+
+	cout << "Remove student successfully.\n\n";
+}
+
 // 2.6
 void viewListOfClasses() {
 	ifstream in;

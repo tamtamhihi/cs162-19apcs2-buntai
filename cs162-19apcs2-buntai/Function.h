@@ -11,6 +11,7 @@ void login();//1.1
 void importStudentFromCsv(); // 2.1
 void manuallyAddStudent(); // 2.2
 void editExistingStudent(); // 2.3
+void removeStudent(); //2.4
 void viewListOfClasses(); // 2.6
 
 
