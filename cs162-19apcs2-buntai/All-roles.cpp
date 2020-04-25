@@ -2,15 +2,16 @@
 
 // ========= ALL-ROLES' FUNCTIONS DEFINITION =========
 void login() {
-	AllRole newturn, check;
+	string newturnname, newturnpassword, checkname, checkpassword;
+	int newturnrole;
 	//get login info from user
 	cout << "\tHello, Welcome to the program" << endl;
 	cout << "\tFor login, please enter your username and password" << endl;
 	cout << "\tUsername:";
-	getline(std::cin, newturn.username);
+	getline(std::cin, newturnname);
 	cout << endl;
 	cout << "\tPassword:";
-	getline(std::cin, newturn.password);
+	getline(std::cin, newturnpassword);
 	cout << endl;
 	//check the login information
 	ifstream in;
@@ -19,14 +20,14 @@ void login() {
 	else
 	{
 		while (in) {
-			getline(in, check.username);
-			getline(in, check.password);
-			if (newturn.username == check.username && newturn.password == check.password)
+			getline(in, checkname);
+			getline(in, checkpassword);
+			if (newturnname == checkname && newturnpassword == checkpassword)
 			{
-				in >> newturn.role;
+				in >> newturnrole;
 				in.close();
-				cout << "\tHello " << newturn.username << endl;
-				return;
+				cout << "\tHello " << newturnname << endl;
+				return ;
 			}
 		}
 	}

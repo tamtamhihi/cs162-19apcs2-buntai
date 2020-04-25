@@ -149,6 +149,9 @@
     <ClCompile Include="Student.cpp" />
     <ClCompile Include="Supporting.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="user.txt" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
