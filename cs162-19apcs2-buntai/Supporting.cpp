@@ -185,6 +185,23 @@ string findPasswordFromUsername(string username) {
 			return pw;
 	return NULL;
 }
+Lecturer findLecturerFromUsername(string username) {
+	Lecturer result;
+	ifstream in("Database/Lecturer.txt");
+	string user, pw, name, title;
+	int gender;
+	while (in >> user >> pw >> name >> title >> gender) {
+		if (user == username) {
+			result.username = user;
+			result.password = pw;
+			result.name = name;
+			result.title = title;
+			result.gender = gender;
+			return result;
+		}
+		cin.get();
+	}
+}
 void printStudentInfo(Student*& student) {
 	cout << "Student info:\n";
 	cout << "\tUsername: " << student->username << "\n";

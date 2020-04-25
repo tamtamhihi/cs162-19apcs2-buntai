@@ -34,8 +34,8 @@ void importCourseFromCsv(); // 3.2
 void toUpper(string& text);
 void toLower(string& text);
 string toUsername(string fullName);
-string toPassword(Date dob);
-Date getDate(string dob);
+string toPassword(Date date);
+Date getDate(string date);
 string toFormalCase(string name);
 bool isClassExist(string className);
 
@@ -50,6 +50,7 @@ void addClass(string className);
 void deleteStudentList(Student*& studentList);
 void deleteCourseInfo(CourseInfo*& courseInfo);
 string findPasswordFromUsername(string username);
+Lecturer findLecturerFromUsername(string username);
 void printStudentInfo(Student*& student);
 void readClassFromFile(string className, Student*& studentList);
 void readCourseFromFile(CourseInfo* courseInfo, Course*& course);

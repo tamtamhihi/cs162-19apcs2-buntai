@@ -279,3 +279,77 @@ void viewListOfClasses() {
 // ====== STAFF - COURSE ======
 
 // 3.2
+void importCourseFromCsv() {
+	string filepath; // store the path to CSV file
+	int academicYear;
+	string semester;
+	cout << "Academic year: ";
+	cin >> academicYear; // store academic year
+	cout << "Semester: ";
+	cin >> semester; // store semester
+	cout << "Enter the path to CSV file: ";
+	cout << "\n";
+
+	// Try to open file at given filepath.
+	ifstream in;
+	in.open(filepath);
+	while (!in.is_open()) {
+		cout << "The file path you entered is not valid.\n";
+		cout << "Please input another path or ""0"" to stop: ";
+		cin >> filepath;
+		cout << "\n";
+		if (filepath == "0")
+			return;
+		in.open(filepath);
+	}
+
+	// Read all information from csv.
+	Course* currentCourse = nullptr;
+	string row, no, courseId, courseName, defautClass, lecturerAccount, 
+		   startDate, endDate, dayOfWeek, startHour, endHour, room;
+
+	// Count the columns to make sure the csv is in the right format.
+	getline(in, row);
+	stringstream columnNames(row);
+	int columnCount = 0;
+	while (getline(columnNames, no, ','))
+		columnCount++;
+	if (columnCount != 11) {
+		cout << "Import unsuccesful. Error: The number of columns is not compatible.\n\n";
+		in.close();
+		return;
+	}
+	while (getline(in, row)) {
+		stringstream thisRow(row);
+		getline(thisRow, no, ',');
+		getline(thisRow, courseId, ',');
+		getline(thisRow, courseName, ',');
+		getline(thisRow, defautClass, ',');
+		getline(thisRow, lecturerAccount, ',');
+		getline(thisRow, startDate, ',');
+		getline(thisRow, endDate, ',');
+		getline(thisRow, dayOfWeek, ',');
+		getline(thisRow, startHour, ',');
+		getline(thisRow, endHour, ',');
+		getline(thisRow, room, ',');
+
+		currentCourse = new Course;
+		currentCourse->academicYear = academicYear;
+		currentCourse->semester = semester;
+		currentCourse->courseId = courseId;
+		currentCourse->courseName = courseName;
+		currentCourse->defaultClass = defautClass;
+		currentCourse->lecturer = findLecturerFromUsername(lecturerAccount);
+		currentCourse->startDate = getDate(startDate);
+		currentCourse->endDate = getDate(endDate);
+
+	}
+	in.close();
+
+	// Write to database.
+	writeClassToFile(studentList, className);
+	addClass(className);
+	addStudentUsers(studentList);
+	deleteStudentList(studentList);
+	cout << "Import succesful. You can find the database at folder Database/Class.\n\n";
+}
