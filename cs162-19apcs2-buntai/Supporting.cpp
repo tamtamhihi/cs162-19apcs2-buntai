@@ -89,6 +89,81 @@ bool isClassExist(string className) {
 	return false;
 }
 
+// Convert day of week to number.
+int dayToNumber(string dayOfWeek) {
+	if (dayOfWeek == "Sun") return 1;
+	if (dayOfWeek == "Mon") return 2;
+	if (dayOfWeek == "Tue") return 3;
+	if (dayOfWeek == "Wed") return 4;
+	if (dayOfWeek == "Thu") return 5;
+	if (dayOfWeek == "Fri") return 6;
+	if (dayOfWeek == "Sat") return 7;
+}
+
+// Get day of week from given date.
+int getDayOfWeek(Date date) {
+	static int t[] = { 0, 3, 2, 5, 0, 3,
+					   5, 1, 4, 6, 2, 4 };
+	date.year -= date.month < 3;
+	return (date.year + date.year / 4 - date.year / 100 +
+		date.year / 400 + t[date.month - 1] + date.day) % 7 + 1;
+}
+
+// Determine leap year.
+bool isLeap(int year) {
+	return ((year % 4 == 0 && year % 100 != 0) || year % 400 == 0);
+}
+
+// Get number of days in given month.
+int daysInMonth(int month, int year) {
+	switch (month) {
+		case 2:
+			if (isLeap(year)) return 29;
+			else return 28;
+		case 4:
+		case 6:
+		case 9:
+		case 11: return 30;
+		default: return 31;
+	}
+}
+
+// Calculate days between two dates.
+int calculateDaysBetDates(Date startDate, Date endDate) {
+	int daysBetween = 0;
+	for (int i = startDate.year; i < endDate.year; ++i)
+		daysBetween += (isLeap(i)) ? 366 : 365;
+	if (startDate.month < endDate.month)
+		for (int i = startDate.month; i < endDate.month; ++i)
+			daysBetween += daysInMonth(i, endDate.year);
+	else
+		for (int i = endDate.month; i < startDate.month; ++i)
+			daysBetween -= daysInMonth(i, endDate.year - 1);
+	daysBetween += endDate.day - startDate.day;
+	return daysBetween;
+}
+
+// Calculate total sessions based on start date, end date and day of week.
+int calculateTotalSessions(Course* course) {
+	int daysInStudyWeeks = calculateDaysBetDates(course->startDate, course->endDate);
+	daysInStudyWeeks += getDayOfWeek(course->startDate) - 1;
+	daysInStudyWeeks += 7 - getDayOfWeek(course->endDate);
+	return daysInStudyWeeks / 7 * course->sessionsPerWeek;
+}
+
+// Determine the date for next session.
+// Note: applied for days <= 7.
+Date dateAfterDays(Date startDate, int days) {
+	int day = startDate.day, month = startDate.month, year = startDate.year;
+	day += days;
+	if (day > daysInMonth(startDate.month, startDate.year)) {
+		day -= daysInMonth(startDate.month, startDate.year);
+		if (startDate.month == 12)
+			year++;
+	}
+	return { day, month, year };
+}
+
 
 
 /* 

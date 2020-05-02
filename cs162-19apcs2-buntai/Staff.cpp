@@ -387,7 +387,7 @@ void importCourseFromCsv() {
 	// Read all information from csv.
 	Course* currentCourse = nullptr;
 	string row, no, courseId, courseName, defautClass, lecturerAccount, 
-		   startDate, endDate, dayOfWeek, startHour, endHour, room;
+		   startDate, endDate, sessionsPerWeek, dayOfWeek, startHour, endHour, room;
 
 	// Count the columns to make sure the csv is in the right format.
 	getline(in, row);
@@ -395,13 +395,15 @@ void importCourseFromCsv() {
 	int columnCount = 0;
 	while (getline(columnNames, no, ','))
 		columnCount++;
-	if (columnCount != 11) {
+	if (columnCount != 12) {
 		cout << "Import unsuccesful. Error: The number of columns is not compatible.\n\n";
 		in.close();
 		return;
 	}
 	while (getline(in, row)) {
 		stringstream thisRow(row);
+
+		// Read from courseId to sessionsPerWeek information.
 		getline(thisRow, no, ',');
 		getline(thisRow, courseId, ',');
 		getline(thisRow, courseName, ',');
@@ -409,10 +411,12 @@ void importCourseFromCsv() {
 		getline(thisRow, lecturerAccount, ',');
 		getline(thisRow, startDate, ',');
 		getline(thisRow, endDate, ',');
-		getline(thisRow, dayOfWeek, ',');
-		getline(thisRow, startHour, ',');
-		getline(thisRow, endHour, ',');
-		getline(thisRow, room, ',');
+		getline(thisRow, sessionsPerWeek, ',');
+
+		if (!isClassExist(defautClass)) {
+			cout << "Import failed. Error: Can't find default class.\n\n";
+			return;
+		} // Check if class exists.
 
 		currentCourse = new Course;
 		currentCourse->academicYear = academicYear;
@@ -423,14 +427,119 @@ void importCourseFromCsv() {
 		currentCourse->lecturer = findLecturerFromUsername(lecturerAccount);
 		currentCourse->startDate = getDate(startDate);
 		currentCourse->endDate = getDate(endDate);
+		currentCourse->sessionsPerWeek = stoi(sessionsPerWeek);
+		
+		// Read sessionInfo information.
+		currentCourse->sessionInfo = nullptr;
+		SessionInfo* currentSession = nullptr;
+		thisRow.get();
+		int i = currentCourse->sessionsPerWeek;
+		for (int i = 0; i < currentCourse->sessionsPerWeek; ++i) {
+			getline(thisRow, dayOfWeek, ',');
+			if (currentCourse->sessionInfo == nullptr) {
+				currentCourse->sessionInfo = new SessionInfo;
+				currentSession = currentCourse->sessionInfo;
+			}
+			else {
+				currentSession->next = new SessionInfo;
+				currentSession = currentSession->next;
+			}
+			currentSession->day = dayToNumber(dayOfWeek);
+			currentSession->next = nullptr;
+		}
+		thisRow.get();
+		thisRow.get();
+		thisRow.get();
+		currentSession = currentCourse->sessionInfo;
+		while (currentSession != nullptr) {
+			getline(thisRow, startHour, ',');
+			stringstream STARTHOUR(startHour);
+			string HOUR, MINUTE;
+			STARTHOUR >> HOUR >> MINUTE;
+			currentSession->startTime.hour = stoi(HOUR);
+			currentSession->startTime.minute = stoi(MINUTE);
+			currentSession = currentSession->next;
+		}
+		thisRow.get();
+		thisRow.get();
+		thisRow.get();
+		currentSession = currentCourse->sessionInfo;
+		while (currentSession != nullptr) {
+			getline(thisRow, endHour, ',');
+			stringstream ENDHOUR(endHour);
+			string HOUR, MINUTE;
+			ENDHOUR >> HOUR >> MINUTE;
+			currentSession->endTime.hour = stoi(HOUR);
+			currentSession->endTime.minute = stoi(MINUTE);
+			currentSession = currentSession->next;
+		}
+		thisRow.get();
 
+		// Read room information.
+		getline(thisRow, room, ',');
+		currentCourse->room = room;
+
+		// Calculate total sessions.
+		currentCourse->totalSessions = calculateTotalSessions(currentCourse);
+
+		// Read enrolled students information.
+		readClassFromFile(defautClass, currentCourse->students);
+		currentCourse->studentCourseInfo = nullptr;
+		Student* currentStudent = currentCourse->students;
+		StudentCourseInfo* currentStudentInfo = nullptr;
+		while (currentStudent != nullptr) {
+			if (currentCourse->studentCourseInfo == nullptr) {
+				currentCourse->studentCourseInfo = new StudentCourseInfo;
+				currentStudentInfo = currentCourse->studentCourseInfo;
+			}
+			else {
+				currentStudentInfo = new StudentCourseInfo;
+				currentStudentInfo = currentStudentInfo->next;
+			}
+			currentStudentInfo->midterm = 0;
+			currentStudentInfo->final = 0;
+			currentStudentInfo->lab = 0;
+			currentStudentInfo->bonus = 0;
+			currentStudentInfo->next = nullptr;
+			currentStudentInfo->attendance = nullptr;
+			Attendance* currentAttendance = nullptr;
+			Date nextSession = currentCourse->startDate;
+			SessionInfo* currentSession = currentCourse->sessionInfo;
+			int* daysToNext = new int[currentCourse->sessionsPerWeek], count = 0;
+			while (currentSession != nullptr && currentSession->next != nullptr) {
+				daysToNext[count] = currentSession->next->day - currentSession->day; ++count;
+				currentSession = currentSession->next;
+			}
+			daysToNext[count] = 7 - currentSession->day; // Create array storing days to next session.
+			currentSession->next = currentCourse->sessionInfo; // Link currentSessions circularly.
+			for (int i = 0; i < currentCourse->totalSessions; ++i) {
+				if (currentStudentInfo->attendance == nullptr) {
+					currentStudentInfo->attendance = new Attendance;
+					currentAttendance = currentStudentInfo->attendance;
+				}
+				else {
+					currentAttendance->next = new Attendance;
+					currentAttendance = currentAttendance->next;
+				}
+				currentAttendance->date = nextSession;
+				currentAttendance->startTime = currentSession->startTime;
+				currentAttendance->endTime = currentSession->endTime;
+				currentAttendance->time.hour = 0;
+				currentAttendance->time.minute = 0;
+				currentAttendance->next = nullptr;
+				nextSession = dateAfterDays(nextSession, i % currentCourse->sessionsPerWeek);
+				currentSession = currentSession->next;
+				currentStudent = currentStudent->next;
+			}
+			delete[] daysToNext;
+		}
+
+		// Write to database.
+		writeCourseToFile(currentCourse);
+		deleteCourse(currentCourse);
 	}
 	in.close();
 
-	// Write to database.
-	writeClassToFile(studentList, className);
-	addClass(className);
-	addStudentUsers(studentList);
-	deleteStudentList(studentList);
-	cout << "Import succesful. You can find the database at folder Database/Class.\n\n";
+	cout << "Import successful. You can find the database at folder Database/" 
+		<< academicYear << "-" << academicYear + 1 << "/" << semester << ".\n\n";
 }

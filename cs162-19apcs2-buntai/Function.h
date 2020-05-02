@@ -40,6 +40,13 @@ string toPassword(Date date);
 Date getDate(string date);
 string toFormalCase(string name);
 bool isClassExist(string className);
+int dayToNumber(string dayOfWeek);
+int getDayOfWeek(Date date);
+bool isLeap(int year);
+int daysInMonth(int month, int year);
+int calculateDaysBetDates(Date startDate, Date endDate);
+int calculateTotalSessions(Course* course);
+Date dateAfterDays(Date startDate, int days);
 
 
 // ====== APP-RELATED ======
