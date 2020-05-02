@@ -167,7 +167,7 @@ void editExistingStudent() {
 		}
 		current = current->next;
 	}
-	if (editedStudent == nullptr) {
+	if (editedStudent == nullptr || editedStudent->status == 0) {
 		cout << "Edit failed. Error: Can't find student in class.\n\n";
 		return;
 	}
@@ -264,7 +264,7 @@ void removeStudent() {
 	// Ask for class and student ID.
 	cout << "Please input student class with the same format:\n";
 	cout << "<class-name>,<studentId>\n\t";
-	string row, className, id, password;
+	string row, className, id;
 	getline(cin, row);
 	cout << "\n";
 	stringstream info(row);
@@ -289,7 +289,7 @@ void removeStudent() {
 		}
 		current = current->next;
 	}
-	if (removeStudent == nullptr) {
+	if (removeStudent == nullptr || removeStudent->status == 0) {
 		cout << "Edit failed. Error: Can't find student in class.\n\n";
 		return;
 	}
@@ -307,7 +307,80 @@ void removeStudent() {
 }
 // 2.5 
 void changeStudentClass() {
+	// Ask for the input.
+	cout << "Please input student'ID, old class and new class of that student with the same fotmat:\n";
+	cout << "<studentID>,<oldClass>,<newClass>\n\t";
+	string row, id, oldClass, newClass;
+	getline(cin, row);
+	cout << "\n";
+	stringstream info(row);
+	getline(info, id, ',');
+	getline(info, oldClass, ',');
+	toUpper(oldClass);
+	getline(info, newClass);
+	toUpper(newClass);
 
+	// Check if old class exists.
+	if (!isClassExist(oldClass)) {
+		cout << "Edit failed. Error: Can't find old class.\n\n";
+		return;
+	}
+
+	// Check if new class exists.
+	if (!isClassExist(newClass)) {
+		cout << "Edit failed. Error: Can't find new class.\n\n";
+		return;
+	}
+
+	// Find student in old class.
+	Student* studentList = nullptr;
+	readClassFromFile(oldClass, studentList);
+	Student* current = studentList, * changeStudent = nullptr;
+	while (current != nullptr) {
+		if (current->studentId == id) {
+			changeStudent = current;
+			break;
+		}
+		current = current->next;
+	}
+	if (changeStudent == nullptr || changeStudent->status == 0) {
+		cout << "Edit failed. Error: Can't find student in old class.\n\n";
+		return;
+	}
+
+	// Change status of the student in old class.
+	changeStudent->status = 0;
+
+	// Save old class file.
+	writeClassToFile(studentList, oldClass);
+	
+	// Write info of student to new class.
+	ofstream out;
+	out.open("Database/Class/" + newClass + ".txt", ios::app);
+	out << changeStudent->username <<"\n";
+	out << 1 <<"\n";
+	out << changeStudent->name << "\n";
+	out << changeStudent->studentId << "\n";
+	out << changeStudent->gender << "\n";
+	out << changeStudent->dob.day << " "
+		<< changeStudent->dob.month << " "
+		<< changeStudent->dob.year << " " << "\n";
+	out << changeStudent->numberOfCourse << "\n";
+	CourseInfo* changeCourseInfo = changeStudent->myCourse;
+	while (changeCourseInfo != nullptr) {
+		out << changeCourseInfo->academicYear << " "
+			<< changeCourseInfo->academicYear + 1 << " "
+			<< changeCourseInfo->semester << " "
+			<< changeCourseInfo->courseName << "\n";
+		changeCourseInfo = changeCourseInfo->next;
+	}
+	out << "\n";
+	out.close();
+
+	// Delete linked lists.
+	deleteStudentList(studentList);
+
+	cout << "Change class of student successfully" << endl;
 }
 // 2.6
 void viewListOfClasses() {
@@ -360,7 +433,7 @@ void viewListOfStudentInAClass() {
 // ====== STAFF - COURSE ======
 
 // 3.2
-void importCourseFromCsv() {
+/*void importCourseFromCsv() {
 	string filepath; // store the path to CSV file
 	int academicYear;
 	string semester;
@@ -543,3 +616,4 @@ void importCourseFromCsv() {
 	cout << "Import successful. You can find the database at folder Database/" 
 		<< academicYear << "-" << academicYear + 1 << "/" << semester << ".\n\n";
 }
+*/

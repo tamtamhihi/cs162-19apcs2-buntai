@@ -6,12 +6,17 @@
 
 // ====== ALL-ROLES ======
 void login(string& username, int& userrole); // 1.1
+void showmenu(int& userrole); // 1.2
+void staffmenu();
+void lecturermenu();
+void studentmenu();
 
 // ====== STAFF - CLASS ======
 void importStudentFromCsv(); // 2.1
 void manuallyAddStudent(); // 2.2
 void editExistingStudent(); // 2.3
-void removeStudent(); //2.4
+void removeStudent(); // 2.4
+void changeStudentClass(); // 2.5
 void viewListOfClasses(); // 2.6
 void viewListOfStudentInAClass(); // 2.7
 
