@@ -305,6 +305,7 @@ void removeStudent() {
 
 	cout << "Remove student successfully.\n\n";
 }
+
 // 2.5 
 void changeStudentClass() {
 	// Ask for the input.
@@ -382,6 +383,7 @@ void changeStudentClass() {
 
 	cout << "Change class of student successfully" << endl;
 }
+
 // 2.6
 void viewListOfClasses() {
 	ifstream in;
@@ -442,6 +444,7 @@ void importCourseFromCsv() {
 	cout << "Semester: ";
 	cin >> semester; // store semester
 	cout << "Enter the path to CSV file: ";
+	cin >> filepath;
 	cout << "\n";
 
 	// Try to open file at given filepath.
@@ -546,6 +549,7 @@ void importCourseFromCsv() {
 			currentSession->endTime.minute = stoi(MINUTE);
 			currentSession = currentSession->next;
 		}
+		thisRow.get();
 		thisRow.get();
 
 		// Read room information.

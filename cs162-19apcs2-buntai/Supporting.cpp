@@ -512,7 +512,8 @@ void writeCourseToFile(Course*& course) {
 		+ to_string(course->academicYear) + "-"
 		+ to_string(course->academicYear + 1) + "/"
 		+ course->semester + "/"
-		+ course->courseId + ".txt";
+		+ course->courseId + "-"
+		+ course->defaultClass + ".txt";
 	ofstream out(filepath);
 	out << course->courseId << "\n" 
 		<< course->courseName << "\n" 
