@@ -433,7 +433,7 @@ void viewListOfStudentInAClass() {
 // ====== STAFF - COURSE ======
 
 // 3.2
-/*void importCourseFromCsv() {
+void importCourseFromCsv() {
 	string filepath; // store the path to CSV file
 	int academicYear;
 	string semester;
@@ -616,4 +616,3 @@ void viewListOfStudentInAClass() {
 	cout << "Import successful. You can find the database at folder Database/" 
 		<< academicYear << "-" << academicYear + 1 << "/" << semester << ".\n\n";
 }
-*/
