@@ -29,6 +29,7 @@ struct Time {
 struct CourseInfo {
 	int academicYear;
 	string semester, courseName;
+	string defaultClass;
 	CourseInfo* next;
 };
 struct Student {

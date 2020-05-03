@@ -23,6 +23,7 @@ void viewListOfStudentInAClass(); // 2.7
 
 // ====== STAFF - COURSE ======
 void importCourseFromCsv(); // 3.2
+void manuallyAddCourse(); // 3.3
 
 
 // ====== STAFF - SCOREBOARD ======
@@ -52,6 +53,7 @@ int daysInMonth(int month, int year);
 int calculateDaysBetDates(Date startDate, Date endDate);
 int calculateTotalSessions(Course* course);
 Date dateAfterDays(Date startDate, int days);
+Time getTime(string time);
 
 
 // ====== APP-RELATED ======

@@ -529,11 +529,7 @@ void importCourseFromCsv() {
 		currentSession = currentCourse->sessionInfo;
 		while (currentSession != nullptr) {
 			getline(thisRow, startHour, ',');
-			stringstream STARTHOUR(startHour);
-			string HOUR, MINUTE;
-			STARTHOUR >> HOUR >> MINUTE;
-			currentSession->startTime.hour = stoi(HOUR);
-			currentSession->startTime.minute = stoi(MINUTE);
+			currentSession->startTime = getTime(startHour);
 			currentSession = currentSession->next;
 		}
 		thisRow.get();
@@ -542,11 +538,7 @@ void importCourseFromCsv() {
 		currentSession = currentCourse->sessionInfo;
 		while (currentSession != nullptr) {
 			getline(thisRow, endHour, ',');
-			stringstream ENDHOUR(endHour);
-			string HOUR, MINUTE;
-			ENDHOUR >> HOUR >> MINUTE;
-			currentSession->endTime.hour = stoi(HOUR);
-			currentSession->endTime.minute = stoi(MINUTE);
+			currentSession->endTime = getTime(endHour);
 			currentSession = currentSession->next;
 		}
 		thisRow.get();
@@ -620,3 +612,88 @@ void importCourseFromCsv() {
 	cout << "Import successful. You can find the database at folder Database/" 
 		<< academicYear << "-" << academicYear + 1 << "/" << semester << ".\n\n";
 }
+
+// 3.3
+//void manuallyAddCourse() {
+//	// Ask for information in one line.
+//	cout << "Please input the following information with the same format:\n";
+//	cout << "<academic-year>,<semester>,<course-id>,<course-name>,<default-class>,<lecturer-account>,"
+//		 << "<start-date yyyy-mm-dd>,<end-date yyyy-mm-dd>,<sessions-per-week>,"
+//		 << "<day-of-week-1>,<start-hour-1>,<end-hour-1>,(...)<room>\n\t";
+//	string row, academicYear, semester, courseId, courseName, defautClass, lecturerAccount,
+//		   startDate, endDate, sessionsPerWeek, dayOfWeek, startHour, endHour, room;
+//	getline(cin, row);
+//	cout << "\n";
+//
+//	// Retrieve each information.
+//	stringstream info(row);
+//	getline(info, courseId, ',');
+//	getline(info, courseName, ',');
+//	getline(info, defautClass, ',');
+//	getline(info, lecturerAccount, ',');
+//	getline(info, startDate, ',');
+//	getline(info, endDate, ',');
+//	getline(info, sessionsPerWeek, ',');
+//	int sessionsNum = stoi(sessionsPerWeek);
+//	SessionInfo* sessionInfo = new SessionInfo[sessionsNum];
+//	for (int i = 0; i < sessionsNum; ++i) {
+//		getline(info, dayOfWeek, ',');
+//		getline(info, startHour, ',');
+//		getline(info, endHour, ',');
+//		sessionInfo[i].day = dayToNumber(dayOfWeek);
+//		sessionInfo[i].startTime = getTime(startHour);
+//		sessionInfo[i].endTime = getTime(endHour);
+//	}
+//	getline(info, room, ',');
+//
+//	// Ask again.
+//	cout << "Course info:\n";
+//	cout << "\tAcademic year: " << academicYear << "\n";
+//	cout << "\tSemester: " << semester << "\n";
+//	cout << "\tCourse ID: " << courseId << "\n";
+//	cout << "\tCourse name: " << courseName << "\n";
+//	cout << "\tDefault class: " << defautClass << "\n";
+//	cout << "\tLecturer Account: " << lecturerAccount << "\n";
+//	cout << "\tStart date: " << startDate << "\n";
+//	cout << "\tEnd date: " << endDate << "\n";
+//	cout << "\tSessions per week: " << sessionsPerWeek << "\n";
+//	cout << "\tSessions info:\n";
+//	for (int i = 0; i < sessionsNum; ++i) {
+//		cout << "\t\tSection " << i + 1 << ": \n";
+//		cout << "\t\tDay: " << sessionInfo[i].day << "\n";
+//		cout << "\t\tStart hour: " << sessionInfo[i].startTime.hour << " "
+//								   << sessionInfo[i].startTime.minute << "\n";
+//		cout << "\t\tEnd hour: " << sessionInfo[i].endTime.hour << " "
+//								 << sessionInfo[i].endTime.minute << "\n";
+//	}
+//	cout << "\tRoom: " << room << "\n";
+//	cout << "Do you want to add this course? Y/N\n";
+//	cin >> row;
+//	cout << "\n";
+//	toUpper(row);
+//	if (row == "N")
+//		return;
+//
+//	// Save to database.
+//	string filepath = "Database/"
+//		+ academicYear + "-"
+//		+ to_string(stoi(academicYear) + 1) + "/"
+//		+ semester + "/"
+//		+ courseId + "-"
+//		+ defautClass + ".txt";
+//	ofstream out(filepath);
+//	ofstream out("Database/Class/" + className + ".txt", ios::app);
+//	out << username << "\n" << password << "\n" << 1 << "\n";
+//	out << name << "\n" << studentId << "\n" << genderNum << "\n";
+//	out << Dob.day << " " << Dob.month << " " << Dob.year << "\n";
+//	out << 0 << "\n\n";
+//	out.close();
+//
+//	// Edit other related files.
+//	addClass(className);
+//	addUser(username, password, STUDENT);
+//
+//	delete[] sessionInfo;
+//
+//	cout << "Student added successfully.\n\n";
+//}

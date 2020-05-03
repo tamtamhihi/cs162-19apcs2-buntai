@@ -164,6 +164,14 @@ Date dateAfterDays(Date startDate, int days) {
 	return { day, month, year };
 }
 
+// Retrieve time from a string of form "<hour> <minute>"
+Time getTime(string time) {
+	stringstream TIME(time);
+	string HOUR, MINUTE;
+	TIME >> HOUR >> MINUTE;
+	return { stoi(HOUR), stoi(MINUTE) };
+}
+
 
 
 /* 
@@ -191,7 +199,8 @@ void writeClassToFile(Student*& students, string className) {
 			out << currentCourseInfo->academicYear << " "
 				<< currentCourseInfo->academicYear + 1 << " "
 				<< currentCourseInfo->semester << " "
-				<< currentCourseInfo->courseName << "\n";
+				<< currentCourseInfo->courseName << " "
+				<< currentCourseInfo->defaultClass << "\n";
 			currentCourseInfo = currentCourseInfo->next;
 		}
 		out << "\n";
@@ -351,7 +360,7 @@ void printStudentInfo(Student*& student) {
 void readClassFromFile(string className, Student*& studentList) {
 	ifstream in("Database/Class/" + className + ".txt");
 	Student* current = studentList;
-	string username, name, id, semester, courseName;
+	string username, name, id, semester, courseName, defaultClass;
 	int status, gender, day, month, year, numOfCourse, academicYear;
 	while (in >> username) {
 		in >> status;
@@ -378,7 +387,7 @@ void readClassFromFile(string className, Student*& studentList) {
 		for (int i = 0; i < numOfCourse; ++i) {
 			in >> academicYear;
 			in >> academicYear;
-			in >> semester >> courseName;
+			in >> semester >> courseName >> defaultClass;
 			if (current->myCourse == nullptr) {
 				current->myCourse = new CourseInfo;
 				currentCourse = current->myCourse;
@@ -390,6 +399,7 @@ void readClassFromFile(string className, Student*& studentList) {
 			currentCourse->academicYear = academicYear - 1;
 			currentCourse->courseName = courseName;
 			currentCourse->semester = semester;
+			currentCourse->defaultClass = defaultClass;
 			currentCourse->next = nullptr;
 		}
 		current->next = nullptr;
@@ -397,20 +407,22 @@ void readClassFromFile(string className, Student*& studentList) {
 	in.close();
 }
 
-// Read a "<course-name>.txt" file to a Course.
+// Read a "<course-name>-<default-class>.txt" file to a Course.
 void readCourseFromFile(CourseInfo* courseInfo, Course*& course) {
 	// File path of course including academic year, semester and course name.
 	string filepath = "Database/"
 		+ to_string(courseInfo->academicYear) + "-"
 		+ to_string(courseInfo->academicYear + 1) + "/"
 		+ courseInfo->semester + "/"
-		+ courseInfo->courseName + ".txt";
+		+ courseInfo->courseName + "-"
+		+ courseInfo->defaultClass + ".txt";
 	ifstream in(filepath);
 
 	// Read all information of course.
 	if (in.is_open()) {
 		course->academicYear = courseInfo->academicYear;
 		course->semester = courseInfo->semester;
+		course->defaultClass = courseInfo->defaultClass;
 		// Read general information.
 		in >> course->courseId;
 		in.ignore();
