@@ -552,35 +552,37 @@ void importCourseFromCsv() {
 		currentCourse->totalSessions = calculateTotalSessions(currentCourse);
 
 		// Read enrolled students information.
+		currentCourse->students = nullptr;
 		readClassFromFile(defautClass, currentCourse->students);
 		currentCourse->studentCourseInfo = nullptr;
 		Student* currentStudent = currentCourse->students;
 		StudentCourseInfo* currentStudentInfo = nullptr;
+		
 		while (currentStudent != nullptr) {
 			if (currentCourse->studentCourseInfo == nullptr) {
 				currentCourse->studentCourseInfo = new StudentCourseInfo;
 				currentStudentInfo = currentCourse->studentCourseInfo;
 			}
 			else {
-				currentStudentInfo = new StudentCourseInfo;
+				currentStudentInfo->next = new StudentCourseInfo;
 				currentStudentInfo = currentStudentInfo->next;
 			}
 			currentStudentInfo->midterm = 0;
 			currentStudentInfo->final = 0;
 			currentStudentInfo->lab = 0;
 			currentStudentInfo->bonus = 0;
+			currentStudentInfo->status = 1;
 			currentStudentInfo->next = nullptr;
 			currentStudentInfo->attendance = nullptr;
 			Attendance* currentAttendance = nullptr;
 			Date nextSession = currentCourse->startDate;
+			int daysToNext;
 			SessionInfo* currentSession = currentCourse->sessionInfo;
-			int* daysToNext = new int[currentCourse->sessionsPerWeek], count = 0;
-			while (currentSession != nullptr && currentSession->next != nullptr) {
-				daysToNext[count] = currentSession->next->day - currentSession->day; ++count;
+			// Link session info list circularly.
+			while (currentSession != nullptr && currentSession->next != nullptr)
 				currentSession = currentSession->next;
-			}
-			daysToNext[count] = 7 - currentSession->day; // Create array storing days to next session.
-			currentSession->next = currentCourse->sessionInfo; // Link currentSessions circularly.
+			currentSession->next = currentCourse->sessionInfo;
+			currentSession = currentSession->next;
 			for (int i = 0; i < currentCourse->totalSessions; ++i) {
 				if (currentStudentInfo->attendance == nullptr) {
 					currentStudentInfo->attendance = new Attendance;
@@ -593,14 +595,19 @@ void importCourseFromCsv() {
 				currentAttendance->date = nextSession;
 				currentAttendance->startTime = currentSession->startTime;
 				currentAttendance->endTime = currentSession->endTime;
-				currentAttendance->time.hour = 0;
-				currentAttendance->time.minute = 0;
+				currentAttendance->time = Time{ 0,0 };
 				currentAttendance->next = nullptr;
-				nextSession = dateAfterDays(nextSession, i % currentCourse->sessionsPerWeek);
+				daysToNext = currentSession->next->day - currentSession->day;
+				daysToNext += (daysToNext > 0) ? 0 : 7;
+				nextSession = dateAfterDays(nextSession, daysToNext);
 				currentSession = currentSession->next;
-				currentStudent = currentStudent->next;
 			}
-			delete[] daysToNext;
+			// Unlink circularly.
+			currentSession = currentCourse->sessionInfo->next;
+			while (currentSession->next != currentCourse->sessionInfo)
+				currentSession = currentSession->next;
+			currentSession->next = nullptr;
+			currentStudent = currentStudent->next;
 		}
 
 		// Write to database.
@@ -610,90 +617,151 @@ void importCourseFromCsv() {
 	in.close();
 
 	cout << "Import successful. You can find the database at folder Database/" 
-		<< academicYear << "-" << academicYear + 1 << "/" << semester << ".\n\n";
+		 << academicYear << "-" << academicYear + 1 << "/" << semester << ".\n\n";
 }
 
 // 3.3
-//void manuallyAddCourse() {
-//	// Ask for information in one line.
-//	cout << "Please input the following information with the same format:\n";
-//	cout << "<academic-year>,<semester>,<course-id>,<course-name>,<default-class>,<lecturer-account>,"
-//		 << "<start-date yyyy-mm-dd>,<end-date yyyy-mm-dd>,<sessions-per-week>,"
-//		 << "<day-of-week-1>,<start-hour-1>,<end-hour-1>,(...)<room>\n\t";
-//	string row, academicYear, semester, courseId, courseName, defautClass, lecturerAccount,
-//		   startDate, endDate, sessionsPerWeek, dayOfWeek, startHour, endHour, room;
-//	getline(cin, row);
-//	cout << "\n";
-//
-//	// Retrieve each information.
-//	stringstream info(row);
-//	getline(info, courseId, ',');
-//	getline(info, courseName, ',');
-//	getline(info, defautClass, ',');
-//	getline(info, lecturerAccount, ',');
-//	getline(info, startDate, ',');
-//	getline(info, endDate, ',');
-//	getline(info, sessionsPerWeek, ',');
-//	int sessionsNum = stoi(sessionsPerWeek);
-//	SessionInfo* sessionInfo = new SessionInfo[sessionsNum];
-//	for (int i = 0; i < sessionsNum; ++i) {
-//		getline(info, dayOfWeek, ',');
-//		getline(info, startHour, ',');
-//		getline(info, endHour, ',');
-//		sessionInfo[i].day = dayToNumber(dayOfWeek);
-//		sessionInfo[i].startTime = getTime(startHour);
-//		sessionInfo[i].endTime = getTime(endHour);
-//	}
-//	getline(info, room, ',');
-//
-//	// Ask again.
-//	cout << "Course info:\n";
-//	cout << "\tAcademic year: " << academicYear << "\n";
-//	cout << "\tSemester: " << semester << "\n";
-//	cout << "\tCourse ID: " << courseId << "\n";
-//	cout << "\tCourse name: " << courseName << "\n";
-//	cout << "\tDefault class: " << defautClass << "\n";
-//	cout << "\tLecturer Account: " << lecturerAccount << "\n";
-//	cout << "\tStart date: " << startDate << "\n";
-//	cout << "\tEnd date: " << endDate << "\n";
-//	cout << "\tSessions per week: " << sessionsPerWeek << "\n";
-//	cout << "\tSessions info:\n";
-//	for (int i = 0; i < sessionsNum; ++i) {
-//		cout << "\t\tSection " << i + 1 << ": \n";
-//		cout << "\t\tDay: " << sessionInfo[i].day << "\n";
-//		cout << "\t\tStart hour: " << sessionInfo[i].startTime.hour << " "
-//								   << sessionInfo[i].startTime.minute << "\n";
-//		cout << "\t\tEnd hour: " << sessionInfo[i].endTime.hour << " "
-//								 << sessionInfo[i].endTime.minute << "\n";
-//	}
-//	cout << "\tRoom: " << room << "\n";
-//	cout << "Do you want to add this course? Y/N\n";
-//	cin >> row;
-//	cout << "\n";
-//	toUpper(row);
-//	if (row == "N")
-//		return;
-//
-//	// Save to database.
-//	string filepath = "Database/"
-//		+ academicYear + "-"
-//		+ to_string(stoi(academicYear) + 1) + "/"
-//		+ semester + "/"
-//		+ courseId + "-"
-//		+ defautClass + ".txt";
-//	ofstream out(filepath);
-//	ofstream out("Database/Class/" + className + ".txt", ios::app);
-//	out << username << "\n" << password << "\n" << 1 << "\n";
-//	out << name << "\n" << studentId << "\n" << genderNum << "\n";
-//	out << Dob.day << " " << Dob.month << " " << Dob.year << "\n";
-//	out << 0 << "\n\n";
-//	out.close();
-//
-//	// Edit other related files.
-//	addClass(className);
-//	addUser(username, password, STUDENT);
-//
-//	delete[] sessionInfo;
-//
-//	cout << "Student added successfully.\n\n";
-//}
+void manuallyAddCourse() {
+	// Ask for information in one line.
+	cout << "Please input the following information with the same format:\n";
+	cout << "<academic-year>,<semester>,<course-id>,<course-name>,<default-class>,<lecturer-account>,"
+		 << "<start-date yyyy-mm-dd>,<end-date yyyy-mm-dd>,<sessions-per-week>,"
+		 << "<day-of-week-1>,<start-hour-1>,<end-hour-1>,(...)<room>\n\t";
+	string row, academicYear, semester, courseId, courseName, defautClass, lecturerAccount,
+		   startDate, endDate, sessionsPerWeek, dayOfWeek, startHour, endHour, room;
+	getline(cin, row);
+	cout << "\n";
+
+	// Retrieve each information.
+	stringstream info(row);
+	getline(info, courseId, ',');
+	getline(info, courseName, ',');
+	getline(info, defautClass, ',');
+	getline(info, lecturerAccount, ',');
+	getline(info, startDate, ',');
+	getline(info, endDate, ',');
+	getline(info, sessionsPerWeek, ',');
+	int sessionsNum = stoi(sessionsPerWeek);
+	SessionInfo* sessionInfo = nullptr;
+	SessionInfo* currentSession = nullptr;
+	for (int i = 0; i < sessionsNum; ++i) {
+		getline(info, dayOfWeek, ',');
+		getline(info, startHour, ',');
+		getline(info, endHour, ',');
+		if (sessionInfo == nullptr) {
+			sessionInfo = new SessionInfo;
+			currentSession = sessionInfo;
+		}
+		else {
+			currentSession->next = new SessionInfo;
+			currentSession = currentSession->next;
+		}
+		currentSession->day = dayToNumber(dayOfWeek);
+		currentSession->startTime = getTime(startHour);
+		currentSession->endTime = getTime(endHour);
+		currentSession->next = nullptr;
+	}
+	getline(info, room, ',');
+
+	// Ask again.
+	cout << "Course info:\n";
+	cout << "\tAcademic year: " << academicYear << "\n";
+	cout << "\tSemester: " << semester << "\n";
+	cout << "\tCourse ID: " << courseId << "\n";
+	cout << "\tCourse name: " << courseName << "\n";
+	cout << "\tDefault class: " << defautClass << "\n";
+	cout << "\tLecturer Account: " << lecturerAccount << "\n";
+	cout << "\tStart date: " << startDate << "\n";
+	cout << "\tEnd date: " << endDate << "\n";
+	cout << "\tSessions per week: " << sessionsPerWeek << "\n";
+	cout << "\tSessions info:\n";
+	currentSession = sessionInfo;
+	for (int i = 0; i < sessionsNum; ++i) {
+		cout << "\t\tSection " << i + 1 << ": \n";
+		cout << "\t\tDay: " << currentSession->day << "\n";
+		cout << "\t\tStart hour: " << currentSession->startTime.hour << " "
+								   << currentSession->startTime.minute << "\n";
+		cout << "\t\tEnd hour: " << currentSession->endTime.hour << " "
+								 << currentSession->endTime.minute << "\n";
+	}
+	cout << "\tRoom: " << room << "\n";
+	cout << "Do you want to add this course? Y/N\n";
+	cin >> row;
+	cout << "\n";
+	toUpper(row);
+	if (row == "N")
+		return;
+
+	// Save to database.
+	string filepath = "Database/"
+		+ academicYear + "-"
+		+ to_string(stoi(academicYear) + 1) + "/"
+		+ semester + "/"
+		+ courseId + "-"
+		+ defautClass + ".txt";
+	ofstream out(filepath);
+	out << courseId << "\n"
+		<< courseName << "\n"
+		<< defautClass << "\n"
+		<< lecturerAccount << "\n";
+	Date start = getDate(startDate), end = getDate(endDate);
+	out << start.day << " " << start.month << " " << start.year << "\n"
+		<< end.day << " " << end.month << " " << end.year << "\n";
+	Course* courseTmp = new Course;
+	courseTmp->startDate = start;
+	courseTmp->endDate = end;
+	courseTmp->sessionsPerWeek = sessionsNum;
+	courseTmp->totalSessions = calculateTotalSessions(courseTmp);
+	out << courseTmp->totalSessions << "\n"
+		<< courseTmp->sessionsPerWeek << "\n";
+	currentSession = sessionInfo;
+	for (int i = 0; i < sessionsNum; ++i) {
+		out << currentSession->day << " "
+			<< currentSession->startTime.hour << " " << currentSession->startTime.minute << " "
+			<< currentSession->endTime.hour << " " << currentSession->endTime.minute << "\n";
+	}
+	out << room << "\n\n";
+	readClassFromFile(defautClass, courseTmp->students);
+	Student* currentStudent = courseTmp->students;
+	currentSession = sessionInfo;
+	while (currentSession != nullptr && currentSession->next != nullptr)
+		currentSession = currentSession->next;
+	currentSession->next = sessionInfo;
+	currentSession = currentSession->next;
+	while (currentStudent != nullptr) {
+		out << currentStudent->username << "\n"
+			<< currentStudent->name << "\n"
+			<< currentStudent->studentId << "\n"
+			<< currentStudent->gender << "\n"
+			<< currentStudent->dob.day << " " << currentStudent->dob.month << " " << currentStudent->dob.year << "\n"
+			<< currentStudent->status
+			<< "0 0 0 0\n";
+		Date nextSession = start;
+		int daysToNext;
+		currentSession = sessionInfo;
+		for (int i = 0; i < courseTmp->totalSessions; ++i) {
+			out << nextSession.day << " " << nextSession.month << " " << nextSession.year << " "
+				<< currentSession->startTime.hour << " " << currentSession->startTime.minute << " "
+				<< currentSession->endTime.hour << " " << currentSession->endTime.minute << " "
+				<< "0 0\n";
+			daysToNext = currentSession->next->day - currentSession->day;
+			daysToNext += (daysToNext > 0) ? 0 : 7;
+			nextSession = dateAfterDays(nextSession, daysToNext);
+			currentSession = currentSession->next;
+		}
+		currentStudent = currentStudent->next;
+	}
+	out.close();
+
+	// Edit other related files.
+	
+
+	currentSession = sessionInfo->next;
+	while (currentSession->next != sessionInfo)
+		currentSession = currentSession->next;
+	currentSession->next = nullptr;
+	deleteSessionInfo(sessionInfo);
+	delete courseTmp;
+
+	cout << "Student added successfully.\n\n";
+}

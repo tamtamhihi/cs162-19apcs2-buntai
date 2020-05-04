@@ -145,7 +145,7 @@ int calculateDaysBetDates(Date startDate, Date endDate) {
 
 // Calculate total sessions based on start date, end date and day of week.
 int calculateTotalSessions(Course* course) {
-	int daysInStudyWeeks = calculateDaysBetDates(course->startDate, course->endDate);
+	int daysInStudyWeeks = calculateDaysBetDates(course->startDate, course->endDate) + 1;
 	daysInStudyWeeks += getDayOfWeek(course->startDate) - 1;
 	daysInStudyWeeks += 7 - getDayOfWeek(course->endDate);
 	return daysInStudyWeeks / 7 * course->sessionsPerWeek;
@@ -313,20 +313,22 @@ string findPasswordFromUsername(string username) {
 
 // Search "Lecturer.txt" to find a lecture from username.
 Lecturer findLecturerFromUsername(string username) {
-	Lecturer result;
+	Lecturer leturer;
 	ifstream in("Database/Lecturer.txt");
-	string user, pw, name, title;
+	string user, name, title;
 	int gender;
-	while (in >> user >> pw >> name >> title >> gender) {
+	while (in >> user) {
+		getline(in, name, '\n');
+		getline(in, title, '\n');
+		in >> gender;
 		if (user == username) {
-			result.username = user;
-			result.password = pw;
-			result.name = name;
-			result.title = title;
-			result.gender = gender;
-			return result;
+			leturer.username = user;
+			leturer.name = name;
+			leturer.title = title;
+			leturer.gender = gender;
+			return leturer;
 		}
-		cin.get();
+		in.get();
 	}
 }
 
