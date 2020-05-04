@@ -55,6 +55,9 @@ int calculateDaysBetDates(Date startDate, Date endDate);
 int calculateTotalSessions(Course* course);
 Date dateAfterDays(Date startDate, int days);
 Time getTime(string time);
+string numToDay(int day);
+bool isCourseExist(CourseInfo* courseInfo);
+bool isLecturerExist(string lecturerAccount);
 
 
 // ====== APP-RELATED ======

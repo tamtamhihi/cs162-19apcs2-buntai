@@ -77,7 +77,7 @@ string toFormalCase(string name) {
 	return formalName;
 }
 
-// Check if a class exist.
+// Check if a class exists.
 bool isClassExist(string className) {
 	ifstream in("Database/Class/Classes.txt");
 	if (in.is_open()) {
@@ -170,6 +170,49 @@ Time getTime(string time) {
 	string HOUR, MINUTE;
 	TIME >> HOUR >> MINUTE;
 	return { stoi(HOUR), stoi(MINUTE) };
+}
+
+// Convert day in number to text format.
+string numToDay(int day) {
+	if (day == 1) return "Sun";
+	if (day == 2) return "Mon";
+	if (day == 3) return "Tue";
+	if (day == 4) return "Wed";
+	if (day == 5) return "Thu";
+	if (day == 6) return "Fri";
+	if (day == 7) return "Sat";
+}
+
+// Check if a course exists.
+bool isCourseExist(CourseInfo* courseInfo) {
+	string filepath = "Database/"
+		+ to_string(courseInfo->academicYear) + "-"
+		+ to_string(courseInfo->academicYear + 1) + "/"
+		+ courseInfo->semester + "/Courses.txt";
+	ifstream in(filepath);
+	if (in.is_open()) {
+		string courseId, defaultClass;
+		while (in >> courseId >> defaultClass)
+			if (courseInfo->courseName == courseId && courseInfo->defaultClass == defaultClass)
+				return true;
+	}
+	return false;
+}
+
+// Check if a lecturer with given username exists.
+bool isLecturerExist(string lecturerAccount) {
+	ifstream in("Database/Lecturer.txt");
+	string user, name, title;
+	int gender;
+	while (in >> user) {
+		getline(in, name, '\n');
+		getline(in, title, '\n');
+		in >> gender;
+		if (user == lecturerAccount)
+			return true;
+		in.get();
+	}
+	return false;
 }
 
 
@@ -609,6 +652,7 @@ void deleteCourse(Course*& myCourse) {
 	deleteStudentCourseInfo(myCourse->studentCourseInfo);
 }
 
+// Read "Courses.txt" file to a course list.
 void readCourseListFromFile(CourseInfo*& courseList, string academicYear, string semester) {
 	ifstream in;
 	in.open("Database/" + academicYear + "/" + semester + "/" + "Courses.txt");
@@ -632,6 +676,7 @@ void readCourseListFromFile(CourseInfo*& courseList, string academicYear, string
 	}
 }
 
+// Write/overwrite a course list into "Courses.txt" file.
 void writeCourseListToFile(CourseInfo* courseList, string academicYear, string semester) {
 	ofstream out;
 	out.open("Database/" + academicYear + "/" + semester + "/" + "Courses.txt");

@@ -634,23 +634,52 @@ void manuallyAddCourse() {
 
 	// Retrieve each information.
 	stringstream info(row);
-	getline(info, courseId, ',');
+	getline(info, academicYear, ',');
+	getline(info, semester, ','); semester = toFormalCase(semester);
+	getline(info, courseId, ','); toUpper(courseId);
 	getline(info, courseName, ',');
-	getline(info, defautClass, ',');
+	getline(info, defautClass, ','); toUpper(defautClass);
 	getline(info, lecturerAccount, ',');
 	getline(info, startDate, ',');
 	getline(info, endDate, ',');
 	getline(info, sessionsPerWeek, ',');
-	int sessionsNum = stoi(sessionsPerWeek);
-	SessionInfo* sessionInfo = nullptr;
+
+	// Check course information.
+	CourseInfo* courseInfo = new CourseInfo;
+	courseInfo->next = nullptr;
+	courseInfo->academicYear = stoi(academicYear);
+	courseInfo->semester = semester;
+	courseInfo->courseName = courseId;
+	courseInfo->defaultClass = defautClass;
+	if (isCourseExist(courseInfo)) {
+		cout << "Error: Course alrealdy exists.\n\n";
+		deleteCourseInfo(courseInfo);
+		return;
+	}
+	if (!isClassExist(defautClass)) {
+		cout << "Error: Default class does not exist.\n\n";
+		deleteCourseInfo(courseInfo);
+		return;
+	}
+	if (!isLecturerExist(lecturerAccount)) {
+		cout << "Error: Lecturer account does not exist.\n\n";
+		deleteCourseInfo(courseInfo);
+		return;
+	}
+
+	// Continue retrieving.
+	Course* courseTmp = new Course;
+	courseInfo->next = nullptr;
+	courseTmp->sessionsPerWeek = stoi(sessionsPerWeek);
+	courseTmp->sessionInfo = nullptr;
 	SessionInfo* currentSession = nullptr;
-	for (int i = 0; i < sessionsNum; ++i) {
+	for (int i = 0; i < courseTmp->sessionsPerWeek; ++i) {
 		getline(info, dayOfWeek, ',');
 		getline(info, startHour, ',');
 		getline(info, endHour, ',');
-		if (sessionInfo == nullptr) {
-			sessionInfo = new SessionInfo;
-			currentSession = sessionInfo;
+		if (courseTmp->sessionInfo == nullptr) {
+			courseTmp->sessionInfo = new SessionInfo;
+			currentSession = courseTmp->sessionInfo;
 		}
 		else {
 			currentSession->next = new SessionInfo;
@@ -671,17 +700,18 @@ void manuallyAddCourse() {
 	cout << "\tCourse name: " << courseName << "\n";
 	cout << "\tDefault class: " << defautClass << "\n";
 	cout << "\tLecturer Account: " << lecturerAccount << "\n";
-	cout << "\tStart date: " << startDate << "\n";
-	cout << "\tEnd date: " << endDate << "\n";
+	Date start = getDate(startDate), end = getDate(endDate);
+	cout << "\tStart date: " << start.day << "-" << start.month << "-" << start.year << "\n";
+	cout << "\tEnd date: " << end.day << "-" << end.month << "-" << end.year << "\n";
 	cout << "\tSessions per week: " << sessionsPerWeek << "\n";
 	cout << "\tSessions info:\n";
-	currentSession = sessionInfo;
-	for (int i = 0; i < sessionsNum; ++i) {
+	currentSession = courseTmp->sessionInfo;
+	for (int i = 0; i < courseTmp->sessionsPerWeek; ++i) {
 		cout << "\t\tSection " << i + 1 << ": \n";
-		cout << "\t\tDay: " << currentSession->day << "\n";
-		cout << "\t\tStart hour: " << currentSession->startTime.hour << " "
+		cout << "\t\tDay: " << numToDay(currentSession->day) << "\n";
+		cout << "\t\tStart hour: " << currentSession->startTime.hour << ":"
 								   << currentSession->startTime.minute << "\n";
-		cout << "\t\tEnd hour: " << currentSession->endTime.hour << " "
+		cout << "\t\tEnd hour: " << currentSession->endTime.hour << ":"
 								 << currentSession->endTime.minute << "\n";
 	}
 	cout << "\tRoom: " << room << "\n";
@@ -689,8 +719,12 @@ void manuallyAddCourse() {
 	cin >> row;
 	cout << "\n";
 	toUpper(row);
-	if (row == "N")
+	if (row == "N") {
+		deleteCourseInfo(courseInfo);
+		deleteSessionInfo(courseTmp->sessionInfo);
+		deleteStudentList(courseTmp->students);
 		return;
+	}
 
 	// Save to database.
 	string filepath = "Database/"
@@ -703,30 +737,29 @@ void manuallyAddCourse() {
 	out << courseId << "\n"
 		<< courseName << "\n"
 		<< defautClass << "\n"
-		<< lecturerAccount << "\n";
-	Date start = getDate(startDate), end = getDate(endDate);
-	out << start.day << " " << start.month << " " << start.year << "\n"
+		<< lecturerAccount << "\n"
+		<< start.day << " " << start.month << " " << start.year << "\n"
 		<< end.day << " " << end.month << " " << end.year << "\n";
-	Course* courseTmp = new Course;
 	courseTmp->startDate = start;
 	courseTmp->endDate = end;
-	courseTmp->sessionsPerWeek = sessionsNum;
+	courseTmp->sessionsPerWeek = courseTmp->sessionsPerWeek;
 	courseTmp->totalSessions = calculateTotalSessions(courseTmp);
 	out << courseTmp->totalSessions << "\n"
 		<< courseTmp->sessionsPerWeek << "\n";
-	currentSession = sessionInfo;
-	for (int i = 0; i < sessionsNum; ++i) {
+	currentSession = courseTmp->sessionInfo;
+	for (int i = 0; i < courseTmp->sessionsPerWeek; ++i) {
 		out << currentSession->day << " "
 			<< currentSession->startTime.hour << " " << currentSession->startTime.minute << " "
 			<< currentSession->endTime.hour << " " << currentSession->endTime.minute << "\n";
 	}
 	out << room << "\n\n";
+	courseTmp->students = nullptr;
 	readClassFromFile(defautClass, courseTmp->students);
 	Student* currentStudent = courseTmp->students;
-	currentSession = sessionInfo;
+	currentSession = courseTmp->sessionInfo;
 	while (currentSession != nullptr && currentSession->next != nullptr)
 		currentSession = currentSession->next;
-	currentSession->next = sessionInfo;
+	currentSession->next = courseTmp->sessionInfo;
 	currentSession = currentSession->next;
 	while (currentStudent != nullptr) {
 		out << currentStudent->username << "\n"
@@ -734,11 +767,11 @@ void manuallyAddCourse() {
 			<< currentStudent->studentId << "\n"
 			<< currentStudent->gender << "\n"
 			<< currentStudent->dob.day << " " << currentStudent->dob.month << " " << currentStudent->dob.year << "\n"
-			<< currentStudent->status
+			<< currentStudent->status << "\n"
 			<< "0 0 0 0\n";
 		Date nextSession = start;
 		int daysToNext;
-		currentSession = sessionInfo;
+		currentSession = courseTmp->sessionInfo;
 		for (int i = 0; i < courseTmp->totalSessions; ++i) {
 			out << nextSession.day << " " << nextSession.month << " " << nextSession.year << " "
 				<< currentSession->startTime.hour << " " << currentSession->startTime.minute << " "
@@ -749,21 +782,54 @@ void manuallyAddCourse() {
 			nextSession = dateAfterDays(nextSession, daysToNext);
 			currentSession = currentSession->next;
 		}
+		out << "\n";
 		currentStudent = currentStudent->next;
 	}
 	out.close();
 
 	// Edit other related files.
-	
+	// Update "Courses.txt" file.
+	filepath = "Database/"
+		+ academicYear + "-"
+		+ to_string(stoi(academicYear) + 1) + "/"
+		+ semester + "/Courses.txt";
+	out.open(filepath, ios::app);
+	out << courseId << " " << defautClass << "\n";
+	out.close();
+	// Update students information in default class.
+	currentStudent = courseTmp->students;
+	while (currentStudent != nullptr) {
+		currentStudent->numberOfCourse++;
+		CourseInfo* currentCourse = currentStudent->myCourse;
+		while (currentCourse != nullptr && currentCourse->next != nullptr)
+			currentCourse = currentCourse->next;
+		if (currentCourse == nullptr) {
+			currentStudent->myCourse = new CourseInfo;
+			currentCourse = currentStudent->myCourse;
+		}
+		else {
+			currentCourse->next = new CourseInfo;
+			currentCourse = currentCourse->next;
+		}
+		currentCourse->academicYear = courseInfo->academicYear;
+		currentCourse->semester = courseInfo->semester;
+		currentCourse->courseName = courseInfo->courseName;
+		currentCourse->defaultClass = courseInfo->defaultClass;
+		currentCourse->next = nullptr;
+		currentStudent = currentStudent->next;
+	}
+	writeClassToFile(courseTmp->students, defautClass);
 
-	currentSession = sessionInfo->next;
-	while (currentSession->next != sessionInfo)
+	// Delete linked list.
+	currentSession = courseTmp->sessionInfo->next;
+	while (currentSession->next != courseTmp->sessionInfo)
 		currentSession = currentSession->next;
 	currentSession->next = nullptr;
-	deleteSessionInfo(sessionInfo);
-	delete courseTmp;
+	deleteCourseInfo(courseInfo);
+	deleteSessionInfo(courseTmp->sessionInfo);
+	deleteStudentList(courseTmp->students);
 
-	cout << "Student added successfully.\n\n";
+	cout << "Course added successfully.\n\n";
 }
 
 // 3.5
