@@ -765,3 +765,108 @@ void manuallyAddCourse() {
 
 	cout << "Student added successfully.\n\n";
 }
+
+// 3.5
+void removeCourse() {
+	// Ask for name of academic year, semester, course name.
+	cout << "Please enter academic year, semester and name of the course like this example: \n";
+	cout << "2019-2020,Summer,CS162\n\t";
+	string row, academicYear, semester, courseID;
+	getline(cin, row);
+	cout << "\n";
+	stringstream input(row);
+	getline(input, academicYear, ',');
+	getline(input, semester, ',');
+	toFormalCase(semester);
+	getline(input, courseID);
+	toUpper(courseID);
+
+	// Read courses.txt to find all default class of remove course.
+	CourseInfo* courseList = nullptr;
+	readCourseListFromFile(courseList, academicYear, semester);
+
+	// Find remove course
+	if (courseList == nullptr) {
+		cout << "Cannot find the course\n";
+		return;
+	}
+	CourseInfo* currentCourseList = courseList;
+	CourseInfo* previous = currentCourseList;
+	while (currentCourseList->courseName != courseID) {
+		previous = currentCourseList;
+		currentCourseList = currentCourseList->next;
+		if (currentCourseList == nullptr) {
+			cout << "Cannot find the given course\n";
+			return;
+		}
+	}
+
+	// Remove file and remove course in student course
+	CourseInfo* tempCurrent = currentCourseList;
+	while (currentCourseList->courseName == courseID) {
+
+		// Remove all file <course-default>.txt
+		string filePath= "Database/"
+			+ academicYear + "/"
+			+ semester + "/"
+			+ courseID + "-" + currentCourseList->defaultClass
+			+ ".txt";
+		const char* filepath = filePath.c_str();
+		remove(filepath);
+
+		// Remove course in student course
+		Student* studentList = nullptr;
+		readClassFromFile(currentCourseList->defaultClass, studentList);
+		Student* currentStudent = studentList;
+		while (currentStudent != nullptr) {
+			if (currentStudent->myCourse->courseName == courseID) {
+				CourseInfo* temp = currentStudent->myCourse;
+				currentStudent->myCourse = currentStudent->myCourse->next;
+				delete temp;
+			}
+			else {
+				CourseInfo* currentCourse = currentStudent->myCourse;
+				while (currentCourse->next != nullptr) {
+					if (currentCourse->next->courseName == courseID) {
+						CourseInfo* temp;
+						temp = currentCourse;
+						currentCourse->next = currentCourse->next->next;
+						delete temp;
+					}
+					currentCourse = currentCourse->next;
+					if (currentCourse == nullptr) break;
+				}
+			}
+			currentStudent = currentStudent->next;
+			if (currentStudent == nullptr)break;
+		}
+		writeClassToFile(studentList, currentCourseList->defaultClass);
+		deleteStudentList(studentList);
+
+		currentCourseList = currentCourseList->next;
+		if (currentCourseList == nullptr) break;
+	}
+
+	// Remove given course in file Courses.txt
+	currentCourseList = tempCurrent;
+	while (currentCourseList->courseName == courseID) {
+		if (currentCourseList == courseList) {
+			courseList = courseList->next;
+			delete currentCourseList;
+			currentCourseList = courseList;
+		}
+		else {
+			previous->next = currentCourseList->next;
+			delete currentCourseList;
+			currentCourseList = previous->next;
+		}
+		if (currentCourseList == nullptr) break;
+	}
+	writeCourseListToFile(courseList, academicYear, semester);
+
+	// Delete courseList.
+	deleteCourseInfo(courseList);
+
+	// Annoucement
+	cout << "Remove course successfully!\n";
+}

@@ -608,3 +608,38 @@ void deleteCourse(Course*& myCourse) {
 	deleteStudent(myCourse->students);
 	deleteStudentCourseInfo(myCourse->studentCourseInfo);
 }
+
+void readCourseListFromFile(CourseInfo*& courseList, string academicYear, string semester) {
+	ifstream in;
+	in.open("Database/" + academicYear + "/" + semester + "/" + "Courses.txt");
+	if (in.is_open()) {
+		string currentCourseID;
+		CourseInfo* currentCourseList = courseList;
+		while (in >> currentCourseID) {
+			if (courseList == nullptr) {
+				courseList = new CourseInfo;
+				currentCourseList = courseList;
+			}
+			else {
+				currentCourseList->next = new CourseInfo;
+				currentCourseList = currentCourseList->next;
+			}
+			currentCourseList->courseName = currentCourseID;
+			in >> currentCourseList->defaultClass;
+			currentCourseList->next = nullptr;
+		}
+		in.close();
+	}
+}
+
+void writeCourseListToFile(CourseInfo* courseList, string academicYear, string semester) {
+	ofstream out;
+	out.open("Database/" + academicYear + "/" + semester + "/" + "Courses.txt");
+	if (out.is_open()) {
+		while (courseList != nullptr) {
+			out << courseList->courseName << " " << courseList->defaultClass << "/n";
+			courseList = courseList->next;
+		}
+		out.close();
+	}
+}
