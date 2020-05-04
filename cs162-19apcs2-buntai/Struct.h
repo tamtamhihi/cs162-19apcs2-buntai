@@ -6,6 +6,7 @@
 #include <string>
 #include <sstream>
 #include <ctype.h>
+#include <cstdio>
 using namespace std;
 
 const int FEMALE = 0, MALE = 1;

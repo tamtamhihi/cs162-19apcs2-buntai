@@ -24,6 +24,7 @@ void viewListOfStudentInAClass(); // 2.7
 // ====== STAFF - COURSE ======
 void importCourseFromCsv(); // 3.2
 void manuallyAddCourse(); // 3.3
+void removeCourse(); // 3.5
 
 
 // ====== STAFF - SCOREBOARD ======
@@ -76,3 +77,5 @@ void deleteStudent(Student*& students);
 void deleteAttendance(Attendance*& attendance);
 void deleteStudentCourseInfo(StudentCourseInfo*& studentCourseInfo);
 void deleteCourse(Course*& myCourse);
+void readCourseListFromFile(CourseInfo*& courseList, string academicYear, string semester);
+void writeCourseListToFile(CourseInfo* courseList, string academicYear, string semester);
