@@ -612,20 +612,18 @@ void readCourseListFromFile(CourseInfo*& courseList, string academicYear, string
 	in.open("Database/" + academicYear + "/" + semester + "/" + "Courses.txt");
 	if (in.is_open()) {
 		string currentCourseID;
-		CourseInfo* currentCourseList = nullptr;
+		CourseInfo* currentCourseList = courseList;
 		while (in >> currentCourseID) {
 			if (courseList == nullptr) {
 				courseList = new CourseInfo;
-				courseList->courseName = currentCourseID;
-				in >> courseList->defaultClass;
 				currentCourseList = courseList;
 			}
 			else {
 				currentCourseList->next = new CourseInfo;
-				currentCourseList->next->courseName = currentCourseID;
-				in >> currentCourseList->next->defaultClass;
 				currentCourseList = currentCourseList->next;
 			}
+			currentCourseList->courseName = currentCourseID;
+			in >> currentCourseList->defaultClass;
 			currentCourseList->next = nullptr;
 		}
 		in.close();

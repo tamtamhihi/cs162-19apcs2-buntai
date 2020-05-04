@@ -751,7 +751,6 @@ void removeCourse() {
 		readClassFromFile(currentCourseList->defaultClass, studentList);
 		Student* currentStudent = studentList;
 		while (currentStudent != nullptr) {
-			cout << currentStudent->name;
 			if (currentStudent->myCourse->courseName == courseID) {
 				CourseInfo* temp = currentStudent->myCourse;
 				currentStudent->myCourse = currentStudent->myCourse->next;
