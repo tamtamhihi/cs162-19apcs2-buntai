@@ -2,56 +2,55 @@
 
 // ========= ALL-ROLES' FUNCTIONS DEFINITION =========
 
-//1.1
+// 1.1
 
-void login(string& username,int& userrole) {
-	string userpassword, checkname, checkpassword;
+void login(string& username, int& userrole) {
+	string userpassword = "", checkname, checkpassword;
 	int type;
-	//get login info from user
-	cout << "Hello, Welcome to the program" << endl;
-	cout << "For login, please enter your username and password" << endl;
+
+	// Get login info from user.
+	cout << "Please add login information:" << endl;
 	cout << "\tUsername:";
-	getline(std::cin, username);
-	cout << endl;
+	getline(cin, username);
 	cout << "\tPassword:";
-	getline(std::cin, userpassword);
+	char c = _getch();
+	while (c != '\n') {
+		_putch('*');
+		userpassword += c;
+		c = _getch();
+	}
 	cout << endl;
-	//check the login information
+
+	// Check the login information.
 	ifstream in;
 	in.open("Database/User.txt");
-	if (!in) cout << "\tCannot open user file, please try it later" << endl;
-	else
-	{
-		while (in) {
-			getline(in, checkname);
-			getline(in, checkpassword);
-			in >> type;
-			in.ignore();
-			if ((username == checkname) && (userpassword == checkpassword))
-			{
-				userrole =type;
-				in.close();
-				cout << "\tHello " << username << endl;
-				return ;
-			}
-			else if ((username == checkname) && (userpassword != checkpassword))
-			{
-				in.close();
-				cout << "\tWrong password" << endl;
-				return;
-			}
+	if (!in) {
+		cout << "\tLogin failed. Error: User file is missing, please try again later.\n\n";
+		return;
+	}
+	while (getline(in, checkname)) {
+		getline(in, checkpassword);
+		in >> type;
+		in.ignore();
+		if (username == checkname && userpassword == checkpassword) {
+			userrole = type;
+			in.close();
+			cout << "\tWelcome " << username << ".\n\n";
+			return;
 		}
-
+		if (username == checkname && userpassword != checkpassword) {
+			in.close();
+			cout << "\tLogin failed. Error: Wrong password for " << username << ".\n\n";
+			return;
+		}
 	}
 	in.close();
-
-	cout << "\tLogin failed, username is not found" << endl;
-	cout << endl;
+	cout << "\tLogin failed. Error: Username not found.\n\n";
 }
 
-//1.2
+// 1.2
 
-void showmenu(int& userrole) {
+void showMenu(int& userrole) {
 	int chon;
 	if (userrole == 0) {
 		staffmenu();
@@ -63,8 +62,7 @@ void showmenu(int& userrole) {
 		studentmenu();
 	}
 }
-
-void staffmenu() {
+void staffMenu() {
 	int choice;
 	int chon;
 	cout << "\t1.Class" << endl;
@@ -155,7 +153,7 @@ void staffmenu() {
 	}
 	else cout << "Your input is not valid" << endl;
 }
-void lecturermenu() {
+void lecturerMenu() {
 	int choice;
 	cout << "1. View list of courses in the current semester." << endl;
 	cout << "2. View list of students of a course." << endl;
@@ -179,7 +177,7 @@ void lecturermenu() {
 		break;
 	}
 }
-void studentmenu() {
+void studentMenu() {
 	int choice;
 	cout << "1. Check-in." << endl;
 	cout << "2. View check-in result." << endl;
