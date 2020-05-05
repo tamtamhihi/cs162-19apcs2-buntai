@@ -10,16 +10,24 @@ void login(string& username, int& userrole) {
 
 	// Get login info from user.
 	cout << "Please add login information:" << endl;
-	cout << "\tUsername:";
+	cout << "\tUsername: ";
 	getline(cin, username);
-	cout << "\tPassword:";
+	cout << "\tPassword: ";
 	char c = _getch();
-	while (c != '\n') {
+	while (c != 13) { // c != '\n'
+		if (c == 8) { // c == backspace
+			if (!userpassword.empty()) {
+				userpassword.pop_back();
+				cout << "\b \b";
+			}
+			c = _getch();
+			continue;
+		}
 		_putch('*');
 		userpassword += c;
 		c = _getch();
 	}
-	cout << endl;
+	cout << "\n\n";
 
 	// Check the login information.
 	ifstream in;
@@ -53,13 +61,13 @@ void login(string& username, int& userrole) {
 void showMenu(int& userrole) {
 	int chon;
 	if (userrole == 0) {
-		staffmenu();
+		staffMenu();
 	}
 	else if (userrole == 1) {
-		lecturermenu();
+		lecturerMenu();
 	}
 	else if (userrole == 2) {
-		studentmenu();
+		studentMenu();
 	}
 }
 void staffMenu() {

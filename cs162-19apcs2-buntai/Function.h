@@ -6,10 +6,10 @@
 
 // ====== ALL-ROLES ======
 void login(string& username, int& userrole); // 1.1
-void showmenu(int& userrole); // 1.2
-void staffmenu();
-void lecturermenu();
-void studentmenu();
+void showMenu(int& userrole); // 1.2
+void staffMenu();
+void lecturerMenu();
+void studentMenu();
 
 // ====== STAFF - CLASS ======
 void importStudentFromCsv(); // 2.1
