@@ -58,6 +58,7 @@ Time getTime(string time);
 string numToDay(int day);
 bool isCourseExist(CourseInfo* courseInfo);
 bool isLecturerExist(string lecturerAccount);
+bool isStudentIdExist(string studentId);
 
 
 // ====== APP-RELATED ======

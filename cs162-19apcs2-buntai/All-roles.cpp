@@ -33,7 +33,7 @@ void login(string& username, int& userrole) {
 	ifstream in;
 	in.open("Database/User.txt");
 	if (!in) {
-		cout << "\tLogin failed. Error: User file is missing, please try again later.\n\n";
+		cout << "Login failed. Error: User file is missing, please try again later.\n\n";
 		return;
 	}
 	while (getline(in, checkname)) {
@@ -48,12 +48,12 @@ void login(string& username, int& userrole) {
 		}
 		if (username == checkname && userpassword != checkpassword) {
 			in.close();
-			cout << "\tLogin failed. Error: Wrong password for " << username << ".\n\n";
+			cout << "Login failed. Error: Wrong password for " << username << ".\n\n";
 			return;
 		}
 	}
 	in.close();
-	cout << "\tLogin failed. Error: Username not found.\n\n";
+	cout << "Login failed. Error: Username not found.\n\n";
 }
 
 // 1.2

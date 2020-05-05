@@ -122,6 +122,12 @@ void manuallyAddStudent() {
 	if (row == "N")
 		return;
 
+	// Check if studentId exists.
+	if (isStudentIdExist(studentId)) {
+		cout << "Adding student failed. Error: Student ID already exists.\n\n";
+		return;
+	}
+
 	// Save to database.
 	ofstream out("Database/Class/" + className + ".txt", ios::app);
 	out << username << "\n" << password << "\n" << 1 << "\n";

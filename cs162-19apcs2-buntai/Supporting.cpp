@@ -215,6 +215,27 @@ bool isLecturerExist(string lecturerAccount) {
 	return false;
 }
 
+bool isStudentIdExist(string studentId) {
+	ifstream in("Database/Class/Classes.txt");
+	string className;
+	while (in >> className) {
+		Student* studentList = nullptr;
+		readClassFromFile(className, studentList);
+		Student* currentStudent = studentList;
+		while (currentStudent != nullptr) {
+			if (currentStudent->studentId == studentId) {
+				deleteStudentList(studentList);
+				in.close();
+				return true;
+			}
+			currentStudent = currentStudent->next;
+		}
+		deleteStudentList(studentList);
+	}
+	in.close();
+	return false;
+}
+
 
 
 /* 
