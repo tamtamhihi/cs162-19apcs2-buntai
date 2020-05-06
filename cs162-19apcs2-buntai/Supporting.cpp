@@ -48,6 +48,19 @@ string toPassword(Date dob) {
 	return password;
 }
 
+// Generate password from name for new staff/lecturer.
+string toPasswordGeneral(string name) {
+	stringstream NAME(name);
+	string password = "", tmp;
+	NAME >> tmp;
+	while (NAME >> tmp) {
+		toLower(tmp);
+		password += tmp;
+	}
+	password += "123";
+	return password;
+}
+
 // Retrieve date of birth from a string of form "yyyy-mm-dd".
 Date getDate(string date) {
 	stringstream DATEss(date);
@@ -298,6 +311,13 @@ void addUser(string username, string password, int type) {
 	out.close();
 }
 
+// Add a single lecturer to "Lecturer.txt" file using lecturer information.
+void addLecturer(Lecturer lecturer) {
+	ofstream out("Database/Lecturer.txt", ios::app);
+	out << lecturer.username << "\n" << lecturer.name << "\n" << lecturer.title << "\n" << lecturer.gender << "\n";
+	out.close();
+}
+
 // Add a Student linked list to "User.txt".
 void addStudentUsers(Student*& studentList) {
 	ofstream out("Database/User.txt", ios::app);
@@ -355,8 +375,7 @@ string findPasswordFromUsername(string username) {
 }
 
 // Search "Lecturer.txt" to find a lecture from username.
-Lecturer findLecturerFromUsername(string username) {
-	Lecturer leturer;
+bool findLecturerFromUsername(string username, Lecturer& lecturer) {
 	ifstream in("Database/Lecturer.txt");
 	string user, name, title;
 	int gender;
@@ -365,14 +384,15 @@ Lecturer findLecturerFromUsername(string username) {
 		getline(in, title, '\n');
 		in >> gender;
 		if (user == username) {
-			leturer.username = user;
-			leturer.name = name;
-			leturer.title = title;
-			leturer.gender = gender;
-			return leturer;
+			lecturer.username = user;
+			lecturer.name = name;
+			lecturer.title = title;
+			lecturer.gender = gender;
+			return true;
 		}
 		in.get();
 	}
+	return false;
 }
 
 // Print a single student's info.

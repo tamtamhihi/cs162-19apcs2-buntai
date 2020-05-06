@@ -462,7 +462,7 @@ void importCourseFromCsv() {
 
 	// Read all information from csv.
 	Course* currentCourse = nullptr;
-	string row, no, courseId, courseName, defautClass, lecturerAccount, 
+	string row, no, courseId, courseName, defautClass, lecturerName, 
 		   startDate, endDate, sessionsPerWeek, dayOfWeek, startHour, endHour, room;
 
 	// Count the columns to make sure the csv is in the right format.
@@ -484,15 +484,27 @@ void importCourseFromCsv() {
 		getline(thisRow, courseId, ',');
 		getline(thisRow, courseName, ',');
 		getline(thisRow, defautClass, ',');
-		getline(thisRow, lecturerAccount, ',');
+		getline(thisRow, lecturerName, ',');
 		getline(thisRow, startDate, ',');
 		getline(thisRow, endDate, ',');
 		getline(thisRow, sessionsPerWeek, ',');
+		
+		// Check if course exists.
+		CourseInfo* courseInfo = new CourseInfo;
+		courseInfo->academicYear = academicYear;
+		courseInfo->semester = semester;
+		courseInfo->courseName = courseId;
+		courseInfo->defaultClass = defautClass;
+		courseInfo->next = nullptr;
+		if (isCourseExist(courseInfo)) {
+			cout << "Import failed. Error: Course already exists.\n\n";
+		}
 
+		// Check if class exists.
 		if (!isClassExist(defautClass)) {
 			cout << "Import failed. Error: Can't find default class.\n\n";
 			return;
-		} // Check if class exists.
+		} 
 
 		currentCourse = new Course;
 		currentCourse->academicYear = academicYear;
@@ -500,7 +512,27 @@ void importCourseFromCsv() {
 		currentCourse->courseId = courseId;
 		currentCourse->courseName = courseName;
 		currentCourse->defaultClass = defautClass;
-		currentCourse->lecturer = findLecturerFromUsername(lecturerAccount);
+
+		string lecturerUsername = toUsername(lecturerName);
+		if (!findLecturerFromUsername(lecturerUsername, currentCourse->lecturer)) {
+			string title, gender, password;
+			cout << "The lecturer is not exist yet. Please input his/her additional information with the same format:\n";
+			cout << "<title>,<male/female>\n\t";
+			string temp;
+			cin.ignore();
+			getline(cin, temp);
+			stringstream TEMP(temp);
+			getline(TEMP, title, ',');
+			getline(TEMP, gender, ',');
+			password = toPasswordGeneral(lecturerName);
+			currentCourse->lecturer.username = lecturerUsername;
+			currentCourse->lecturer.name = lecturerName;
+			currentCourse->lecturer.title = title;
+			currentCourse->lecturer.gender = (gender == "male") ? 1 : 0;
+			addUser(lecturerUsername, password, 1);
+			addLecturer(currentCourse->lecturer);
+		} // Check if lecturer exists, if not create a new account.
+
 		currentCourse->startDate = getDate(startDate);
 		currentCourse->endDate = getDate(endDate);
 		currentCourse->sessionsPerWeek = stoi(sessionsPerWeek);
@@ -559,6 +591,26 @@ void importCourseFromCsv() {
 		StudentCourseInfo* currentStudentInfo = nullptr;
 		
 		while (currentStudent != nullptr) {
+			// Update enrolled students information.
+			currentStudent->numberOfCourse++;
+			CourseInfo* currentStudentCourse = currentStudent->myCourse;
+			while (currentStudentCourse != nullptr && currentStudentCourse->next != nullptr)
+				currentStudentCourse = currentStudentCourse->next;
+			if (currentStudentCourse == nullptr) {
+				currentStudent->myCourse = new CourseInfo;
+				currentStudentCourse = currentStudent->myCourse;
+			}
+			else {
+				currentStudentCourse->next = new CourseInfo;
+				currentStudentCourse = currentStudentCourse->next;
+			}
+			currentStudentCourse->academicYear = courseInfo->academicYear;
+			currentStudentCourse->semester = courseInfo->semester;
+			currentStudentCourse->courseName = courseInfo->courseName;
+			currentStudentCourse->defaultClass = courseInfo->defaultClass;
+			currentStudentCourse->next = nullptr;
+
+			// Read enrolled students course information.
 			if (currentCourse->studentCourseInfo == nullptr) {
 				currentCourse->studentCourseInfo = new StudentCourseInfo;
 				currentStudentInfo = currentCourse->studentCourseInfo;
@@ -610,9 +662,23 @@ void importCourseFromCsv() {
 			currentStudent = currentStudent->next;
 		}
 
+		// Edit related files.
+		// Update "Courses.txt" file.
+		filepath = "Database/"
+			+ to_string(academicYear) + "-"
+			+ to_string(academicYear + 1) + "/"
+			+ semester + "/Courses.txt";
+		ofstream out;
+		out.open(filepath, ios::app);
+		out << courseId << " " << defautClass << "\n";
+		out.close();
+		// Update students information in default class.
+		writeClassToFile(currentCourse->students, defautClass);
+
 		// Write to database.
 		writeCourseToFile(currentCourse);
 		deleteCourse(currentCourse);
+		deleteCourseInfo(courseInfo);
 	}
 	in.close();
 
@@ -624,10 +690,10 @@ void importCourseFromCsv() {
 void manuallyAddCourse() {
 	// Ask for information in one line.
 	cout << "Please input the following information with the same format:\n";
-	cout << "<academic-year>,<semester>,<course-id>,<course-name>,<default-class>,<lecturer-account>,"
+	cout << "<academic-year>,<semester>,<course-id>,<course-name>,<default-class>,<lecturer-name>,"
 		 << "<start-date yyyy-mm-dd>,<end-date yyyy-mm-dd>,<sessions-per-week>,"
 		 << "<day-of-week-1>,<start-hour-1>,<end-hour-1>,(...)<room>\n\t";
-	string row, academicYear, semester, courseId, courseName, defautClass, lecturerAccount,
+	string row, academicYear, semester, courseId, courseName, defautClass, lecturerName,
 		   startDate, endDate, sessionsPerWeek, dayOfWeek, startHour, endHour, room;
 	getline(cin, row);
 	cout << "\n";
@@ -639,7 +705,7 @@ void manuallyAddCourse() {
 	getline(info, courseId, ','); toUpper(courseId);
 	getline(info, courseName, ',');
 	getline(info, defautClass, ','); toUpper(defautClass);
-	getline(info, lecturerAccount, ',');
+	getline(info, lecturerName, ',');
 	getline(info, startDate, ',');
 	getline(info, endDate, ',');
 	getline(info, sessionsPerWeek, ',');
@@ -661,7 +727,8 @@ void manuallyAddCourse() {
 		deleteCourseInfo(courseInfo);
 		return;
 	}
-	if (!isLecturerExist(lecturerAccount)) {
+	if (!isLecturerExist(toUsername(lecturerName))) {
+		
 		cout << "Error: Lecturer account does not exist.\n\n";
 		deleteCourseInfo(courseInfo);
 		return;
@@ -699,7 +766,7 @@ void manuallyAddCourse() {
 	cout << "\tCourse ID: " << courseId << "\n";
 	cout << "\tCourse name: " << courseName << "\n";
 	cout << "\tDefault class: " << defautClass << "\n";
-	cout << "\tLecturer Account: " << lecturerAccount << "\n";
+	cout << "\tLecturer Account: " << lecturerName << "\n";
 	Date start = getDate(startDate), end = getDate(endDate);
 	cout << "\tStart date: " << start.day << "-" << start.month << "-" << start.year << "\n";
 	cout << "\tEnd date: " << end.day << "-" << end.month << "-" << end.year << "\n";
@@ -737,7 +804,7 @@ void manuallyAddCourse() {
 	out << courseId << "\n"
 		<< courseName << "\n"
 		<< defautClass << "\n"
-		<< lecturerAccount << "\n"
+		<< lecturerName << "\n"
 		<< start.day << " " << start.month << " " << start.year << "\n"
 		<< end.day << " " << end.month << " " << end.year << "\n";
 	courseTmp->startDate = start;
