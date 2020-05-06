@@ -22,6 +22,9 @@ void viewListOfStudentInAClass(); // 2.7
 void importCourseFromCsv(); // 3.2
 void manuallyAddCourse(); // 3.3
 void removeCourse(); // 3.5
+void viewListOfCourses(); // 3.8
+void viewListOfStudentsOfCourse(); // 3.9
+void viewAttendanceListOfCourse(); // 3.10
 
 
 // ====== STAFF - SCOREBOARD ======

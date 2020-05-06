@@ -1011,3 +1011,169 @@ void removeCourse() {
 	// Annoucement
 	cout << "Remove course successfully!\n";
 }
+
+// 3.8
+void viewListOfCourses() {
+	int academicYear;
+	string semester;
+	cout << "Academic year: ";
+	cin >> academicYear;
+	cout << "Semester: ";
+	cin >> semester;
+
+	string filepath = "Database/"
+		+ to_string(academicYear) + "-"
+		+ to_string(academicYear + 1) + "/"
+		+ semester + "/";
+	ifstream in(filepath + "Courses.txt");
+	string row, courseId, defaultClass, courseName;
+	cout << "List of courses in " << semester << " semester of academic year "
+		 << academicYear << "-" << academicYear + 1 << ":\n";
+	while (getline(in, row)) {
+		stringstream info(row);
+		info >> courseId >> defaultClass;
+		ifstream fin(filepath + courseId + "-" + defaultClass + ".txt");
+		getline(fin, courseId);
+		getline(fin, courseName);
+		cout << "\tCourse ID: " << courseId << "\n"
+			 << "\tCourse name: " << courseName << "\n"
+			 << "\tDefault class: " << defaultClass << "\n";
+		cout << "\n";
+		fin.close();
+	}
+	cout << "\n";
+
+	in.close();
+}
+
+// 3.9
+void viewListOfStudentsOfCourse() {
+	// Get course information.
+	int academicYear;
+	string semester, courseId, defaultClass;
+	cout << "Academic year: ";
+	cin >> academicYear;
+	cout << "Semester: ";
+	cin >> semester;
+	cout << "Course ID: ";
+	cin >> courseId;
+	cout << "Default class: ";
+	cin >> defaultClass;
+
+	// Check if course exists.
+	CourseInfo* courseInfo = new CourseInfo;
+	courseInfo->academicYear = academicYear;
+	courseInfo->semester = semester;
+	courseInfo->courseName = courseId;
+	courseInfo->defaultClass = defaultClass;
+	courseInfo->next = nullptr;
+	if (!isCourseExist(courseInfo)) {
+		cout << "View students list failed. Error: Course not found.\n\n";
+		return;
+	}
+	
+	// Read course information into a course.
+	string filepath = "Database/"
+		+ to_string(academicYear) + "-"
+		+ to_string(academicYear + 1) + "/"
+		+ semester + "/"
+		+ courseId + "-"
+		+ defaultClass + ".txt";
+	ifstream in(filepath);
+	Course* course = new Course;
+	readCourseFromFile(courseInfo, course);
+
+	// Print students list.
+	cout << "List of students enrolled in course " << courseId
+		 << " of " << semester << " semester, academic year "
+		 << academicYear << "-" << academicYear + 1 << ":\n";
+	Student* currentStudent = course->students;
+	int studentNum = 1;
+	while (currentStudent != nullptr) {
+		cout << "\t";
+		cout << studentNum << ". ";
+		cout << currentStudent->name << "\n";
+		studentNum++;
+		currentStudent = currentStudent->next;
+	}
+	cout << "\n";
+
+	// Delete linked list.
+	deleteCourseInfo(courseInfo);
+	deleteCourse(course);
+
+	in.close();
+}
+
+// 3.10
+void viewAttendanceListOfCourse() {
+	// Get course information.
+	int academicYear;
+	string semester, courseId, defaultClass;
+	cout << "Academic year: ";
+	cin >> academicYear;
+	cout << "Semester: ";
+	cin >> semester;
+	cout << "Course ID: ";
+	cin >> courseId;
+	cout << "Default class: ";
+	cin >> defaultClass;
+
+	// Check if course exists.
+	CourseInfo* courseInfo = new CourseInfo;
+	courseInfo->academicYear = academicYear;
+	courseInfo->semester = semester;
+	courseInfo->courseName = courseId;
+	courseInfo->defaultClass = defaultClass;
+	courseInfo->next = nullptr;
+	if (!isCourseExist(courseInfo)) {
+		cout << "View students list failed. Error: Course not found.\n\n";
+		return;
+	}
+
+	// Read course information into a course.
+	string filepath = "Database/"
+		+ to_string(academicYear) + "-"
+		+ to_string(academicYear + 1) + "/"
+		+ semester + "/"
+		+ courseId + "-"
+		+ defaultClass + ".txt";
+	ifstream in(filepath);
+	Course* course = new Course;
+	readCourseFromFile(courseInfo, course);
+
+	// Print attendance list.
+	cout << "Attendance list in course " << courseId
+		<< " of " << semester << " semester, academic year "
+		<< academicYear << "-" << academicYear + 1 << ":\n";
+	Student* currentStudent = course->students;
+	StudentCourseInfo* currentStudentInfo = course->studentCourseInfo;
+	int studentNum = 1;
+	while (currentStudent != nullptr) {
+		cout << "\t";
+		cout << studentNum << ". ";
+		cout << currentStudent->name << ":\n";
+		Attendance* currentAttendance = currentStudentInfo->attendance;
+		while (currentAttendance != nullptr) {
+			cout << "\t\tDATE: " << currentAttendance->date.day
+				<< "-" << currentAttendance->date.month
+				<< "-" << currentAttendance->date.year << "\n";
+			cout << "\t\tSession time:\n"
+				<< "\t\t\tStart time: " << currentAttendance->startTime.hour << ":" << currentAttendance->startTime.minute << "\n"
+				<< "\t\t\tEnd time: " << currentAttendance->endTime.hour << ":" << currentAttendance->endTime.minute << "\n";
+			cout << "\t\tCheck-in time: " << currentAttendance->time.hour << ":" << currentAttendance->time.minute << "\n";
+			cout << "\n";
+			currentAttendance = currentAttendance->next;
+		}
+		cout << "\n";
+		studentNum++;
+		currentStudent = currentStudent->next;
+	}
+	cout << "n";
+
+	// Delete linked list.
+	deleteCourseInfo(courseInfo);
+	deleteCourse(course);
+
+	in.close();
+}
