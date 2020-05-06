@@ -28,7 +28,7 @@ string toUsername(string fullName) {
 	stringstream name(fullName);
 	string word, username = "";
 	while (name >> word)
-		username += word[0]; // add the first letter of every 
+		username += word[0]; // add the first letter of every
 	for (int i = 1; i < word.size(); ++i)
 		username += word[i];
 	toLower(username);
@@ -48,6 +48,19 @@ string toPassword(Date dob) {
 	return password;
 }
 
+// Generate password from name for new staff/lecturer.
+string toPasswordGeneral(string name) {
+	stringstream NAME(name);
+	string password = "", tmp;
+	NAME >> tmp;
+	while (NAME >> tmp) {
+		toLower(tmp);
+		password += tmp;
+	}
+	password += "123";
+	return password;
+}
+
 // Retrieve date of birth from a string of form "yyyy-mm-dd".
 Date getDate(string date) {
 	stringstream DATEss(date);
@@ -62,7 +75,7 @@ Date getDate(string date) {
 	return DATE;
 }
 
-// Turn a full name string to formal case 
+// Turn a full name string to formal case
 // (uppercase for first letter of each word).
 string toFormalCase(string name) {
 	stringstream text(name);
@@ -279,7 +292,7 @@ bool isSemesterExist(int academicYear, string mySemester) {
 }
 
 
-/* 
+/*
 ====== APP-RELATED ======
 */
 
@@ -360,12 +373,19 @@ void addUser(string username, string password, int type) {
 	out.close();
 }
 
+// Add a single lecturer to "Lecturer.txt" file using lecturer information.
+void addLecturer(Lecturer lecturer) {
+	ofstream out("Database/Lecturer.txt", ios::app);
+	out << lecturer.username << "\n" << lecturer.name << "\n" << lecturer.title << "\n" << lecturer.gender << "\n";
+	out.close();
+}
+
 // Add a Student linked list to "User.txt".
 void addStudentUsers(Student*& studentList) {
 	ofstream out("Database/User.txt", ios::app);
 	Student* current = studentList;
 	while (current != nullptr) {
-		out << current->username << "\n" 
+		out << current->username << "\n"
 			<< current->password << "\n2\n";
 		current = current->next;
 	}
@@ -417,8 +437,7 @@ string findPasswordFromUsername(string username) {
 }
 
 // Search "Lecturer.txt" to find a lecture from username.
-Lecturer findLecturerFromUsername(string username) {
-	Lecturer leturer;
+bool findLecturerFromUsername(string username, Lecturer& lecturer) {
 	ifstream in("Database/Lecturer.txt");
 	string user, name, title;
 	int gender;
@@ -427,14 +446,15 @@ Lecturer findLecturerFromUsername(string username) {
 		getline(in, title, '\n');
 		in >> gender;
 		if (user == username) {
-			leturer.username = user;
-			leturer.name = name;
-			leturer.title = title;
-			leturer.gender = gender;
-			return leturer;
+			lecturer.username = user;
+			lecturer.name = name;
+			lecturer.title = title;
+			lecturer.gender = gender;
+			return true;
 		}
 		in.get();
 	}
+	return false;
 }
 
 // Print a single student's info.
@@ -450,14 +470,14 @@ void printStudentInfo(Student*& student) {
 	cout << "\tGender: ";
 	if (student->gender == FEMALE) cout << "female\n";
 	else cout << "male\n";
-	cout << "\tDate of birth: " << student->dob.day << "-" 
+	cout << "\tDate of birth: " << student->dob.day << "-"
 		<< student->dob.month << "-" << student->dob.year << "\n";
 	cout << "\tCourses: " << student->numberOfCourse << "\n";
 	CourseInfo* courseInfo = student->myCourse;
 	for (int i = 0; i < student->numberOfCourse; ++i) {
-		cout << "\t- " << courseInfo->academicYear << "-" 
-			<< courseInfo->academicYear + 1 << ", " 
-			<< courseInfo->semester << " semester, " 
+		cout << "\t- " << courseInfo->academicYear << "-"
+			<< courseInfo->academicYear + 1 << ", "
+			<< courseInfo->semester << " semester, "
 			<< courseInfo->courseName << "\n";
 	}
 	cout << "\n";
@@ -560,7 +580,7 @@ void readCourseFromFile(CourseInfo* courseInfo, Course*& course) {
 			currentSession->next = nullptr;
 		}
 		in >> course->room;
-		
+
 		// Read enrolled students information.
 		course->students = nullptr;
 		course->studentCourseInfo = nullptr;
@@ -634,9 +654,9 @@ void writeCourseToFile(Course*& course) {
 		+ course->courseId + "-"
 		+ course->defaultClass + ".txt";
 	ofstream out(filepath);
-	out << course->courseId << "\n" 
-		<< course->courseName << "\n" 
-		<< course->defaultClass << "\n" 
+	out << course->courseId << "\n"
+		<< course->courseName << "\n"
+		<< course->defaultClass << "\n"
 		<< course->lecturer.username << "\n"
 		<< course->startDate.day << " " << course->startDate.month << " " << course->startDate.year << "\n"
 		<< course->endDate.day << " " << course->endDate.month << " " << course->endDate.year << "\n"
@@ -644,8 +664,8 @@ void writeCourseToFile(Course*& course) {
 		<< course->sessionsPerWeek << "\n";
 	SessionInfo* currentSession = course->sessionInfo;
 	while (currentSession != nullptr) {
-		out << currentSession->day << " " 
-			<< currentSession->startTime.hour << " " << currentSession->startTime.minute << " " 
+		out << currentSession->day << " "
+			<< currentSession->startTime.hour << " " << currentSession->startTime.minute << " "
 			<< currentSession->endTime.hour << " " << currentSession->endTime.minute << "\n";
 		currentSession = currentSession->next;
 	}
@@ -659,7 +679,7 @@ void writeCourseToFile(Course*& course) {
 			<< currentStudent->gender << "\n"
 			<< currentStudent->dob.day << " " << currentStudent->dob.month << " " << currentStudent->dob.year << "\n"
 			<< currentStudentInfo->status << "\n"
-			<< currentStudentInfo->midterm << " " << currentStudentInfo->final << " " 
+			<< currentStudentInfo->midterm << " " << currentStudentInfo->final << " "
 			<< currentStudentInfo->lab << " " << currentStudentInfo->bonus << "\n";
 		Attendance* currentAttendance = currentStudentInfo->attendance;
 		while (currentAttendance != nullptr) {
@@ -760,7 +780,7 @@ void addAcademicYear(int academicYear) {
 	ofstream out("Database/AcademicYears.txt", ios::app);
 	out << academicYear << " " << academicYear + 1 << "\n0\n\n";
 	out.close();
-	string filepath = "Database\\\\" + to_string(academicYear) 
+	string filepath = "Database\\\\" + to_string(academicYear)
 		+ "-" + to_string(academicYear + 1);
 	string command = "md " + filepath;
 	system(command.c_str());
@@ -838,7 +858,7 @@ void writeAcademicYearsToFile(AcademicYear*& academicYears) {
 	ofstream out("Database/AcademicYears.txt");
 	AcademicYear* currentYear = academicYears;
 	while (currentYear != nullptr) {
-		out << currentYear->academicYear << " " 
+		out << currentYear->academicYear << " "
 			<< currentYear->academicYear + 1 << "\n";
 		out << currentYear->numberOfSemester << "\n";
 		stringstream semester(currentYear->semester);
@@ -878,10 +898,10 @@ void deleteSemester(int academicYear, string semester) {
 	}
 	writeAcademicYearsToFile(academicYears);
 	deleteAcademicYears(academicYears);
-	
+
 	// Delete directory of that semester in the directory of academic year.
 	cout << "\tDeleting semester " << semester << " directory in academic year folder...\n";
-	string filepath = "Database\\\\" + to_string(academicYear) + "-" 
+	string filepath = "Database\\\\" + to_string(academicYear) + "-"
 		+ to_string(academicYear + 1) + "\\\\" + semester;
 	remove(filepath.c_str());
 
@@ -984,10 +1004,6 @@ void readLecturersFromFile(Lecturer*& lecturers) {
 					currentLecturer->myCourse = new CourseInfo;
 					currentCourse = currentLecturer->myCourse;
 				}
-				else {
-					currentCourse->next = new CourseInfo;
-					currentCourse = currentCourse->next;
-				}
 				currentCourse->academicYear = year - 1;
 				currentCourse->semester = semester;
 				currentCourse->courseName = courseId;
@@ -1048,7 +1064,7 @@ void deleteAcademicYear(int academicYear) {
 		deleteSemester(academicYear, "Spring");
 	if (isSemesterExist(academicYear, "Fall"))
 		deleteSemester(academicYear, "Fall");
-	
+
 	// Delete AcademicYear in AcademicYears.txt.
 	cout << "Deleting academic year in AcademicYears.txt...\n";
 	AcademicYear* academicYears = nullptr;
@@ -1073,4 +1089,182 @@ void deleteAcademicYear(int academicYear) {
 	remove(filepath.c_str());
 
 	cout << "\nDelete academic year successful.\n\n";
+}
+
+// Show menu of staff, lecturer and student.
+void showStaffMenu() {
+	int choice;
+	int chon;
+	cout << "\t1.Class" << endl;
+	cout << "\t2.Course" << endl;
+	cout << "\t3.Scoreboard" << endl;
+	cout << "\tAttendance list" << endl;
+	cout << "Which object do you want to work with ?(please enter a number)" << endl;
+	cin >> choice;
+	if (choice == 1) {
+		cout << "1. Import students of a class from a csv file" << endl;
+		cout << "2. Manually add a new student to a class." << endl;
+		cout << "3. Edit an existing student." << endl;
+		cout << "4. Remove a student." << endl;
+		cout << "5. Change students from class A to class B" << endl;
+		cout << "6. View list of classes." << endl;
+		cout << "7. View list of students in a class." << endl;
+		cout << "Which function do you want to perform ? (please enter a number)" << endl;
+		cin >> chon;
+		switch (chon)
+		{
+		case 1:
+		case 2:
+		case 3:
+		case 4:
+		case 5:
+		case 6:
+		case 7:
+		default:
+			break;
+		}
+	}
+	else if (choice == 2) {
+		cout << "1. Create / update / delete / view academic years and semesters" << endl;
+		cout << "2. From a semester, import courses from a csv file." << endl;
+		cout << "3. Manually add a new course." << endl;
+		cout << "4. Edit an existing course." << endl;
+		cout << "5. Remove a course." << endl;
+		cout << "6. Remove a specific student from a course." << endl;
+		cout << "7. Add a specific student to a course." << endl;
+		cout << "8. View list of courses in the current semester." << endl;
+		cout << "9. View list of students of a course." << endl;
+		cout << "10. View attendance list of a course." << endl;
+		cout << "11. Create / update / delete / view all lecturers." << endl;
+		cout << "Which function do you want to perform ? (please enter a number)" << endl;
+		cin >> chon;
+		switch (chon)
+		{
+		case 1:
+		case 2:
+		case 3:
+		case 4:
+		case 5:
+		case 6:
+		case 7:
+		case 8:
+		case 9:
+		case 10:
+		case 11:
+		default:
+			break;
+		}
+	}
+	else if (choice == 3) {
+		cout << "1. Search and view the scoreboard of a course." << endl;
+		cout << "2. Export a scoreboard to a csv file." << endl;
+		cout << "Which function do you want to perform ? (please enter a number)" << endl;
+		cin >> chon;
+		switch (chon)
+		{
+		case 1:
+		case 2:
+		default:
+			break;
+		}
+	}
+	else if (choice == 4) {
+		cout << "1.Search and view attendance list of a course." << endl;
+		cout << "2. Export a attendance list to a csv file." << endl;
+		cout << "Which function do you want to perform ? (please enter a number)" << endl;
+		cin >> chon;
+		switch (chon)
+		{
+		case 1:
+		case 2:
+		default:
+			break;
+		}
+	}
+	else cout << "Your input is not valid" << endl;
+}
+void showLecturerMenu() {
+	int choice;
+	cout << "1. View list of courses in the current semester." << endl;
+	cout << "2. View list of students of a course." << endl;
+	cout << "3. View attendance list of a course." << endl;
+	cout << "4. Edit an attendance." << endl;
+	cout << "5. Import scoreboard of a course (midterm, final, lab, bonus) from a csv file." << endl;
+	cout << "6. Edit grade of a student." << endl;
+	cout << "7. View a scoreboard." << endl;
+	cout << "Which function do you want to perform ? (please enter a number)" << endl;
+	cin >> choice;
+	switch (choice)
+	{
+	case 1:
+	case 2:
+	case 3:
+	case 4:
+	case 5:
+	case 6:
+	case 7:
+	default:
+		break;
+	}
+}
+void showStudentMenu() {
+	int choice;
+	cout << "1. Check-in." << endl;
+	cout << "2. View check-in result." << endl;
+	cout << "3. View schedules." << endl;
+	cout << "4. View my scores of a course." << endl;
+	cout << "Which function do you want to perform ? (please enter a number)" << endl;
+	cin >> choice;
+	switch (choice)
+	{
+	case 1:
+	case 2:
+	case 3:
+	case 4:
+	default:
+		break;
+	}
+}
+
+// Read "<class>.txt, find whether Student is in this class, if yes store the info.
+bool findStudentInfoFromFile(Student& newturn, string username) {
+	ifstream in;
+	in.open("Database/Class/" + newturn.myClass + ".txt");
+	while (in >> newturn.username) {
+		in >> newturn.status;
+		in.ignore();
+		getline(in, newturn.name);
+		in >> newturn.studentId >> newturn.gender >> newturn.dob.day >> newturn.dob.month >> newturn.dob.year >> newturn.numberOfCourse;
+		if (newturn.numberOfCourse != 0)
+		{
+			newturn.myCourse = nullptr;
+			CourseInfo* currentCourse = 0;
+			for (int i = 0; i < newturn.numberOfCourse; ++i) {
+				if (newturn.myCourse == nullptr) {
+					newturn.myCourse = new CourseInfo;
+					in >> newturn.myCourse->academicYear;
+					in >> newturn.myCourse->academicYear;
+					in >> newturn.myCourse->semester >> newturn.myCourse->courseName >> newturn.myCourse->defaultClass;
+					newturn.myCourse->next = nullptr;
+					currentCourse = newturn.myCourse;
+				}
+				else {
+					currentCourse->next = new CourseInfo;
+					currentCourse = currentCourse->next;
+					in >> currentCourse->academicYear;
+					in >> currentCourse->academicYear;
+					in >> currentCourse->semester >> currentCourse->courseName >> currentCourse->defaultClass;
+					currentCourse->next = nullptr;
+				}
+
+			}
+		}
+		if (newturn.username == username) {
+			in.close();
+			return true;
+		}
+
+	}
+	in.close();
+	return false;
 }

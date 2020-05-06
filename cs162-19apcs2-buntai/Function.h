@@ -7,10 +7,7 @@
 // ====== ALL-ROLES ======
 void login(string& username, int& userrole); // 1.1
 void showMenu(int& userrole); // 1.2
-void staffMenu();
-void lecturerMenu();
-void studentMenu();
-
+void viewProfileInfo(string& username, int& userrole); // 1.3
 // ====== STAFF - CLASS ======
 void importStudentFromCsv(); // 2.1
 void manuallyAddStudent(); // 2.2
@@ -26,6 +23,9 @@ void manipulateAcademicYearsAndSemester(); // 3.1
 void importCourseFromCsv(); // 3.2
 void manuallyAddCourse(); // 3.3
 void removeCourse(); // 3.5
+void viewListOfCourses(); // 3.8
+void viewListOfStudentsOfCourse(); // 3.9
+void viewAttendanceListOfCourse(); // 3.10
 
 
 // ====== STAFF - SCOREBOARD ======
@@ -45,6 +45,7 @@ void toUpper(string& text);
 void toLower(string& text);
 string toUsername(string fullName);
 string toPassword(Date date);
+string toPasswordGeneral(string name);
 Date getDate(string date);
 string toFormalCase(string name);
 bool isClassExist(string className);
@@ -69,12 +70,13 @@ void writeClassToFile(Student*& students, string className);
 int getVersion(string existent, string username);
 string getValidUsername(string name);
 void addUser(string username, string password, int type);
+void addLecturer(Lecturer lecturer);
 void addStudentUsers(Student*& studentList);
 void addClass(string className);
 void deleteStudentList(Student*& studentList);
 void deleteCourseInfo(CourseInfo*& courseInfo);
 string findPasswordFromUsername(string username);
-Lecturer findLecturerFromUsername(string username);
+bool findLecturerFromUsername(string username, Lecturer& lecturer);
 void printStudentInfo(Student*& student);
 void readClassFromFile(string className, Student*& studentList);
 void readCourseFromFile(CourseInfo* courseInfo, Course*& course);
@@ -96,3 +98,7 @@ void readLecturersFromFile(Lecturer*& lecturers);
 void writeLecturersToFile(Lecturer*& lecturers);
 void deleteLecturers(Lecturer*& lecturers);
 void deleteAcademicYear(int academicYear);
+bool findStudentInfoFromFile(Student& newturn, string username);
+void showStaffMenu();
+void showLecturerMenu();
+void showStudentMenu();
