@@ -7,10 +7,7 @@
 // ====== ALL-ROLES ======
 void login(string& username, int& userrole); // 1.1
 void showMenu(int& userrole); // 1.2
-void staffMenu();
-void lecturerMenu();
-void studentMenu();
-
+void viewProfileInfo(string& username, int& userrole); // 1.3
 // ====== STAFF - CLASS ======
 void importStudentFromCsv(); // 2.1
 void manuallyAddStudent(); // 2.2
@@ -83,3 +80,7 @@ void deleteStudentCourseInfo(StudentCourseInfo*& studentCourseInfo);
 void deleteCourse(Course*& myCourse);
 void readCourseListFromFile(CourseInfo*& courseList, string academicYear, string semester);
 void writeCourseListToFile(CourseInfo* courseList, string academicYear, string semester);
+bool findStudentInfoFromFile(Student& newturn, string username);
+void showStaffMenu();
+void showLecturerMenu();
+void showStudentMenu();

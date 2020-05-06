@@ -61,145 +61,121 @@ void login(string& username, int& userrole) {
 void showMenu(int& userrole) {
 	int chon;
 	if (userrole == 0) {
-		staffMenu();
+		showStaffMenu();
 	}
 	else if (userrole == 1) {
-		lecturerMenu();
+		showLecturerMenu();
 	}
 	else if (userrole == 2) {
-		studentMenu();
+		showStudentMenu();
 	}
 }
-void staffMenu() {
-	int choice;
-	int chon;
-	cout << "\t1.Class" << endl;
-	cout << "\t2.Course" << endl;
-	cout << "\t3.Scoreboard" << endl;
-	cout << "\tAttendance list" << endl;
-	cout << "Which object do you want to work with ?(please enter a number)" << endl;
-	cin >> choice;
-	if (choice == 1) {
-		cout << "1. Import students of a class from a csv file" << endl;
-		cout << "2. Manually add a new student to a class." << endl;
-		cout << "3. Edit an existing student." << endl;
-		cout << "4. Remove a student." << endl;
-		cout << "5. Change students from class A to class B" << endl;
-		cout << "6. View list of classes." << endl;
-		cout << "7. View list of students in a class." << endl;
-		cout << "Which function do you want to perform ? (please enter a number)" << endl;
-		cin >> chon;
-		switch (chon)
+
+
+//1.3
+
+void viewProfileInfo(string& username, int& userrole) {
+	if (userrole == 0) {
+		Staff newturn;
+		ifstream in;
+		in.open("Database/Staff.txt");
+		if (!in) cout << "Cannot open staff file, please try it later" << endl;
+		else
 		{
-		case 1:
-		case 2:
-		case 3:
-		case 4:
-		case 5:
-		case 6:
-		case 7:
-		default:
-			break;
+			while (in) {
+				getline(in, newturn.username);
+				getline(in, newturn.name);
+				in >> newturn.gender;
+				in.ignore();
+				in.ignore();
+				if (username == newturn.username)
+				{
+					cout << "User profile: " << endl;
+					cout << "\tUsername: " << newturn.username << endl;
+					cout << "\tFullname: " << newturn.name << endl;
+					if (newturn.gender == 0) cout << "\tGender: Female" << endl;
+					else cout << "\tGender: Male" << endl;
+					return;
+				}
+			}
+			in.close();
 		}
 	}
-	else if (choice == 2) {
-		cout << "1. Create / update / delete / view academic years and semesters" << endl;
-		cout << "2. From a semester, import courses from a csv file." << endl;
-		cout << "3. Manually add a new course." << endl;
-		cout << "4. Edit an existing course." << endl;
-		cout << "5. Remove a course." << endl;
-		cout << "6. Remove a specific student from a course." << endl;
-		cout << "7. Add a specific student to a course." << endl;
-		cout << "8. View list of courses in the current semester." << endl;
-		cout << "9. View list of students of a course." << endl;
-		cout << "10. View attendance list of a course." << endl;
-		cout << "11. Create / update / delete / view all lecturers." << endl;
-		cout << "Which function do you want to perform ? (please enter a number)" << endl;
-		cin >> chon;
-		switch (chon)
-		{
-		case 1:
-		case 2:
-		case 3:
-		case 4:
-		case 5:
-		case 6:
-		case 7:
-		case 8:
-		case 9:
-		case 10:
-		case 11:
-		default:
-			break;
-		}
-	}
-	else if (choice == 3) {
-		cout << "1. Search and view the scoreboard of a course." << endl;
-		cout << "2. Export a scoreboard to a csv file." << endl;
-		cout << "Which function do you want to perform ? (please enter a number)" << endl;
-		cin >> chon;
-		switch (chon)
-		{
-		case 1:
-		case 2:
-		default:
-			break;
-		}
-	}
-	else if (choice == 4) {
-		cout << "1.Search and view attendance list of a course." << endl;
-		cout << "2. Export a attendance list to a csv file." << endl;
-		cout << "Which function do you want to perform ? (please enter a number)" << endl;
-		cin >> chon;
-		switch (chon)
-		{
-		case 1:
-		case 2:
-		default:
-			break;
-		}
-	}
-	else cout << "Your input is not valid" << endl;
-}
-void lecturerMenu() {
-	int choice;
-	cout << "1. View list of courses in the current semester." << endl;
-	cout << "2. View list of students of a course." << endl;
-	cout << "3. View attendance list of a course." << endl;
-	cout << "4. Edit an attendance." << endl;
-	cout << "5. Import scoreboard of a course (midterm, final, lab, bonus) from a csv file." << endl;
-	cout << "6. Edit grade of a student." << endl;
-	cout << "7. VView a scoreboard." << endl;
-	cout << "Which function do you want to perform ? (please enter a number)" << endl;
-	cin >> choice;
-	switch (choice)
+	else if (userrole == 1)
 	{
-	case 1:
-	case 2:
-	case 3:
-	case 4:
-	case 5:
-	case 6:
-	case 7:
-	default:
-		break;
+		Lecturer newturn;
+		ifstream in;
+		in.open("Database/Lecturer.txt");
+		if (!in) cout << "Cannot open lecturer file, please try it later" << endl;
+		else
+		{
+			while (in) {
+				getline(in, newturn.username);
+				getline(in, newturn.name);
+				getline(in, newturn.title);
+				in >> newturn.gender;
+				in.ignore();
+				in.ignore();
+				if (username == newturn.username)
+				{
+					cout << "User profile: " << endl;
+					cout << "\tUsername: " << newturn.username << endl;
+					cout << "\tFullname: " << newturn.name << endl;
+					cout << "\tTitle: " << newturn.title << endl;
+					if (newturn.gender == 0) cout << "\tGender: Female" << endl;
+					else cout << "\tGender: Male" << endl;
+					return;
+				}
+
+			}
+			in.close();
+		}
 	}
-}
-void studentMenu() {
-	int choice;
-	cout << "1. Check-in." << endl;
-	cout << "2. View check-in result." << endl;
-	cout << "3. View schedules." << endl;
-	cout << "4. View my scores of a course." << endl;
-	cout << "Which function do you want to perform ? (please enter a number)" << endl;
-	cin >> choice;
-	switch (choice)
+	else if (userrole == 2)
 	{
-	case 1:
-	case 2:
-	case 3:
-	case 4:
-	default:
-		break;
+		Student newturn;
+		ifstream in;
+		int count = 0;
+		in.open("Database/Class/Classes.txt");
+		count++;
+		if (!in) cout << "Cannot open class file, please try it later" << endl;
+		else (in >> newturn.myClass);
+		in.close();
+		while (findStudentInfoFromFile(newturn, username) == false) {
+			ifstream in;
+			in.open("Database/Class/Classes.txt");
+			while (in) {
+				for (int i = 0; i < count; i++) in >> newturn.myClass;
+			}
+			in.close();
+		}
+
+		cout << "Student info:\n";
+		cout << "\tUsername: " << newturn.username << "\n";
+		cout << "\tStatus: ";
+		if (newturn.status == 1) cout << "Available" << "\n";
+		else cout << "Dropped\n";
+		cout << "\tName: " << newturn.name << "\n";
+		cout << "\tStudent ID: " << newturn.studentId << "\n";
+		cout << "\tGender: ";
+		if (newturn.gender == 0) cout << "female\n";
+		else cout << "male\n";
+		cout << "\tDate of birth: " << newturn.dob.day << " "
+			<< newturn.dob.month << " " << newturn.dob.year << "\n";
+		cout << "\tClass: " << newturn.myClass << "\n";
+		cout << "\tCourses: " << newturn.numberOfCourse << "\n";
+		if (newturn.myCourse != nullptr) {
+			CourseInfo* courseInfo = newturn.myCourse;
+			while (courseInfo != nullptr) {
+				cout << "\t " << courseInfo->academicYear - 1 << "-"
+					<< courseInfo->academicYear << ", "
+					<< courseInfo->semester << " semester, "
+					<< courseInfo->courseName << "\n";
+				courseInfo = courseInfo->next;
+			}
+			cout << "\n";
+		}
+		CourseInfo* cur = newturn.myCourse;
+		deleteCourseInfo(cur);
 	}
 }
