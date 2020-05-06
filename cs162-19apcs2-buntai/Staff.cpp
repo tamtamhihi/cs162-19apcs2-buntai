@@ -441,6 +441,132 @@ void viewListOfStudentInAClass() {
 
 // ====== STAFF - COURSE ======
 
+// 3.1
+void manipulateAcademicYearsAndSemester() {
+	int academicYear;
+	string semester, action;
+	cout << "Please input the academic year:\n";
+	cout << "\t(input 2018 for AY 2018-2019)\n\t";
+	cin >> academicYear;
+	cout << "Input the semester name:\n";
+	cout << "\t(Summer/Fall/Spring or None to view AY only)\n\t";
+	cin >> semester; toFormalCase(semester);
+	if (semester != "Summer" && semester != "Fall" && semester != "Spring" && semester != "None") {
+		cout << "Error: Semester input is not valid. Please try again.\n\n";
+		return;
+	}
+	cout << "\nInput action:\n";
+	cout << "\tC | Create\n";
+	cout << "\tU | Update\n";
+	cout << "\tD | Delete\n";
+	cout << "\tV | View\n";
+	cin >> action; toUpper(action);
+	
+	string confirm;
+	if (action == "C") {
+		if (semester == "None") {
+			cout << "Do you want to create directory for academic year " 
+				<< academicYear << "-" << academicYear + 1 << "? Y/N\n\t";
+			cin >> confirm; toUpper(confirm);
+			cout << "\n";
+			if (confirm == "N") {
+				cout << "Adding academic year cancelled.\n\n";
+				return;
+			}
+			addAcademicYear(academicYear);
+		}
+		else {
+			cout << "Do you want to create directory for semester " << semester << " of "
+				<< academicYear << "-" << academicYear + 1 << "? Y/N\n\t";
+			cin >> confirm; toUpper(confirm);
+			cout << "\n";
+			if (confirm == "N") {
+				cout << "Adding semester cancelled.\n\n";
+				return;
+			}
+			addSemester(academicYear, semester);
+		}
+	}
+	else if (action == "D") {
+		if (semester == "None") {
+			cout << "Do you want to delete directory for academic year "
+				<< academicYear << "-" << academicYear + 1 << "? Y/N\n\t"
+				<< "By deleting, you are losing all courses and semesters information\n"
+				<< "\tof this academic year.\n\t"
+				<< "All enrolled students and lecturers of any course in this academic year\n"
+				<< "\twill be unenrolled and lose all information of attendance and scores.\n\t";
+			cin >> confirm; toUpper(confirm);
+			cout << "\n";
+			if (confirm == "N") {
+				cout << "Deleting academic year cancelled.\n\n";
+				return;
+			}
+			deleteAcademicYear(academicYear);
+		}
+		else {
+			cout << "Do you want to delete directory for semester " << semester << " of academic year "
+				<< academicYear << "-" << academicYear + 1 << "? Y/N\n\t"
+				<< "By deleting, you are losing all courses information\n"
+				<< "\tof this semester.\n\t"
+				<< "All enrolled students and lecturers of any course in this semester\n"
+				<< "\twill be unenrolled and lose all information of attendance and scores.\n\t";
+			cin >> confirm; toUpper(confirm);
+			cout << "\n";
+			if (confirm == "N") {
+				cout << "Deleting semester cancelled.\n\n";
+				return;
+			}
+			deleteSemester(academicYear, semester);
+		}
+	}
+	else {
+		if (semester == "None") {
+			if (!isAcademicYearExist(academicYear)) {
+				cout << "View academic year failed. Error: Academic year does not exist.\n\n";
+				return;
+			}
+			AcademicYear* academicYears = nullptr;
+			readAcademicYearsFromFile(academicYears);
+			AcademicYear* currentYear = academicYears;
+			while (currentYear != nullptr) {
+				if (currentYear->academicYear == academicYear)
+					break;
+				currentYear = currentYear->next;
+			}
+			cout << "Academic Year " << academicYear << "-" << academicYear + 1 << ":\n";
+			cout << setw(25) << "Number of semester | " << currentYear->numberOfSemester << "\n";
+			if (currentYear->numberOfSemester) {
+				stringstream sem(currentYear->semester);
+				string semesterName;
+				getline(sem, semesterName, ',');
+				cout << setw(25) << "Semester names | " << semesterName << "\n";
+				while (getline(sem, semesterName, ','))
+					cout << setw(25) << "| " << semesterName << "\n";
+			}
+			cout << "To view the courses of each semester, please view the specific semester.\n\n";
+			deleteAcademicYears(academicYears);
+		}
+		else {
+			if (!isSemesterExist(academicYear, semester)) {
+				cout << "View semester failed. Error: Semester does not exist.\n\n";
+				return;
+			}
+			CourseInfo* courseList = nullptr;
+			readCourseListFromFile(courseList, to_string(academicYear) + "-" + to_string(academicYear + 1), semester);
+			cout << "Semester " << semester << " AY " << academicYear << "-" << academicYear + 1 << ":\n";
+			cout << setw(25) << "Course ID |" << " Default class\n";
+			cout << setfill('-') << setw(25) << "+" << setw(25) << " " << "\n";
+			CourseInfo* currentCourse = courseList;
+			while (currentCourse != nullptr) {
+				cout << setfill(' ') << setw(24) << currentCourse->courseName << "| " << currentCourse->defaultClass << "\n";
+				currentCourse = currentCourse->next;
+			}
+			cout << "\n";
+			deleteCourseInfo(courseList);
+		}
+	}
+}
+
 // 3.2
 void importCourseFromCsv() {
 	string filepath; // store the path to CSV file
@@ -859,9 +985,9 @@ void removeCourse() {
 	CourseInfo* courseList = nullptr;
 	readCourseListFromFile(courseList, academicYear, semester);
 
-	// Find remove course
+	// Find remove course.
 	if (courseList == nullptr) {
-		cout << "Cannot find the course\n";
+		cout << "Error: Cannot find the course.\n\n";
 		return;
 	}
 	CourseInfo* currentCourseList = courseList;
@@ -870,7 +996,8 @@ void removeCourse() {
 		previous = currentCourseList;
 		currentCourseList = currentCourseList->next;
 		if (currentCourseList == nullptr) {
-			cout << "Cannot find the given course\n";
+			cout << "Error: Cannot find the course.\n\n";
+			deleteCourseInfo(courseList);
 			return;
 		}
 	}
@@ -912,7 +1039,6 @@ void removeCourse() {
 				}
 			}
 			currentStudent = currentStudent->next;
-			if (currentStudent == nullptr)break;
 		}
 		writeClassToFile(studentList, currentCourseList->defaultClass);
 		deleteStudentList(studentList);

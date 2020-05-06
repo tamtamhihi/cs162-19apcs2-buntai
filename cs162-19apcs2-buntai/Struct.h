@@ -6,6 +6,7 @@
 #include <string>
 #include <sstream>
 #include <ctype.h>
+#include <iomanip>
 #include <conio.h>
 #include <cstdio>
 using namespace std;
@@ -55,6 +56,9 @@ struct Lecturer {
 	string name;
 	string title;
 	int gender;
+	int totalCourse;
+	CourseInfo* myCourse;
+	Lecturer* next;
 };
 
 
@@ -95,6 +99,12 @@ struct Staff {
 	string password;
 	string name;
 	int gender;
+};
+struct AcademicYear {
+	int academicYear;
+	int numberOfSemester;
+	string semester;
+	AcademicYear* next;
 };
 
 #endif

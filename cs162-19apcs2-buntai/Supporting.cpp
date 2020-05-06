@@ -215,6 +215,7 @@ bool isLecturerExist(string lecturerAccount) {
 	return false;
 }
 
+// Check if a studentId already exists in all classes.
 bool isStudentIdExist(string studentId) {
 	ifstream in("Database/Class/Classes.txt");
 	string className;
@@ -236,6 +237,46 @@ bool isStudentIdExist(string studentId) {
 	return false;
 }
 
+// Check if an academic year already exists in AcademicYears.txt.
+bool isAcademicYearExist(int academicYear) {
+	ifstream in("Database/AcademicYears.txt");
+	int year, numberOfSemester;
+	if (in.is_open()) {
+		while (in >> year) {
+			if (year == academicYear) {
+				in.close();
+				return true;
+			}
+			in >> year >> numberOfSemester;
+			in.ignore();
+			for (int i = 0; i < numberOfSemester; ++i)
+				in.ignore();
+		}
+		in.close();
+	}
+	return false;
+}
+
+// Check if a semester of an academic year already exists.
+bool isSemesterExist(int academicYear, string mySemester) {
+	ifstream in("Database/AcademicYears.txt");
+	string semester;
+	int year, numberOfSemester;
+	if (in.is_open()) {
+		while (in >> year) {
+			in >> year >> numberOfSemester;
+			for (int i = 0; i < numberOfSemester; ++i) {
+				in >> semester;
+				if (year - 1 == academicYear && semester == mySemester) {
+					in.close();
+					return true;
+				}
+			}
+		}
+		in.close();
+	}
+	return false;
+}
 
 
 /* 
@@ -703,9 +744,333 @@ void writeCourseListToFile(CourseInfo* courseList, string academicYear, string s
 	out.open("Database/" + academicYear + "/" + semester + "/" + "Courses.txt");
 	if (out.is_open()) {
 		while (courseList != nullptr) {
-			out << courseList->courseName << " " << courseList->defaultClass << "/n";
+			out << courseList->courseName << " " << courseList->defaultClass << "\n";
 			courseList = courseList->next;
 		}
 		out.close();
 	}
+}
+
+// Add a new directory for academic year and add to AcademicYears.txt
+void addAcademicYear(int academicYear) {
+	if (isAcademicYearExist(academicYear)) {
+		cout << "Error: Academic year already exists.\n\n";
+		return;
+	}
+	ofstream out("Database/AcademicYears.txt", ios::app);
+	out << academicYear << " " << academicYear + 1 << "\n0\n\n";
+	out.close();
+	string filepath = "Database\\\\" + to_string(academicYear) 
+		+ "-" + to_string(academicYear + 1);
+	string command = "md " + filepath;
+	system(command.c_str());
+	cout << "Adding academic year successful.\n\n";
+}
+
+// Add a new directory for semester of an academic year.
+void addSemester(int academicYear, string mySemester) {
+	if (isSemesterExist(academicYear, mySemester)) {
+		cout << "Error: Semester already exists.\n\n";
+		return;
+	}
+	AcademicYear* academicYears = nullptr;
+	readAcademicYearsFromFile(academicYears);
+	AcademicYear* currentYear = academicYears;
+	while (currentYear != nullptr) {
+		if (currentYear->academicYear == academicYear) {
+			currentYear->numberOfSemester++;
+			currentYear->semester += mySemester + ',';
+			break;
+		}
+		currentYear = currentYear->next;
+	}
+	writeAcademicYearsToFile(academicYears);
+	deleteAcademicYears(academicYears);
+
+	string filepath = "Database\\\\" + to_string(academicYear)
+		+ "-" + to_string(academicYear + 1) + "\\\\" + mySemester;
+	string command = "md " + filepath;
+	system(command.c_str());
+
+	cout << "Adding semester successful.\n\n";
+}
+
+// Read all academic years in AcademicYears.txt.
+void readAcademicYearsFromFile(AcademicYear*& academicYears) {
+	ifstream in("Database/AcademicYears.txt");
+	if (in.is_open()) {
+		int year, numberOfSemester;
+		string semester;
+		AcademicYear* currentYear = academicYears;
+		while (in >> year) {
+			in >> year >> numberOfSemester;
+			if (academicYears == nullptr) {
+				academicYears = new AcademicYear;
+				currentYear = academicYears;
+			}
+			else {
+				currentYear->next = new AcademicYear;
+				currentYear = currentYear->next;
+			}
+			currentYear->academicYear = year - 1;
+			currentYear->numberOfSemester = numberOfSemester;
+			currentYear->semester = "";
+			for (int i = 0; i < numberOfSemester; ++i) {
+				in >> semester;
+				currentYear->semester += semester + ",";
+			}
+			currentYear->next = nullptr;
+		}
+	}
+}
+
+// Delete AcademicYear linked list.
+void deleteAcademicYears(AcademicYear*& academicYears) {
+	while (academicYears != nullptr) {
+		AcademicYear* temp = academicYears;
+		academicYears = academicYears->next;
+		delete temp;
+	}
+}
+
+// Write/rewrite AcademicYears.txt.
+void writeAcademicYearsToFile(AcademicYear*& academicYears) {
+	ofstream out("Database/AcademicYears.txt");
+	AcademicYear* currentYear = academicYears;
+	while (currentYear != nullptr) {
+		out << currentYear->academicYear << " " 
+			<< currentYear->academicYear + 1 << "\n";
+		out << currentYear->numberOfSemester << "\n";
+		stringstream semester(currentYear->semester);
+		string semesterName;
+		while (getline(semester, semesterName, ','))
+			out << semesterName << "\n";
+		out << "\n";
+		currentYear = currentYear->next;
+	}
+	out.close();
+}
+
+// Delete a semester.
+void deleteSemester(int academicYear, string semester) {
+	if (!isSemesterExist(academicYear, semester)) {
+		cout << "Delete semester failed. Error: Semester does not exist.\n\n";
+		return;
+	}
+
+	// Delete from AcademicYears.txt.
+	cout << "\tDeleting semester " << semester << " in AcademicYears.txt...\n";
+	AcademicYear* academicYears = nullptr;
+	readAcademicYearsFromFile(academicYears);
+	AcademicYear* currentYear = academicYears;
+	while (currentYear != nullptr) {
+		if (currentYear->academicYear == academicYear) {
+			currentYear->numberOfSemester--;
+			string semesterName, newSemesters = "";
+			stringstream sem(currentYear->semester);
+			while (getline(sem, semesterName, ','))
+				if (semesterName != semester)
+					newSemesters += semesterName + ',';
+			currentYear->semester = newSemesters;
+			break;
+		}
+		currentYear = currentYear->next;
+	}
+	writeAcademicYearsToFile(academicYears);
+	deleteAcademicYears(academicYears);
+	
+	// Delete directory of that semester in the directory of academic year.
+	cout << "\tDeleting semester " << semester << " directory in academic year folder...\n";
+	string filepath = "Database\\\\" + to_string(academicYear) + "-" 
+		+ to_string(academicYear + 1) + "\\\\" + semester;
+	remove(filepath.c_str());
+
+	// Delete courses of students that enrolled in any course in this semester.
+	cout << "\tDeleting semester's courses of enrolled students...\n";
+	ifstream in("Database/Class/Classes.txt");
+	if (in.is_open()) {
+		string className;
+		while (in >> className) {
+			Student* studentList = nullptr;
+			readClassFromFile(className, studentList);
+			Student* currentStudent = studentList;
+			while (currentStudent != nullptr) {
+				CourseInfo* currentCourse = currentStudent->myCourse, * previousCourse = nullptr;
+				while (currentCourse != nullptr) {
+					if (currentCourse->academicYear == academicYear && currentCourse->semester == semester) {
+						currentStudent->numberOfCourse--;
+						CourseInfo* temp = currentCourse;
+						currentCourse = currentCourse->next;
+						delete temp;
+						if (previousCourse != nullptr)
+							previousCourse->next = currentCourse;
+						else
+							currentStudent->myCourse = currentCourse;
+					}
+					else {
+						previousCourse = currentCourse;
+						currentCourse = currentCourse->next;
+					}
+				}
+				currentStudent = currentStudent->next;
+			}
+			writeClassToFile(studentList, className);
+			deleteStudentList(studentList);
+		}
+		in.close();
+	}
+
+	// Delete courses of lecturers that teach any course in this semester.
+	cout << "\tDeleting semester's courses of lecturers...\n";
+	Lecturer* lecturers = nullptr;
+	readLecturersFromFile(lecturers);
+	Lecturer* currentLecturer = lecturers;
+	while (currentLecturer != nullptr) {
+		CourseInfo* currentCourse = currentLecturer->myCourse, *previousCourse = nullptr;
+		while (currentCourse != nullptr) {
+			if (currentCourse->academicYear == academicYear
+				&& currentCourse->semester == semester) {
+				currentLecturer->totalCourse--;
+				CourseInfo* temp = currentCourse;
+				currentCourse = currentCourse->next;
+				delete temp;
+				if (previousCourse != nullptr)
+					previousCourse->next = currentCourse;
+				else
+					currentLecturer->myCourse = currentCourse;
+			}
+			else {
+				previousCourse = currentCourse;
+				currentCourse = currentCourse->next;
+			}
+		}
+		currentLecturer = currentLecturer->next;
+	}
+	writeLecturersToFile(lecturers);
+	deleteLecturers(lecturers);
+
+	cout << "Delete semester " << semester << "successful.\n\n";
+}
+
+// Read all lecturers from Lecturer.txt.
+void readLecturersFromFile(Lecturer*& lecturers) {
+	ifstream in("Database/Lecturer.txt");
+	if (in.is_open()) {
+		string username, fullName, title, semester, courseId, defaultClass;
+		int gender, totalCourse, year;
+		Lecturer* currentLecturer = lecturers;
+		while (in >> username) {
+			getline(in, fullName);
+			getline(in, title);
+			in >> gender >> totalCourse;
+			if (lecturers == nullptr) {
+				lecturers = new Lecturer;
+				currentLecturer = lecturers;
+			}
+			else {
+				currentLecturer->next = new Lecturer;
+				currentLecturer = currentLecturer->next;
+			}
+			currentLecturer->username = username;
+			currentLecturer->name = fullName;
+			currentLecturer->title = title;
+			currentLecturer->gender = gender;
+			currentLecturer->totalCourse = totalCourse;
+			currentLecturer->myCourse = nullptr;
+			CourseInfo* currentCourse = currentLecturer->myCourse;
+			for (int i = 0; i < totalCourse; ++i) {
+				in >> year >> year >> semester >> courseId >> defaultClass;
+				if (currentLecturer->myCourse == nullptr) {
+					currentLecturer->myCourse = new CourseInfo;
+					currentCourse = currentLecturer->myCourse;
+				}
+				else {
+					currentCourse->next = new CourseInfo;
+					currentCourse = currentCourse->next;
+				}
+				currentCourse->academicYear = year - 1;
+				currentCourse->semester = semester;
+				currentCourse->courseName = courseId;
+				currentCourse->defaultClass = defaultClass;
+				currentCourse->next = nullptr;
+			}
+		}
+		in.close();
+	}
+}
+
+// Write/rewrite all lecturers.
+void writeLecturersToFile(Lecturer*& lecturers) {
+	ofstream out("Database/Lecturer.txt");
+	Lecturer* currentLecturer = lecturers;
+	while (currentLecturer != nullptr) {
+		out << currentLecturer->username << "\n"
+			<< currentLecturer->name << "\n"
+			<< currentLecturer->title << "\n"
+			<< currentLecturer->totalCourse << "\n";
+		CourseInfo* currentCourse = currentLecturer->myCourse;
+		while (currentCourse != nullptr) {
+			out << currentCourse->academicYear << " "
+				<< currentCourse->academicYear + 1 << " "
+				<< currentCourse->semester << " "
+				<< currentCourse->courseName << " "
+				<< currentCourse->defaultClass << "\n";
+			currentCourse = currentCourse->next;
+		}
+		out << "\n";
+		currentLecturer = currentLecturer->next;
+	}
+	out.close();
+}
+
+// Delete Lecturer linked list.
+void deleteLecturers(Lecturer*& lecturers) {
+	while (lecturers != nullptr) {
+		deleteCourseInfo(lecturers->myCourse);
+		Lecturer* temp = lecturers;
+		lecturers = lecturers->next;
+		delete temp;
+	}
+}
+
+// Delete an academic year.
+void deleteAcademicYear(int academicYear) {
+	if (!isAcademicYearExist(academicYear)) {
+		cout << "Delete academic year failed. Error: Academic year does not exist.\n\n";
+		return;
+	}
+
+	// Delete each semester if existent, including deleting from AcademicYears.txt,
+	// from courses of enrolled students, from lecturers and deleting the directory.
+	if (isSemesterExist(academicYear, "Summer"))
+		deleteSemester(academicYear, "Summer");
+	if (isSemesterExist(academicYear, "Spring"))
+		deleteSemester(academicYear, "Spring");
+	if (isSemesterExist(academicYear, "Fall"))
+		deleteSemester(academicYear, "Fall");
+	
+	// Delete AcademicYear in AcademicYears.txt.
+	cout << "Deleting academic year in AcademicYears.txt...\n";
+	AcademicYear* academicYears = nullptr;
+	readAcademicYearsFromFile(academicYears);
+	AcademicYear* currentYear = academicYears;
+	while (currentYear != nullptr) {
+		if (currentYear->academicYear == academicYear) {
+			AcademicYear* temp = currentYear;
+			currentYear = currentYear->next;
+			delete temp;
+		}
+		else
+			currentYear = currentYear->next;
+	}
+	writeAcademicYearsToFile(academicYears);
+	deleteAcademicYears(academicYears);
+
+	// Delete directory of academic year.
+	cout << "Deleting directory of academicYear " << academicYear << "-" << academicYear + 1 << "...\n";
+	string filepath = "Database\\\\" + to_string(academicYear) + "-"
+		+ to_string(academicYear + 1);
+	remove(filepath.c_str());
+
+	cout << "\nDelete academic year successful.\n\n";
 }

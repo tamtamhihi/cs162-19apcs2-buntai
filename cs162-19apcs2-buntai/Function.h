@@ -22,6 +22,7 @@ void viewListOfStudentInAClass(); // 2.7
 
 
 // ====== STAFF - COURSE ======
+void manipulateAcademicYearsAndSemester(); // 3.1
 void importCourseFromCsv(); // 3.2
 void manuallyAddCourse(); // 3.3
 void removeCourse(); // 3.5
@@ -59,6 +60,8 @@ string numToDay(int day);
 bool isCourseExist(CourseInfo* courseInfo);
 bool isLecturerExist(string lecturerAccount);
 bool isStudentIdExist(string studentId);
+bool isAcademicYearExist(int academicYear);
+bool isSemesterExist(int academicYear, string mySemester);
 
 
 // ====== APP-RELATED ======
@@ -83,3 +86,13 @@ void deleteStudentCourseInfo(StudentCourseInfo*& studentCourseInfo);
 void deleteCourse(Course*& myCourse);
 void readCourseListFromFile(CourseInfo*& courseList, string academicYear, string semester);
 void writeCourseListToFile(CourseInfo* courseList, string academicYear, string semester);
+void addAcademicYear(int academicYear);
+void addSemester(int academicYear, string mySemester);
+void readAcademicYearsFromFile(AcademicYear*& academicYears);
+void deleteAcademicYears(AcademicYear*& academicYears);
+void writeAcademicYearsToFile(AcademicYear*& academicYears);
+void deleteSemester(int academicYear, string semester);
+void readLecturersFromFile(Lecturer*& lecturers);
+void writeLecturersToFile(Lecturer*& lecturers);
+void deleteLecturers(Lecturer*& lecturers);
+void deleteAcademicYear(int academicYear);
