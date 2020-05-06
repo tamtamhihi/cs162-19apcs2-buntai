@@ -122,6 +122,12 @@ void manuallyAddStudent() {
 	if (row == "N")
 		return;
 
+	// Check if studentId exists.
+	if (isStudentIdExist(studentId)) {
+		cout << "Adding student failed. Error: Student ID already exists.\n\n";
+		return;
+	}
+
 	// Save to database.
 	ofstream out("Database/Class/" + className + ".txt", ios::app);
 	out << username << "\n" << password << "\n" << 1 << "\n";
@@ -262,7 +268,7 @@ void editExistingStudent() {
 // 2.4
 void removeStudent() {
 	// Ask for class and student ID.
-	cout << "Please input student class with the same format:\n";
+	cout << "Please input student class and student ID with the same format:\n";
 	cout << "<class-name>,<studentId>\n\t";
 	string row, className, id;
 	getline(cin, row);
@@ -309,7 +315,7 @@ void removeStudent() {
 // 2.5 
 void changeStudentClass() {
 	// Ask for the input.
-	cout << "Please input student'ID, old class and new class of that student with the same fotmat:\n";
+	cout << "Please input student's ID, old class and new class of that student with the same format:\n";
 	cout << "<studentID>,<oldClass>,<newClass>\n\t";
 	string row, id, oldClass, newClass;
 	getline(cin, row);
@@ -365,14 +371,15 @@ void changeStudentClass() {
 	out << changeStudent->gender << "\n";
 	out << changeStudent->dob.day << " "
 		<< changeStudent->dob.month << " "
-		<< changeStudent->dob.year << " " << "\n";
+		<< changeStudent->dob.year << "\n";
 	out << changeStudent->numberOfCourse << "\n";
 	CourseInfo* changeCourseInfo = changeStudent->myCourse;
 	while (changeCourseInfo != nullptr) {
 		out << changeCourseInfo->academicYear << " "
 			<< changeCourseInfo->academicYear + 1 << " "
 			<< changeCourseInfo->semester << " "
-			<< changeCourseInfo->courseName << "\n";
+			<< changeCourseInfo->courseName << "\n"
+			<< changeCourseInfo->defaultClass << "\n";
 		changeCourseInfo = changeCourseInfo->next;
 	}
 	out << "\n";
@@ -381,7 +388,7 @@ void changeStudentClass() {
 	// Delete linked lists.
 	deleteStudentList(studentList);
 
-	cout << "Change class of student successfully" << endl;
+	cout << "Change class of student successfully." << endl;
 }
 
 // 2.6
@@ -443,6 +450,7 @@ void importCourseFromCsv() {
 	cin >> academicYear; // store academic year
 	cout << "Semester: ";
 	cin >> semester; // store semester
+	toFormalCase(semester);
 	cout << "Enter the path to CSV file: ";
 	cin >> filepath;
 	cout << "\n";
