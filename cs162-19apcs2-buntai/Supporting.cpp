@@ -399,9 +399,17 @@ void addUser(string username, string password, int type) {
 }
 
 // Add a single lecturer to "Lecturer.txt" file using lecturer information.
-void addLecturer(Lecturer lecturer) {
+void addLecturer(Lecturer lecturer, CourseInfo *courseInfo) {
 	ofstream out("Database/Lecturer.txt", ios::app);
-	out << lecturer.username << "\n" << lecturer.name << "\n" << lecturer.title << "\n" << lecturer.gender << "\n";
+	out << lecturer.username << "\n" 
+		<< lecturer.name << "\n" 
+		<< lecturer.title << "\n" 
+		<< lecturer.gender << "\n"
+		<< 1 << "\n"
+		<< courseInfo->academicYear << " " << courseInfo->academicYear + 1 << " " 
+		<< courseInfo->semester << " " 
+		<< courseInfo->courseName << " "
+		<< courseInfo->defaultClass << "\n\n";
 	out.close();
 }
 

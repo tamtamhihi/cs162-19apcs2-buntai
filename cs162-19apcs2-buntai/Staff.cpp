@@ -584,7 +584,7 @@ void importCourseFromCsv() {
 	cin >> academicYear; // store academic year
 	cout << "Semester: ";
 	cin >> semester; // store semester
-	toFormalCase(semester);
+	semester = toFormalCase(semester);
 	cout << "Enter the path to CSV file: ";
 	cin >> filepath;
 	cout << "\n";
@@ -640,11 +640,14 @@ void importCourseFromCsv() {
 		courseInfo->next = nullptr;
 		if (isCourseExist(courseInfo)) {
 			cout << "Import failed. Error: Course already exists.\n\n";
+			deleteCourseInfo(courseInfo);
+			return;
 		}
 
 		// Check if class exists.
 		if (!isClassExist(defautClass)) {
 			cout << "Import failed. Error: Can't find default class.\n\n";
+			deleteCourseInfo(courseInfo);
 			return;
 		} 
 
@@ -656,9 +659,28 @@ void importCourseFromCsv() {
 		currentCourse->defaultClass = defautClass;
 
 		string lecturerUsername = toUsername(lecturerName);
-		if (!findLecturerFromUsername(lecturerUsername, currentCourse->lecturer)) {
+		Lecturer* lecturers = nullptr;
+		readLecturersFromFile(lecturers);
+		Lecturer* currentLecturer = lecturers,* previousLecturer = nullptr;
+		while (currentLecturer != nullptr) {
+			if (currentLecturer->username == lecturerUsername) {
+				CourseInfo* myCourse = currentLecturer->myCourse;
+				if (myCourse == nullptr)
+					myCourse = courseInfo;
+				else {
+					while (myCourse->next != nullptr)
+						myCourse = myCourse->next;
+					myCourse->next = courseInfo;
+				}
+				currentLecturer->totalCourse++;
+				break;
+			}
+			previousLecturer = currentLecturer;
+			currentLecturer = currentLecturer->next;
+		}
+		if (currentLecturer == nullptr) {
 			string title, gender, password;
-			cout << "The lecturer is not exist yet. Please input his/her additional information with the same format:\n";
+			cout << "The lecturer does not exist. Please input his/her additional information with the same format:\n";
 			cout << "<title>,<male/female>\n\t";
 			string temp;
 			cin.ignore();
@@ -666,14 +688,26 @@ void importCourseFromCsv() {
 			stringstream TEMP(temp);
 			getline(TEMP, title, ',');
 			getline(TEMP, gender, ',');
+			toLower(gender);
 			password = toPasswordGeneral(lecturerName);
 			currentCourse->lecturer.username = lecturerUsername;
 			currentCourse->lecturer.name = lecturerName;
 			currentCourse->lecturer.title = title;
 			currentCourse->lecturer.gender = (gender == "male") ? 1 : 0;
 			addUser(lecturerUsername, password, 1);
-			addLecturer(currentCourse->lecturer);
+			addLecturer(currentCourse->lecturer, courseInfo);
+			previousLecturer->next = new Lecturer;
+			currentLecturer = previousLecturer->next;
+			currentLecturer->username = lecturerUsername;
+			currentLecturer->name = lecturerName;
+			currentLecturer->title = title;
+			currentLecturer->gender = (gender == "male") ? 1 : 0;
+			currentLecturer->totalCourse = 1;
+			currentLecturer->myCourse = courseInfo;
+			currentLecturer->next = nullptr;
 		} // Check if lecturer exists, if not create a new account.
+		writeLecturersToFile(lecturers);
+		deleteLecturers(lecturers);
 
 		currentCourse->startDate = getDate(startDate);
 		currentCourse->endDate = getDate(endDate);

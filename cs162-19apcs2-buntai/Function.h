@@ -73,7 +73,7 @@ void writeClassToFile(Student*& students, string className);
 int getVersion(string existent, string username);
 string getValidUsername(string name);
 void addUser(string username, string password, int type);
-void addLecturer(Lecturer lecturer);
+void addLecturer(Lecturer lecturer, CourseInfo* courseInfo);
 void addStudentUsers(Student*& studentList);
 void addClass(string className);
 void deleteStudentList(Student*& studentList);
