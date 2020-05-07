@@ -291,6 +291,31 @@ bool isSemesterExist(int academicYear, string mySemester) {
 	return false;
 }
 
+// Remove all files in the semester directory.
+void removeSemesterDirectory(int academicYear, string semester) {
+	string semesterDir = "Database\\" + to_string(academicYear) + "-" +
+		to_string(academicYear + 1) + "\\" + semester;
+	string coursesDir = semesterDir + "/Courses.txt";
+	ifstream in(coursesDir);
+	if (!in.is_open()) {
+		remove(semesterDir.c_str());
+		return;
+	}
+	string courseId, defaultClass, courseDir;
+	while (in >> courseId >> defaultClass) {
+		courseDir = semesterDir + "/" + courseId + "-" + defaultClass + ".txt";
+		remove(courseDir.c_str());
+	}
+	in.close();
+	remove(coursesDir.c_str());
+	string command = "rd " + semesterDir;
+	system(command.c_str());
+}
+
+
+
+
+
 
 /*
 ====== APP-RELATED ======
@@ -901,9 +926,7 @@ void deleteSemester(int academicYear, string semester) {
 
 	// Delete directory of that semester in the directory of academic year.
 	cout << "\tDeleting semester " << semester << " directory in academic year folder...\n";
-	string filepath = "Database\\\\" + to_string(academicYear) + "-"
-		+ to_string(academicYear + 1) + "\\\\" + semester;
-	remove(filepath.c_str());
+	removeSemesterDirectory(academicYear, semester);
 
 	// Delete courses of students that enrolled in any course in this semester.
 	cout << "\tDeleting semester's courses of enrolled students...\n";
@@ -969,7 +992,7 @@ void deleteSemester(int academicYear, string semester) {
 	writeLecturersToFile(lecturers);
 	deleteLecturers(lecturers);
 
-	cout << "Delete semester " << semester << "successful.\n\n";
+	cout << "Delete semester " << semester << " successful.\n\n";
 }
 
 // Read all lecturers from Lecturer.txt.
@@ -980,6 +1003,7 @@ void readLecturersFromFile(Lecturer*& lecturers) {
 		int gender, totalCourse, year;
 		Lecturer* currentLecturer = lecturers;
 		while (in >> username) {
+			in.ignore();
 			getline(in, fullName);
 			getline(in, title);
 			in >> gender >> totalCourse;
@@ -1010,6 +1034,7 @@ void readLecturersFromFile(Lecturer*& lecturers) {
 				currentCourse->defaultClass = defaultClass;
 				currentCourse->next = nullptr;
 			}
+			currentLecturer->next = nullptr;
 		}
 		in.close();
 	}
@@ -1066,27 +1091,34 @@ void deleteAcademicYear(int academicYear) {
 		deleteSemester(academicYear, "Fall");
 
 	// Delete AcademicYear in AcademicYears.txt.
-	cout << "Deleting academic year in AcademicYears.txt...\n";
+	cout << "\tDeleting academic year in AcademicYears.txt...\n";
 	AcademicYear* academicYears = nullptr;
 	readAcademicYearsFromFile(academicYears);
-	AcademicYear* currentYear = academicYears;
+	AcademicYear* currentYear = academicYears,* previousYear = nullptr;
 	while (currentYear != nullptr) {
 		if (currentYear->academicYear == academicYear) {
 			AcademicYear* temp = currentYear;
 			currentYear = currentYear->next;
 			delete temp;
+			if (previousYear == nullptr)
+				academicYears = currentYear;
+			else
+				previousYear->next = currentYear;
 		}
-		else
+		else {
+			previousYear = currentYear;
 			currentYear = currentYear->next;
+		}
 	}
 	writeAcademicYearsToFile(academicYears);
 	deleteAcademicYears(academicYears);
 
 	// Delete directory of academic year.
-	cout << "Deleting directory of academicYear " << academicYear << "-" << academicYear + 1 << "...\n";
+	cout << "\tDeleting directory of academicYear " << academicYear << "-" << academicYear + 1 << "...\n";
 	string filepath = "Database\\\\" + to_string(academicYear) + "-"
 		+ to_string(academicYear + 1);
-	remove(filepath.c_str());
+	string command = "rd " + filepath;
+	system(command.c_str());
 
 	cout << "\nDelete academic year successful.\n\n";
 }

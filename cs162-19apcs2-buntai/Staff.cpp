@@ -448,25 +448,30 @@ void manipulateAcademicYearsAndSemester() {
 	cout << "Please input the academic year:\n";
 	cout << "\t(input 2018 for AY 2018-2019)\n\t";
 	cin >> academicYear;
+	cout << "\n";
 	cout << "Input the semester name:\n";
 	cout << "\t(Summer/Fall/Spring or None to view AY only)\n\t";
-	cin >> semester; toFormalCase(semester);
+	cin >> semester; 
+	semester = toFormalCase(semester);
 	if (semester != "Summer" && semester != "Fall" && semester != "Spring" && semester != "None") {
 		cout << "Error: Semester input is not valid. Please try again.\n\n";
+		cout << semester;
 		return;
 	}
 	cout << "\nInput action:\n";
 	cout << "\tC | Create\n";
-	cout << "\tU | Update\n";
 	cout << "\tD | Delete\n";
 	cout << "\tV | View\n";
+	cout << "Your choice: ";
 	cin >> action; toUpper(action);
+	cout << "\n";
 	
 	string confirm;
 	if (action == "C") {
 		if (semester == "None") {
 			cout << "Do you want to create directory for academic year " 
-				<< academicYear << "-" << academicYear + 1 << "? Y/N\n\t";
+				<< academicYear << "-" << academicYear + 1 << "?\n\t";
+			cout << "Y/N? ";
 			cin >> confirm; toUpper(confirm);
 			cout << "\n";
 			if (confirm == "N") {
@@ -477,7 +482,8 @@ void manipulateAcademicYearsAndSemester() {
 		}
 		else {
 			cout << "Do you want to create directory for semester " << semester << " of "
-				<< academicYear << "-" << academicYear + 1 << "? Y/N\n\t";
+				<< academicYear << "-" << academicYear + 1 << "?\n\t";
+			cout << "Y/N? ";
 			cin >> confirm; toUpper(confirm);
 			cout << "\n";
 			if (confirm == "N") {
@@ -490,11 +496,12 @@ void manipulateAcademicYearsAndSemester() {
 	else if (action == "D") {
 		if (semester == "None") {
 			cout << "Do you want to delete directory for academic year "
-				<< academicYear << "-" << academicYear + 1 << "? Y/N\n\t"
+				<< academicYear << "-" << academicYear + 1 << "?\n\t"
 				<< "By deleting, you are losing all courses and semesters information\n"
 				<< "\tof this academic year.\n\t"
 				<< "All enrolled students and lecturers of any course in this academic year\n"
-				<< "\twill be unenrolled and lose all information of attendance and scores.\n\t";
+				<< "\twill be unenrolled and lose all information of attendance and scores.\n";
+			cout << "Y/N? ";
 			cin >> confirm; toUpper(confirm);
 			cout << "\n";
 			if (confirm == "N") {
@@ -505,11 +512,12 @@ void manipulateAcademicYearsAndSemester() {
 		}
 		else {
 			cout << "Do you want to delete directory for semester " << semester << " of academic year "
-				<< academicYear << "-" << academicYear + 1 << "? Y/N\n\t"
+				<< academicYear << "-" << academicYear + 1 << "?\n\t"
 				<< "By deleting, you are losing all courses information\n"
 				<< "\tof this semester.\n\t"
 				<< "All enrolled students and lecturers of any course in this semester\n"
-				<< "\twill be unenrolled and lose all information of attendance and scores.\n\t";
+				<< "\twill be unenrolled and lose all information of attendance and scores.\n";
+			cout << "Y/N? ";
 			cin >> confirm; toUpper(confirm);
 			cout << "\n";
 			if (confirm == "N") {

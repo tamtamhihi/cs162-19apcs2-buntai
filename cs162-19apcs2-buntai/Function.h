@@ -8,6 +8,8 @@
 void login(string& username, int& userrole); // 1.1
 void showMenu(int& userrole); // 1.2
 void viewProfileInfo(string& username, int& userrole); // 1.3
+
+
 // ====== STAFF - CLASS ======
 void importStudentFromCsv(); // 2.1
 void manuallyAddStudent(); // 2.2
@@ -63,6 +65,7 @@ bool isLecturerExist(string lecturerAccount);
 bool isStudentIdExist(string studentId);
 bool isAcademicYearExist(int academicYear);
 bool isSemesterExist(int academicYear, string mySemester);
+void removeSemesterDirectory(int academicYear, string semester);
 
 
 // ====== APP-RELATED ======
