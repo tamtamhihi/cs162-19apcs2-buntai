@@ -5,10 +5,10 @@
 
 
 // ====== ALL-ROLES ======
-void login(string& username, int& userrole); // 1.1
-void showMenu(int& userrole); // 1.2
-void viewProfileInfo(string& username, int& userrole); // 1.3
-
+void login(string& userName, int& userRole); // 1.1
+void showMenu(int& userRole); // 1.2
+void viewProfileInfo(string& userName, int& userRole); // 1.3
+void logout(string& userName, int& userRole); //1.5
 
 // ====== STAFF - CLASS ======
 void importStudentFromCsv(); // 2.1
@@ -105,7 +105,7 @@ void readLecturersFromFile(Lecturer*& lecturers);
 void writeLecturersToFile(Lecturer*& lecturers);
 void deleteLecturers(Lecturer*& lecturers);
 void deleteAcademicYear(int academicYear);
-bool findStudentInfoFromFile(Student& newturn, string username);
+bool findStudentInfoFromFile(Student& newTurn, string userName);
 void showStaffMenu();
 void showLecturerMenu();
 void showStudentMenu();
