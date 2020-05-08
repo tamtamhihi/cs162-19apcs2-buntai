@@ -561,11 +561,11 @@ void manipulateAcademicYearsAndSemester() {
 			CourseInfo* courseList = nullptr;
 			readCourseListFromFile(courseList, to_string(academicYear) + "-" + to_string(academicYear + 1), semester);
 			cout << "Semester " << semester << " AY " << academicYear << "-" << academicYear + 1 << ":\n";
-			cout << setw(25) << "Course ID |" << " Default class\n";
-			cout << setfill('-') << setw(25) << "+" << setw(25) << " " << "\n";
+			cout << "\t" << setw(15) << "Course ID |" << " Default class\n";
+			cout << "\t" << setfill('-') << setw(15) << "+" << setw(15) << " " << "\n";
 			CourseInfo* currentCourse = courseList;
 			while (currentCourse != nullptr) {
-				cout << setfill(' ') << setw(24) << currentCourse->courseName << "| " << currentCourse->defaultClass << "\n";
+				cout << "\t" << setfill(' ') << setw(14) << currentCourse->courseName << "| " << currentCourse->defaultClass << "\n";
 				currentCourse = currentCourse->next;
 			}
 			cout << "\n";

@@ -39,6 +39,7 @@ void manipulateAllLecturers(); // 3.11
 
 
 // ====== LECTURER ======
+void viewCoursesInSemester(string lecturerUsername); // 6.1
 
 
 // ====== STUDENT ======
