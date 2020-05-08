@@ -663,6 +663,10 @@ void importCourseFromCsv() {
 			currentCourse->lecturer.name = lecturerName;
 			currentCourse->lecturer.title = title;
 			currentCourse->lecturer.gender = (gender == "male") ? 1 : 0;
+			currentCourse->lecturer.totalCourse = 1;
+			currentCourse->lecturer.myCourse = new CourseInfo;
+			currentCourse->lecturer.myCourse->academicYear = academicYear;
+
 			addUser(lecturerUsername, password, 1);
 			addLecturer(currentCourse->lecturer);
 		} // Check if lecturer exists, if not create a new account.
@@ -1031,6 +1035,11 @@ void manuallyAddCourse() {
 	deleteStudentList(courseTmp->students);
 
 	cout << "Course added successfully.\n\n";
+}
+
+// 3.4
+void editAnExistingCourse() {
+
 }
 
 // 3.5
