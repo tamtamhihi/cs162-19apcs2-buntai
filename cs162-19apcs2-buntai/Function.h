@@ -8,6 +8,8 @@
 void login(string& username, int& userrole); // 1.1
 void showMenu(int& userrole); // 1.2
 void viewProfileInfo(string& username, int& userrole); // 1.3
+
+
 // ====== STAFF - CLASS ======
 void importStudentFromCsv(); // 2.1
 void manuallyAddStudent(); // 2.2
@@ -64,6 +66,7 @@ bool isLecturerExist(string lecturerAccount);
 bool isStudentIdExist(string studentId);
 bool isAcademicYearExist(int academicYear);
 bool isSemesterExist(int academicYear, string mySemester);
+void removeSemesterDirectory(int academicYear, string semester);
 
 
 // ====== APP-RELATED ======
@@ -71,7 +74,7 @@ void writeClassToFile(Student*& students, string className);
 int getVersion(string existent, string username);
 string getValidUsername(string name);
 void addUser(string username, string password, int type);
-void addLecturer(Lecturer lecturer);
+void addLecturer(Lecturer lecturer, CourseInfo* courseInfo);
 void addStudentUsers(Student*& studentList);
 void addClass(string className);
 void deleteStudentList(Student*& studentList);
