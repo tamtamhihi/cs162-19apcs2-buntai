@@ -657,8 +657,10 @@ void importCourseFromCsv() {
 		currentCourse->courseId = courseId;
 		currentCourse->courseName = courseName;
 		currentCourse->defaultClass = defautClass;
-
 		string lecturerUsername = toUsername(lecturerName);
+		currentCourse->lecturer.username = lecturerUsername;
+
+		// Update Lecturer.txt.
 		Lecturer* lecturers = nullptr;
 		readLecturersFromFile(lecturers);
 		Lecturer* currentLecturer = lecturers,* previousLecturer = nullptr;
@@ -690,14 +692,6 @@ void importCourseFromCsv() {
 			getline(TEMP, gender, ',');
 			toLower(gender);
 			password = toPasswordGeneral(lecturerName);
-			currentCourse->lecturer.username = lecturerUsername;
-			currentCourse->lecturer.name = lecturerName;
-			currentCourse->lecturer.title = title;
-			currentCourse->lecturer.gender = (gender == "male") ? 1 : 0;
-			currentCourse->lecturer.totalCourse = 1;
-			currentCourse->lecturer.myCourse = new CourseInfo;
-			currentCourse->lecturer.myCourse->academicYear = academicYear;
-
 			addUser(lecturerUsername, password, 1);
 			addLecturer(currentCourse->lecturer, courseInfo);
 			previousLecturer->next = new Lecturer;
