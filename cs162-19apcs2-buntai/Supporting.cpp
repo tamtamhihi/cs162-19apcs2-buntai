@@ -1267,26 +1267,26 @@ void showStudentMenu() {
 }
 
 // Read "<class>.txt, find whether Student is in this class, if yes store the info.
-bool findStudentInfoFromFile(Student& newturn, string username) {
+bool findStudentInfoFromFile(Student& newTurn, string userName) {
 	ifstream in;
-	in.open("Database/Class/" + newturn.myClass + ".txt");
-	while (in >> newturn.username) {
-		in >> newturn.status;
+	in.open("Database/Class/" + newTurn.myClass + ".txt");
+	while (in >> newTurn.username) {
+		in >> newTurn.status;
 		in.ignore();
-		getline(in, newturn.name);
-		in >> newturn.studentId >> newturn.gender >> newturn.dob.day >> newturn.dob.month >> newturn.dob.year >> newturn.numberOfCourse;
-		if (newturn.numberOfCourse != 0)
+		getline(in, newTurn.name);
+		in >> newTurn.studentId >> newTurn.gender >> newTurn.dob.day >> newTurn.dob.month >> newTurn.dob.year >> newTurn.numberOfCourse;
+		if (newTurn.numberOfCourse != 0)
 		{
-			newturn.myCourse = nullptr;
+			newTurn.myCourse = nullptr;
 			CourseInfo* currentCourse = 0;
-			for (int i = 0; i < newturn.numberOfCourse; ++i) {
-				if (newturn.myCourse == nullptr) {
-					newturn.myCourse = new CourseInfo;
-					in >> newturn.myCourse->academicYear;
-					in >> newturn.myCourse->academicYear;
-					in >> newturn.myCourse->semester >> newturn.myCourse->courseName >> newturn.myCourse->defaultClass;
-					newturn.myCourse->next = nullptr;
-					currentCourse = newturn.myCourse;
+			for (int i = 0; i < newTurn.numberOfCourse; ++i) {
+				if (newTurn.myCourse == nullptr) {
+					newTurn.myCourse = new CourseInfo;
+					in >> newTurn.myCourse->academicYear;
+					in >> newTurn.myCourse->academicYear;
+					in >> newTurn.myCourse->semester >> newTurn.myCourse->courseName >> newTurn.myCourse->defaultClass;
+					newTurn.myCourse->next = nullptr;
+					currentCourse = newTurn.myCourse;
 				}
 				else {
 					currentCourse->next = new CourseInfo;
@@ -1299,7 +1299,7 @@ bool findStudentInfoFromFile(Student& newturn, string username) {
 
 			}
 		}
-		if (newturn.username == username) {
+		if (newTurn.username == userName) {
 			in.close();
 			return true;
 		}
