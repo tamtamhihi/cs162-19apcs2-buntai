@@ -651,6 +651,20 @@ void importCourseFromCsv() {
 			return;
 		} 
 
+		// Check if academic year exists.
+		if (!isAcademicYearExist(academicYear)) {
+			cout << "Import failed. Error: Academic year does not exist. Please create the corrensponding year first.\n\n";
+			deleteCourseInfo(courseInfo);
+			return;
+		}
+
+		// Check if semester exists.
+		if (!isSemesterExist(academicYear, semester)) {
+			cout << "Import failed. Error: Semester does not exist. Please create the corresponding semester first.\n\n";
+			deleteCourseInfo(courseInfo);
+			return;
+		}
+
 		currentCourse = new Course;
 		currentCourse->academicYear = academicYear;
 		currentCourse->semester = semester;
@@ -667,13 +681,21 @@ void importCourseFromCsv() {
 		while (currentLecturer != nullptr) {
 			if (currentLecturer->username == lecturerUsername) {
 				CourseInfo* myCourse = currentLecturer->myCourse;
-				if (myCourse == nullptr)
-					myCourse = courseInfo;
+				if (currentLecturer->myCourse == nullptr) {
+					currentLecturer->myCourse = new CourseInfo;
+					myCourse = currentLecturer->myCourse;
+				}
 				else {
 					while (myCourse->next != nullptr)
 						myCourse = myCourse->next;
-					myCourse->next = courseInfo;
+					myCourse->next = new CourseInfo;
+					myCourse = myCourse->next;
 				}
+				myCourse->academicYear = courseInfo->academicYear;
+				myCourse->semester = courseInfo->semester;
+				myCourse->courseName = courseInfo->courseName;
+				myCourse->defaultClass = courseInfo->defaultClass;
+				myCourse->next = nullptr;
 				currentLecturer->totalCourse++;
 				break;
 			}
@@ -701,7 +723,12 @@ void importCourseFromCsv() {
 			currentLecturer->title = title;
 			currentLecturer->gender = (gender == "male") ? 1 : 0;
 			currentLecturer->totalCourse = 1;
-			currentLecturer->myCourse = courseInfo;
+			currentLecturer->myCourse = new CourseInfo;
+			currentLecturer->myCourse->academicYear = courseInfo->academicYear;
+			currentLecturer->myCourse->semester = courseInfo->semester;
+			currentLecturer->myCourse->courseName = courseInfo->courseName;
+			currentLecturer->myCourse->defaultClass = courseInfo->defaultClass;
+			currentLecturer->myCourse->next = nullptr;
 			currentLecturer->next = nullptr;
 		} // Check if lecturer exists, if not create a new account.
 		writeLecturersToFile(lecturers);
@@ -768,13 +795,13 @@ void importCourseFromCsv() {
 			// Update enrolled students information.
 			currentStudent->numberOfCourse++;
 			CourseInfo* currentStudentCourse = currentStudent->myCourse;
-			while (currentStudentCourse != nullptr && currentStudentCourse->next != nullptr)
-				currentStudentCourse = currentStudentCourse->next;
-			if (currentStudentCourse == nullptr) {
+			if (currentStudent->myCourse == nullptr) {
 				currentStudent->myCourse = new CourseInfo;
 				currentStudentCourse = currentStudent->myCourse;
 			}
 			else {
+				while (currentStudentCourse->next != nullptr)
+					currentStudentCourse = currentStudentCourse->next;
 				currentStudentCourse->next = new CourseInfo;
 				currentStudentCourse = currentStudentCourse->next;
 			}
@@ -851,6 +878,14 @@ void importCourseFromCsv() {
 
 		// Write to database.
 		writeCourseToFile(currentCourse);
+
+		// Because the default delete function for course linked list 
+		// does not delete course info of students.
+		currentStudent = currentCourse->students;
+		while (currentStudent != nullptr) {
+			deleteCourseInfo(currentStudent->myCourse);
+			currentStudent = currentStudent->next;
+		}
 		deleteCourse(currentCourse);
 		deleteCourseInfo(courseInfo);
 	}
@@ -862,55 +897,78 @@ void importCourseFromCsv() {
 
 // 3.3
 void manuallyAddCourse() {
-	// Ask for information in one line.
-	cout << "Please input the following information with the same format:\n";
-	cout << "<academic-year>,<semester>,<course-id>,<course-name>,<default-class>,<lecturer-name>,"
-		 << "<start-date yyyy-mm-dd>,<end-date yyyy-mm-dd>,<sessions-per-week>,"
-		 << "<day-of-week-1>,<start-hour-1>,<end-hour-1>,(...)<room>\n\t";
-	string row, academicYear, semester, courseId, courseName, defautClass, lecturerName,
-		   startDate, endDate, sessionsPerWeek, dayOfWeek, startHour, endHour, room;
+	// Ask for information.
+	string row, academicYear, semester, courseId, courseName, defaultClass, lecturerName,
+		startDate, endDate, sessionsPerWeek, dayOfWeek, startHour, endHour, room;
+	stringstream info;
+	cout << "Please input the following information with the same format:\n\n";
+	cout << "<academic-year>,<semester>,<course-id>,<course-name>,<default-class>\n\t";
 	getline(cin, row);
 	cout << "\n";
-
-	// Retrieve each information.
-	stringstream info(row);
+	info << row;
 	getline(info, academicYear, ',');
 	getline(info, semester, ','); semester = toFormalCase(semester);
 	getline(info, courseId, ','); toUpper(courseId);
 	getline(info, courseName, ',');
-	getline(info, defautClass, ','); toUpper(defautClass);
-	getline(info, lecturerName, ',');
-	getline(info, startDate, ',');
-	getline(info, endDate, ',');
-	getline(info, sessionsPerWeek, ',');
+	getline(info, defaultClass, ','); toUpper(defaultClass);
+	info.clear();
 
-	// Check course information.
+	if (!isAcademicYearExist(stoi(academicYear))) {
+		cout << "Adding course failed. Error: Academic year does not exist. Please create the corresponding academic year first.\n\n";
+		return;
+	}
+	if (!isSemesterExist(stoi(academicYear), semester)) {
+		cout << "Adding course failed. Error: Semester does not exist. Please create the corresponding semester first.\n\n";
+		return;
+	}
+
 	CourseInfo* courseInfo = new CourseInfo;
-	courseInfo->next = nullptr;
 	courseInfo->academicYear = stoi(academicYear);
 	courseInfo->semester = semester;
 	courseInfo->courseName = courseId;
-	courseInfo->defaultClass = defautClass;
+	courseInfo->defaultClass = defaultClass;
+	courseInfo->next = nullptr;
 	if (isCourseExist(courseInfo)) {
-		cout << "Error: Course alrealdy exists.\n\n";
+		cout << "Adding course failed. Error: Course already exists.\n\n";
 		deleteCourseInfo(courseInfo);
 		return;
 	}
-	if (!isClassExist(defautClass)) {
-		cout << "Error: Default class does not exist.\n\n";
-		deleteCourseInfo(courseInfo);
-		return;
-	}
-	if (!isLecturerExist(toUsername(lecturerName))) {
-		
-		cout << "Error: Lecturer account does not exist.\n\n";
+	if (!isClassExist(defaultClass)) {
+		cout << "Adding course failed. Error: Default class doest not exist.\n\n";
 		deleteCourseInfo(courseInfo);
 		return;
 	}
 
+	cout << "<lecturer-name>,<start-date yyyy-mm-dd>,<end-date yyyy-mm-dd>,<sessions-per-week>,<room>\n\t";
+	getline(cin, row);
+	cout << "\n";
+	info << row;
+	getline(info, lecturerName, ',');
+	string lecturerUsername = toUsername(lecturerName);
+	getline(info, startDate, ',');
+	getline(info, endDate, ',');
+	getline(info, sessionsPerWeek, ',');
+	getline(info, room, ',');
+	info.clear();
+
+	cout << "<day-of-week-1>,<start-hour-1>,<end-hour-1>,(...)\n\t";
+	getline(cin, row);
+	info << row;
+	cout << "\n";
+
 	// Continue retrieving.
 	Course* courseTmp = new Course;
-	courseInfo->next = nullptr;
+	courseTmp->academicYear = courseInfo->academicYear;
+	courseTmp->semester = courseInfo->semester;
+	courseTmp->courseId = courseInfo->courseName;
+	courseTmp->courseName = courseName;
+	courseTmp->defaultClass = defaultClass;
+	courseTmp->startDate = getDate(startDate);
+	courseTmp->endDate = getDate(endDate);
+	courseTmp->lecturer.username = lecturerUsername;
+	courseTmp->room = room;
+	courseTmp->students = nullptr;
+	courseTmp->studentCourseInfo = nullptr;
 	courseTmp->sessionsPerWeek = stoi(sessionsPerWeek);
 	courseTmp->sessionInfo = nullptr;
 	SessionInfo* currentSession = nullptr;
@@ -931,29 +989,31 @@ void manuallyAddCourse() {
 		currentSession->endTime = getTime(endHour);
 		currentSession->next = nullptr;
 	}
-	getline(info, room, ',');
 
-	// Ask again.
+	// Ask again for confirmation.
 	cout << "Course info:\n";
 	cout << "\tAcademic year: " << academicYear << "\n";
 	cout << "\tSemester: " << semester << "\n";
 	cout << "\tCourse ID: " << courseId << "\n";
 	cout << "\tCourse name: " << courseName << "\n";
-	cout << "\tDefault class: " << defautClass << "\n";
-	cout << "\tLecturer Account: " << lecturerName << "\n";
+	cout << "\tDefault class: " << defaultClass << "\n";
+	cout << "\tLecturer Account: " << lecturerUsername << "\n";
 	Date start = getDate(startDate), end = getDate(endDate);
 	cout << "\tStart date: " << start.day << "-" << start.month << "-" << start.year << "\n";
 	cout << "\tEnd date: " << end.day << "-" << end.month << "-" << end.year << "\n";
 	cout << "\tSessions per week: " << sessionsPerWeek << "\n";
 	cout << "\tSessions info:\n";
+	cout << "\t" << setw(20) << "Day of week |" << setw(20) << "Start time |" << " End time\n";
+	cout << "\t" << setfill('-') << setw(20) << "+" << setw(20) << "+" << setw(20) << " " << "\n";
 	currentSession = courseTmp->sessionInfo;
 	for (int i = 0; i < courseTmp->sessionsPerWeek; ++i) {
-		cout << "\t\tSection " << i + 1 << ": \n";
-		cout << "\t\tDay: " << numToDay(currentSession->day) << "\n";
-		cout << "\t\tStart hour: " << currentSession->startTime.hour << ":"
-								   << currentSession->startTime.minute << "\n";
-		cout << "\t\tEnd hour: " << currentSession->endTime.hour << ":"
-								 << currentSession->endTime.minute << "\n";
+		string sessionStart = to_string(currentSession->startTime.hour) + ":"
+			+ to_string(currentSession->startTime.minute);
+		string sessionEnd = to_string(currentSession->endTime.hour) + ":"
+			+ to_string(currentSession->endTime.minute);
+		cout << "\t" << setfill(' ') << setw(19) << numToDay(currentSession->day) << "|"
+			<< setw(19) << sessionStart << "| " << sessionEnd << "\n";
+		currentSession = currentSession->next;
 	}
 	cout << "\tRoom: " << room << "\n";
 	cout << "Do you want to add this course? Y/N\n";
@@ -962,113 +1022,172 @@ void manuallyAddCourse() {
 	toUpper(row);
 	if (row == "N") {
 		deleteCourseInfo(courseInfo);
-		deleteSessionInfo(courseTmp->sessionInfo);
-		deleteStudentList(courseTmp->students);
+		deleteCourse(courseTmp);
 		return;
 	}
 
-	// Save to database.
-	string filepath = "Database/"
-		+ academicYear + "-"
-		+ to_string(stoi(academicYear) + 1) + "/"
-		+ semester + "/"
-		+ courseId + "-"
-		+ defautClass + ".txt";
-	ofstream out(filepath);
-	out << courseId << "\n"
-		<< courseName << "\n"
-		<< defautClass << "\n"
-		<< lecturerName << "\n"
-		<< start.day << " " << start.month << " " << start.year << "\n"
-		<< end.day << " " << end.month << " " << end.year << "\n";
-	courseTmp->startDate = start;
-	courseTmp->endDate = end;
-	courseTmp->sessionsPerWeek = courseTmp->sessionsPerWeek;
-	courseTmp->totalSessions = calculateTotalSessions(courseTmp);
-	out << courseTmp->totalSessions << "\n"
-		<< courseTmp->sessionsPerWeek << "\n";
-	currentSession = courseTmp->sessionInfo;
-	for (int i = 0; i < courseTmp->sessionsPerWeek; ++i) {
-		out << currentSession->day << " "
-			<< currentSession->startTime.hour << " " << currentSession->startTime.minute << " "
-			<< currentSession->endTime.hour << " " << currentSession->endTime.minute << "\n";
+	// Update Lecturer.txt.
+	Lecturer* lecturers = nullptr;
+	readLecturersFromFile(lecturers);
+	Lecturer* currentLecturer = lecturers, * previousLecturer = nullptr;
+	while (currentLecturer != nullptr) {
+		if (currentLecturer->username == lecturerUsername) {
+			CourseInfo* myCourse = currentLecturer->myCourse;
+			if (currentLecturer->myCourse == nullptr) {
+				currentLecturer->myCourse = new CourseInfo;
+				myCourse = currentLecturer->myCourse;
+			}
+			else {
+				while (myCourse->next != nullptr)
+					myCourse = myCourse->next;
+				myCourse->next = new CourseInfo;
+				myCourse = myCourse->next;
+			}
+			myCourse->academicYear = courseInfo->academicYear;
+			myCourse->semester = courseInfo->semester;
+			myCourse->courseName = courseInfo->courseName;
+			myCourse->defaultClass = courseInfo->defaultClass;
+			myCourse->next = nullptr;
+			currentLecturer->totalCourse++;
+			break;
+		}
+		previousLecturer = currentLecturer;
+		currentLecturer = currentLecturer->next;
 	}
-	out << room << "\n\n";
-	courseTmp->students = nullptr;
-	readClassFromFile(defautClass, courseTmp->students);
+	if (currentLecturer == nullptr) {
+		string title, gender, password;
+		cout << "The lecturer does not exist. Please input his/her additional information with the same format:\n";
+		cout << "<title>,<male/female>\n\t";
+		string temp;
+		cin.ignore();
+		getline(cin, temp);
+		stringstream TEMP(temp);
+		getline(TEMP, title, ',');
+		getline(TEMP, gender, ',');
+		toLower(gender);
+		password = toPasswordGeneral(lecturerName);
+		addUser(lecturerUsername, password, 1);
+		addLecturer(courseTmp->lecturer, courseInfo);
+		previousLecturer->next = new Lecturer;
+		currentLecturer = previousLecturer->next;
+		currentLecturer->username = lecturerUsername;
+		currentLecturer->name = lecturerName;
+		currentLecturer->title = title;
+		currentLecturer->gender = (gender == "male") ? 1 : 0;
+		currentLecturer->totalCourse = 1;
+		currentLecturer->myCourse = new CourseInfo;
+		currentLecturer->myCourse->academicYear = courseInfo->academicYear;
+		currentLecturer->myCourse->semester = courseInfo->semester;
+		currentLecturer->myCourse->courseName = courseInfo->courseName;
+		currentLecturer->myCourse->defaultClass = courseInfo->defaultClass;
+		currentLecturer->myCourse->next = nullptr;
+		currentLecturer->next = nullptr;
+	} // Check if lecturer exists, if not create a new account.
+	writeLecturersToFile(lecturers);
+	deleteLecturers(lecturers);
+
+	// Calculate total sessions.
+	courseTmp->totalSessions = calculateTotalSessions(courseTmp);
+
+	// Read enrolled students information.
+	readClassFromFile(defaultClass, courseTmp->students);
+	courseTmp->studentCourseInfo = nullptr;
 	Student* currentStudent = courseTmp->students;
-	currentSession = courseTmp->sessionInfo;
-	while (currentSession != nullptr && currentSession->next != nullptr)
-		currentSession = currentSession->next;
-	currentSession->next = courseTmp->sessionInfo;
-	currentSession = currentSession->next;
+	StudentCourseInfo* currentStudentInfo = nullptr;
+
 	while (currentStudent != nullptr) {
-		out << currentStudent->username << "\n"
-			<< currentStudent->name << "\n"
-			<< currentStudent->studentId << "\n"
-			<< currentStudent->gender << "\n"
-			<< currentStudent->dob.day << " " << currentStudent->dob.month << " " << currentStudent->dob.year << "\n"
-			<< currentStudent->status << "\n"
-			<< "0 0 0 0\n";
-		Date nextSession = start;
+		// Update enrolled students information.
+		currentStudent->numberOfCourse++;
+		CourseInfo* currentStudentCourse = currentStudent->myCourse;
+		if (currentStudent->myCourse == nullptr) {
+			currentStudent->myCourse = new CourseInfo;
+			currentStudentCourse = currentStudent->myCourse;
+		}
+		else {
+			while (currentStudentCourse->next != nullptr)
+				currentStudentCourse = currentStudentCourse->next;
+			currentStudentCourse->next = new CourseInfo;
+			currentStudentCourse = currentStudentCourse->next;
+		}
+		currentStudentCourse->academicYear = courseInfo->academicYear;
+		currentStudentCourse->semester = courseInfo->semester;
+		currentStudentCourse->courseName = courseInfo->courseName;
+		currentStudentCourse->defaultClass = courseInfo->defaultClass;
+		currentStudentCourse->next = nullptr;
+
+		// Read enrolled students course information.
+		if (courseTmp->studentCourseInfo == nullptr) {
+			courseTmp->studentCourseInfo = new StudentCourseInfo;
+			currentStudentInfo = courseTmp->studentCourseInfo;
+		}
+		else {
+			currentStudentInfo->next = new StudentCourseInfo;
+			currentStudentInfo = currentStudentInfo->next;
+		}
+		currentStudentInfo->midterm = 0;
+		currentStudentInfo->final = 0;
+		currentStudentInfo->lab = 0;
+		currentStudentInfo->bonus = 0;
+		currentStudentInfo->status = 1;
+		currentStudentInfo->next = nullptr;
+		currentStudentInfo->attendance = nullptr;
+		Attendance* currentAttendance = nullptr;
+		Date nextSession = courseTmp->startDate;
 		int daysToNext;
-		currentSession = courseTmp->sessionInfo;
+		SessionInfo* currentSession = courseTmp->sessionInfo;
+		// Link session info list circularly.
+		while (currentSession != nullptr && currentSession->next != nullptr)
+			currentSession = currentSession->next;
+		currentSession->next = courseTmp->sessionInfo;
+		currentSession = currentSession->next;
 		for (int i = 0; i < courseTmp->totalSessions; ++i) {
-			out << nextSession.day << " " << nextSession.month << " " << nextSession.year << " "
-				<< currentSession->startTime.hour << " " << currentSession->startTime.minute << " "
-				<< currentSession->endTime.hour << " " << currentSession->endTime.minute << " "
-				<< "0 0\n";
+			if (currentStudentInfo->attendance == nullptr) {
+				currentStudentInfo->attendance = new Attendance;
+				currentAttendance = currentStudentInfo->attendance;
+			}
+			else {
+				currentAttendance->next = new Attendance;
+				currentAttendance = currentAttendance->next;
+			}
+			currentAttendance->date = nextSession;
+			currentAttendance->startTime = currentSession->startTime;
+			currentAttendance->endTime = currentSession->endTime;
+			currentAttendance->time = Time{ 0,0 };
+			currentAttendance->next = nullptr;
 			daysToNext = currentSession->next->day - currentSession->day;
 			daysToNext += (daysToNext > 0) ? 0 : 7;
 			nextSession = dateAfterDays(nextSession, daysToNext);
 			currentSession = currentSession->next;
 		}
-		out << "\n";
+		// Unlink circularly.
+		currentSession = courseTmp->sessionInfo->next;
+		while (currentSession->next != courseTmp->sessionInfo)
+			currentSession = currentSession->next;
+		currentSession->next = nullptr;
 		currentStudent = currentStudent->next;
 	}
-	out.close();
+	writeClassToFile(courseTmp->students, defaultClass);
+	writeCourseToFile(courseTmp);
 
 	// Edit other related files.
 	// Update "Courses.txt" file.
-	filepath = "Database/"
+	string filepath = "Database/"
 		+ academicYear + "-"
 		+ to_string(stoi(academicYear) + 1) + "/"
 		+ semester + "/Courses.txt";
+	ofstream out;
 	out.open(filepath, ios::app);
-	out << courseId << " " << defautClass << "\n";
+	out << courseId << " " << defaultClass << "\n";
 	out.close();
-	// Update students information in default class.
-	currentStudent = courseTmp->students;
-	while (currentStudent != nullptr) {
-		currentStudent->numberOfCourse++;
-		CourseInfo* currentCourse = currentStudent->myCourse;
-		while (currentCourse != nullptr && currentCourse->next != nullptr)
-			currentCourse = currentCourse->next;
-		if (currentCourse == nullptr) {
-			currentStudent->myCourse = new CourseInfo;
-			currentCourse = currentStudent->myCourse;
-		}
-		else {
-			currentCourse->next = new CourseInfo;
-			currentCourse = currentCourse->next;
-		}
-		currentCourse->academicYear = courseInfo->academicYear;
-		currentCourse->semester = courseInfo->semester;
-		currentCourse->courseName = courseInfo->courseName;
-		currentCourse->defaultClass = courseInfo->defaultClass;
-		currentCourse->next = nullptr;
-		currentStudent = currentStudent->next;
-	}
-	writeClassToFile(courseTmp->students, defautClass);
 
 	// Delete linked list.
-	currentSession = courseTmp->sessionInfo->next;
-	while (currentSession->next != courseTmp->sessionInfo)
-		currentSession = currentSession->next;
-	currentSession->next = nullptr;
+	currentStudent = courseTmp->students;
+	while (currentStudent != nullptr) {
+		deleteCourseInfo(currentStudent->myCourse);
+		currentStudent = currentStudent->next;
+	}
+	deleteCourse(courseTmp);
 	deleteCourseInfo(courseInfo);
-	deleteSessionInfo(courseTmp->sessionInfo);
-	deleteStudentList(courseTmp->students);
 
 	cout << "Course added successfully.\n\n";
 }
