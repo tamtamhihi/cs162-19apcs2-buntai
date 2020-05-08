@@ -233,7 +233,6 @@ void editExistingStudent() {
 			if (row == "Y")
 				editedStudent->dob = Dob;
 		}
-		
 	}
 
 	// Edit in course files that this student enrolls.
@@ -672,6 +671,9 @@ void importCourseFromCsv() {
 		currentCourse->courseName = courseName;
 		currentCourse->defaultClass = defautClass;
 		string lecturerUsername = toUsername(lecturerName);
+		// If lecturer hasn't existed, make sure the new lecturer account doesn't overlap any other roles.
+		if (!isLecturerExist(lecturerUsername))
+			lecturerUsername = getValidUsername(lecturerUsername);
 		currentCourse->lecturer.username = lecturerUsername;
 
 		// Update Lecturer.txt.
@@ -715,7 +717,7 @@ void importCourseFromCsv() {
 			toLower(gender);
 			password = toPasswordGeneral(lecturerName);
 			addUser(lecturerUsername, password, 1);
-			addLecturer(currentCourse->lecturer, courseInfo);
+			addLecturerFromNewCourse(currentCourse->lecturer, courseInfo);
 			previousLecturer->next = new Lecturer;
 			currentLecturer = previousLecturer->next;
 			currentLecturer->username = lecturerUsername;
@@ -945,6 +947,9 @@ void manuallyAddCourse() {
 	info << row;
 	getline(info, lecturerName, ',');
 	string lecturerUsername = toUsername(lecturerName);
+	// If lecturer hasn't existed, make sure the new lecturer account does not overlap any other roles.
+	if (!isLecturerExist(lecturerUsername))
+		lecturerUsername = getValidUsername(lecturerUsername);
 	getline(info, startDate, ',');
 	getline(info, endDate, ',');
 	getline(info, sessionsPerWeek, ',');
@@ -1067,7 +1072,7 @@ void manuallyAddCourse() {
 		toLower(gender);
 		password = toPasswordGeneral(lecturerName);
 		addUser(lecturerUsername, password, 1);
-		addLecturer(courseTmp->lecturer, courseInfo);
+		addLecturerFromNewCourse(courseTmp->lecturer, courseInfo);
 		previousLecturer->next = new Lecturer;
 		currentLecturer = previousLecturer->next;
 		currentLecturer->username = lecturerUsername;
@@ -1466,4 +1471,204 @@ void viewAttendanceListOfCourse() {
 	deleteCourse(course);
 
 	in.close();
+}
+
+// 3.11
+void manipulateAllLecturers() {
+	string action, confirm, row;
+	cout << "\nInput action:\n";
+	cout << "\tC  | Create a new lecturer account\n";
+	cout << "\tU  | Update information of an existing lecturer\n";
+	cout << "\tD  | Delete an existing lecturer\n";
+	cout << "\tV  | View a lecturer's info\n";
+	cout << "\tVA | View all lecturers\n";
+	cout << "Your choice: ";
+	cin >> action; toUpper(action);
+
+	while (action != "C" && action != "U" && action != "D" && action != "V" && action != "VA") {
+		cout << "Action is not available. Please input again: ";
+		cin >> action; toUpper(action);
+	}
+	cout << "\n";
+	string lecturerName, title, gender, lecturerUsername, password;
+
+	// Create lecturer.
+	if (action == "C") {
+		// Ask for lecturer's information.
+		cout << "Please input the following information of lecturer in the same format:\n";
+		cout << "<full-name>,<title>,<male-female>\n\t";
+		cin.ignore();
+		getline(cin, row);
+		cout << "\n";
+		stringstream info(row);
+		getline(info, lecturerName, ','); lecturerName = toFormalCase(lecturerName);
+		getline(info, title, ',');
+		getline(info, gender, ','); toLower(gender);
+		lecturerUsername = toUsername(lecturerName);
+
+		// Exit if lecturer already exists.
+		if (isLecturerExist(lecturerUsername)) {
+			cout << "Creating new lecturer failed. Error: Lecturer already exists.\n\n";
+			return;
+		}
+		lecturerUsername = getValidUsername(lecturerUsername);
+
+		Lecturer* lecturer = new Lecturer;
+		lecturer->username = lecturerUsername;
+		lecturer->name = lecturerName;
+		lecturer->title = title;
+		lecturer->password = toPasswordGeneral(lecturerName);
+		lecturer->gender = (gender == "male") ? MALE : FEMALE;
+		lecturer->totalCourse = 0;
+		lecturer->myCourse = nullptr;
+		lecturer->next = nullptr;
+
+		// Confirmation.
+		printLecturerInfo(lecturer);
+		cout << "Do you want to add this lecturer? Y/N\t";
+		cin >> confirm; toUpper(confirm);
+		cout << "\n";
+		if (confirm == "N") {
+			cout << "Adding lecturer cancelled.\n\n";
+			deleteLecturers(lecturer);
+			return;
+		}
+
+		// Add lecturer.
+		addLecturer(lecturer);
+		addUser(lecturer->username, lecturer->password, LECTURER);
+		deleteLecturers(lecturer);
+		cout << "Adding lecturer successful.\n\n";
+	}
+	// Updating a lecturer.
+	else if (action == "U") {
+		cout << "Input the lecturer's username:\n\t";
+		cin >> lecturerUsername;
+		cout << "\n";
+		if (!isLecturerExist(lecturerUsername)) {
+			cout << "Updating lecturer failed. Error: Lecturer does not exist.\n\n";
+			return;
+		}
+		Lecturer* lecturers = nullptr;
+		readLecturersFromFile(lecturers);
+		Lecturer* currentLecturer = lecturers;
+		while (currentLecturer->username != lecturerUsername)
+			currentLecturer = currentLecturer->next;
+		currentLecturer->password = findPasswordFromUsername(lecturerUsername);
+		printLecturerInfo(currentLecturer);
+
+		// Ask for field to edit and prompt editing.
+		cout << "What field do you want to edit?\n";
+		cout << "\t1-Name\n\t2-Gender\n\t3-Title\n";
+		cout << "Input in increasing order with a space between.\n\t";
+		cin.ignore();
+		getline(cin, row);
+		cout << "\n";
+		stringstream info(row);
+		int choice = 0;
+		while (info >> choice) {
+			if (choice == 1) {
+				cout << "New name: ";
+				getline(cin, lecturerName);
+				lecturerName = toFormalCase(lecturerName);
+				cout << "Do you want to change name from "
+					<< currentLecturer->name << " to " << lecturerName << "? Y/N\n\t";
+				cin >> row; toUpper(row);
+				cout << "\n";
+				if (row == "Y")
+					currentLecturer->name = lecturerName;
+			}
+			else if (choice == 2) {
+				cout << "Do you want to change gender of this lecturer? Y/N\n\t";
+				cin >> row; toUpper(row);
+				cout << "\n";
+				if (row == "Y") {
+					if (currentLecturer->gender == FEMALE)
+						currentLecturer->gender = MALE;
+					else
+						currentLecturer->gender = FEMALE;
+				}
+			}
+			else {
+				string title;
+				cout << "New title: ";
+				getline(cin, title);
+				cout << "Do you want to change title from "
+					<< currentLecturer->title << " to " << title << "? Y/N\n\t";
+				cin >> row; toUpper(row);
+				cout << "\n";
+				if (row == "Y")
+					currentLecturer->title = title;
+			}
+		}
+		writeLecturersToFile(lecturers);
+		cout << "Updating " << lecturerUsername << "'s information successful.\n\n";
+		deleteLecturers(lecturers);
+	}
+	// Delete a lecturer.
+	else if (action == "D") {
+		cout << "Input the lecturer's username:\n\t";
+		cin >> lecturerUsername;
+		cout << "\n";
+		if (!isLecturerExist(lecturerUsername)) {
+			cout << "Deleting lecturer failed. Error: Lecturer does not exist.\n\n";
+			return;
+		}
+		Lecturer* lecturers = nullptr;
+		readLecturersFromFile(lecturers);
+		Lecturer* currentLecturer = lecturers;
+		while (currentLecturer->username != lecturerUsername)
+			currentLecturer = currentLecturer->next;
+		printLecturerInfo(currentLecturer);
+		cout << "Are you sure to delete this lecturer?\n\t";
+		cout << "All information about their coursesand student's scores, attendance will be lost and can't be undone.\n";
+		cout << "Y/N?\t";
+		cin >> confirm; toUpper(confirm);
+		cout << "\n";
+		if (confirm == "N") {
+			cout << "Deleting lecturer cancelled.\n\n";
+			deleteLecturers(lecturers);
+			return;
+		}
+		// TODO: REMOVE LECTURER.
+		deleteLecturers(lecturers);
+		cout << "Deleting lecturer successful.\n\n";
+	}
+	// View a lecturer.
+	else if (action == "V") {
+		cout << "Input the lecturer's username:\n\t";
+		cin >> lecturerUsername;
+		cout << "\n";
+		if (!isLecturerExist(lecturerUsername)) {
+			cout << "Viewing lecturer failed. Error: Lecturer does not exist.\n\n";
+			return;
+		}
+		Lecturer* lecturers = nullptr;
+		readLecturersFromFile(lecturers);
+		Lecturer* currentLecturer = lecturers;
+		while (currentLecturer->username != lecturerUsername)
+			currentLecturer = currentLecturer->next;
+		printLecturerInfo(currentLecturer);
+		cout << "\n";
+	}
+	// View all lecturers.
+	else {
+		Lecturer* lecturers = nullptr;
+		readLecturersFromFile(lecturers);
+		cout << "ALL LECTURES' INFORMATION:\n";
+		cout << "\t" << setw(15) << "Username |" << setw(30) 
+			<< "Full name |" << setw(15) << "Title |" << setw(15) 
+			<< "Gender |" <<  "Total courses\n";
+		cout << "\t" << setfill('-') << setw(15) << "+" << setw(30) << "+" << setw(15) << "+" << setw(15) << "+" <<  setw(15) << " " << "\n";
+		Lecturer* currentLecturer = lecturers;
+		while (currentLecturer != nullptr) {
+			string gender = (currentLecturer->gender == MALE) ? "male" : "female";
+			cout << "\t" << setfill(' ') << setw(14) << currentLecturer->username << "|" << setw(29)
+				<< currentLecturer->name << "|" << setw(14) << currentLecturer->title << "|" << setw(14)
+				<< gender << "| " << to_string(currentLecturer->totalCourse) << "\n";
+			currentLecturer = currentLecturer->next;
+		}
+		deleteLecturers(lecturers);
+		cout << "\n";
+	}
 }

@@ -29,6 +29,7 @@ void removeCourse(); // 3.5
 void viewListOfCourses(); // 3.8
 void viewListOfStudentsOfCourse(); // 3.9
 void viewAttendanceListOfCourse(); // 3.10
+void manipulateAllLecturers(); // 3.11
 
 
 // ====== STAFF - SCOREBOARD ======
@@ -74,7 +75,8 @@ void writeClassToFile(Student*& students, string className);
 int getVersion(string existent, string username);
 string getValidUsername(string name);
 void addUser(string username, string password, int type);
-void addLecturer(Lecturer lecturer, CourseInfo* courseInfo);
+void addLecturerFromNewCourse(Lecturer lecturer, CourseInfo* courseInfo);
+void addLecturer(Lecturer*& lecturer);
 void addStudentUsers(Student*& studentList);
 void addClass(string className);
 void deleteStudentList(Student*& studentList);
@@ -82,6 +84,7 @@ void deleteCourseInfo(CourseInfo*& courseInfo);
 string findPasswordFromUsername(string username);
 bool findLecturerFromUsername(string username, Lecturer& lecturer);
 void printStudentInfo(Student*& student);
+void printLecturerInfo(Lecturer*& lecturer);
 void readClassFromFile(string className, Student*& studentList);
 void readCourseFromFile(CourseInfo* courseInfo, Course*& course);
 void writeCourseToFile(Course*& course);

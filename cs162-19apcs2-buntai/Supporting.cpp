@@ -216,14 +216,18 @@ bool isCourseExist(CourseInfo* courseInfo) {
 bool isLecturerExist(string lecturerAccount) {
 	ifstream in("Database/Lecturer.txt");
 	string user, name, title;
-	int gender;
+	int gender, totalCourse;
 	while (in >> user) {
-		getline(in, name, '\n');
-		getline(in, title, '\n');
-		in >> gender;
-		if (user == lecturerAccount)
+		if (user == lecturerAccount) {
+			in.close();
 			return true;
-		in.get();
+		}
+		in.ignore();
+		getline(in, name);
+		getline(in, title);
+		in >> gender >> totalCourse;
+		in.ignore();
+		for (int i = 0; i < totalCourse; ++i) getline(in, name);
 	}
 	return false;
 }
@@ -398,8 +402,8 @@ void addUser(string username, string password, int type) {
 	out.close();
 }
 
-// Add a single lecturer to "Lecturer.txt" file using lecturer information.
-void addLecturer(Lecturer lecturer, CourseInfo *courseInfo) {
+// Add a single lecturer to "Lecturer.txt" file using lecturer information from a new Course.
+void addLecturerFromNewCourse(Lecturer lecturer, CourseInfo *courseInfo) {
 	ofstream out("Database/Lecturer.txt", ios::app);
 	out << lecturer.username << "\n" 
 		<< lecturer.name << "\n" 
@@ -410,6 +414,17 @@ void addLecturer(Lecturer lecturer, CourseInfo *courseInfo) {
 		<< courseInfo->semester << " " 
 		<< courseInfo->courseName << " "
 		<< courseInfo->defaultClass << "\n\n";
+	out.close();
+}
+
+// Add a single lecturer to "Lecturer.txt" file with no course.
+void addLecturer(Lecturer*& lecturer) {
+	ofstream out("Database/Lecturer.txt", ios::app);
+	out << lecturer->username << "\n"
+		<< lecturer->name << "\n"
+		<< lecturer->title << "\n"
+		<< lecturer->gender << "\n"
+		<< 0 << "\n\n";
 	out.close();
 }
 
@@ -512,6 +527,36 @@ void printStudentInfo(Student*& student) {
 			<< courseInfo->academicYear + 1 << ", "
 			<< courseInfo->semester << " semester, "
 			<< courseInfo->courseName << "\n";
+	}
+	cout << "\n";
+}
+
+// Print a single lecturer's info.
+void printLecturerInfo(Lecturer*& lecturer) {
+	cout << "Lecturer information:\n";
+	cout << "\tFull name: " << lecturer->name<< "\n";
+	cout << "\tUsername: " << lecturer->username << "\n";
+	cout << "\tPassword: " << lecturer->password << "\n";
+	cout << "\tTitle: " << lecturer->title << "\n";
+	cout << "\tGender: ";
+	if (lecturer->gender == MALE) cout << "male\n";
+	else cout << "female\n";
+	cout << "\tNumber of course: " << lecturer->totalCourse << "\n";
+	if (lecturer->totalCourse) {
+		cout << "\t" << setw(20) << "Academic year |" << setw(20) << "Semester |" 
+			<< setw(20) << "Course ID |" <<" Default class\n";
+		cout << "\t" << setfill('-') << setw(20) << "+" << setw(20) << "+" 
+			<< setw(20) << "+" << setw(20) << " " << "\n";
+		CourseInfo* currentCourse = lecturer->myCourse;
+		while (currentCourse != nullptr) {
+			string year = to_string(currentCourse->academicYear) + "-" 
+				+ to_string(currentCourse->academicYear + 1);
+			cout << "\t" << setfill(' ') << setw(19) << year << "|"
+				<< setw(19) << currentCourse->semester << "|" 
+				<< setw(19) << currentCourse->courseName << "| " 
+				<< currentCourse->defaultClass << "\n";
+			currentCourse = currentCourse->next;
+		}
 	}
 	cout << "\n";
 }
@@ -1056,6 +1101,7 @@ void writeLecturersToFile(Lecturer*& lecturers) {
 		out << currentLecturer->username << "\n"
 			<< currentLecturer->name << "\n"
 			<< currentLecturer->title << "\n"
+			<< currentLecturer->gender << "\n"
 			<< currentLecturer->totalCourse << "\n";
 		CourseInfo* currentCourse = currentLecturer->myCourse;
 		while (currentCourse != nullptr) {
