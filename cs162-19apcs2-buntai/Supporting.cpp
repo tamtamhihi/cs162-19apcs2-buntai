@@ -75,6 +75,16 @@ Date getDate(string date) {
 	return DATE;
 }
 
+// Turn a date into a string.
+string dateToString(Date date) {
+	string dateString = "";
+	if (date.day < 10) dateString += "0";
+	dateString += to_string(date.day) + "-";
+	if (date.month < 10) dateString += "0";
+	dateString += to_string(date.month) + "-" + to_string(date.year);
+	return dateString;
+}
+
 // Turn a full name string to formal case
 // (uppercase for first letter of each word).
 string toFormalCase(string name) {
@@ -531,6 +541,29 @@ void printStudentInfo(Student*& student) {
 	cout << "\n";
 }
 
+// Print a table displaying all students in a student list.
+void printStudentListTable(Student*& students) {
+	Student* currentStudent = students;
+	int count = 0;
+	cout << "\t" << setw(5) << "No. |" << setw(15) << "Student ID |" << setw(30) << "Full name |"
+		<< setw(15) << "DOB |" << " Gender\n";
+	cout << "\t" << setfill('-') << setw(5) << "+" << setw(15) << "+" << setw(30) << "+"
+		<< setw(15) << "+" << setw(15) << " " << "\n";
+	while (currentStudent != nullptr) {
+		++count;
+		string dob = dateToString(currentStudent->dob);
+		cout << "\t" << setfill(' ') << setw(4) << count << "|" 
+			<< setw(14) << currentStudent->studentId << "|"
+			<< setw(29) << currentStudent->name << "|"
+			<< setw(14) << dob << "| ";
+		if (currentStudent->gender == MALE)
+			cout << "male\n";
+		else cout << "female\n";
+		currentStudent = currentStudent->next;
+	}
+	cout << "\n";
+}
+
 // Print a single lecturer's info.
 void printLecturerInfo(Lecturer*& lecturer) {
 	cout << "Lecturer information:\n";
@@ -817,6 +850,7 @@ void readCourseListFromFile(CourseInfo*& courseList, string academicYear, string
 	ifstream in;
 	in.open("Database/" + academicYear + "/" + semester + "/" + "Courses.txt");
 	if (in.is_open()) {
+		int year = stoi(academicYear.substr(0, 4));
 		string currentCourseID;
 		CourseInfo* currentCourseList = courseList;
 		while (in >> currentCourseID) {
@@ -828,6 +862,8 @@ void readCourseListFromFile(CourseInfo*& courseList, string academicYear, string
 				currentCourseList->next = new CourseInfo;
 				currentCourseList = currentCourseList->next;
 			}
+			currentCourseList->academicYear = year;
+			currentCourseList->semester = semester;
 			currentCourseList->courseName = currentCourseID;
 			in >> currentCourseList->defaultClass;
 			currentCourseList->next = nullptr;
@@ -894,6 +930,7 @@ void addSemester(int academicYear, string mySemester) {
 }
 
 // Read all academic years in AcademicYears.txt.
+// The semester string in this struct is all semester names separated by comma.
 void readAcademicYearsFromFile(AcademicYear*& academicYears) {
 	ifstream in("Database/AcademicYears.txt");
 	if (in.is_open()) {
@@ -1175,6 +1212,104 @@ void deleteAcademicYear(int academicYear) {
 	system(command.c_str());
 
 	cout << "\nDelete academic year successful.\n\n";
+}
+
+// Register a course for all students in a student list (including edit linked list and edit course file.
+// If that student already has the same course (same AY, semester, courseID and default class)
+// the course won't be added.
+void registerCourseForStudentList(Student*& students, CourseInfo*& courseInfo) {
+	ofstream out("Database/" + to_string(courseInfo->academicYear) + "-"
+		+ to_string(courseInfo->academicYear + 1) + "/"
+		+ courseInfo->semester + "/" + courseInfo->courseName + "-"
+		+ courseInfo->defaultClass + ".txt", ios::app);
+	Attendance* attendance = nullptr;
+	findAttendanceDateOfCourse(attendance, courseInfo);
+	Student* currentStudent = students;
+	while (currentStudent != nullptr) {
+		CourseInfo* currentCourse = currentStudent->myCourse;
+		bool haveCourse = false;
+		if (currentCourse == nullptr) {
+			currentStudent->myCourse = new CourseInfo;
+			currentCourse = currentStudent->myCourse;
+		}
+		else {
+			while (currentCourse->next != nullptr) {
+				if (currentCourse->academicYear == courseInfo->academicYear
+					&& currentCourse->semester == courseInfo->semester
+					&& currentCourse->courseName == courseInfo->courseName
+					&& currentCourse->defaultClass == courseInfo->defaultClass) {
+					currentStudent = currentStudent->next;
+					haveCourse = true;
+					break;
+				}
+				currentCourse = currentCourse->next;
+			}
+			if (currentCourse->next == nullptr) {
+				currentCourse->next = new CourseInfo;
+				currentCourse = currentCourse->next;
+			}
+		}
+		if (!haveCourse) {
+			currentStudent->numberOfCourse++;
+			currentCourse->academicYear = courseInfo->academicYear;
+			currentCourse->semester = courseInfo->semester;
+			currentCourse->courseName = courseInfo->courseName;
+			currentCourse->defaultClass = courseInfo->defaultClass;
+			currentCourse->next = nullptr;
+			// Appending to course file.
+			out << currentStudent->username << "\n" << currentStudent->name << "\n"
+				<< currentStudent->studentId << "\n" << currentStudent->gender << "\n"
+				<< currentStudent->dob.day << " " << currentStudent->dob.month << " " << currentStudent->dob.year << "\n"
+				<< 1 << "\n" << "0 0 0 0" << "\n";
+			Attendance* currentDate = attendance;
+			while (currentDate != nullptr) {
+				out << currentDate->date.day << " " << currentDate->date.month << " "
+					<< currentDate->date.year << " "
+					<< currentDate->startTime.hour << " " << currentDate->startTime.minute << " "
+					<< currentDate->endTime.hour << " " << currentDate->endTime.minute << " 0 0\n";
+				currentDate = currentDate->next;
+			}
+			out << "\n";
+		}
+		currentStudent = currentStudent->next;
+	}
+	deleteAttendance(attendance);
+	out.close();
+}
+
+// Find all attendance dates (sessions) of a course.
+void findAttendanceDateOfCourse(Attendance*& attendanceDate, CourseInfo*& courseInfo) {
+	ifstream in("Database/" + to_string(courseInfo->academicYear) + "-"
+		+ to_string(courseInfo->academicYear + 1) + "/"
+		+ courseInfo->semester + "/" + courseInfo->courseName + "-"
+		+ courseInfo->defaultClass + ".txt");
+	if (in.is_open()) {
+		cout << "\tFinding attendance date of course...\n";
+		string waste;
+		int totalSessions;
+		Attendance* currentAttendance = nullptr;
+		for (int i = 0; i < 6; ++i) getline(in, waste); // 6 lines of irrelevant information.
+		in >> totalSessions;
+		for (int i = 0; i < 13; ++i) getline(in, waste); // 13 lines of irrelevant information.
+		for (int i = 0, day, month, year, hour, minute; i < totalSessions; ++i) {
+			in >> day >> month >> year >> hour >> minute;
+			if (currentAttendance == nullptr) {
+				attendanceDate = new Attendance;
+				currentAttendance = attendanceDate;
+			}
+			else {
+				currentAttendance->next = new Attendance;
+				currentAttendance = currentAttendance->next;
+			}
+			currentAttendance->date = Date{ day, month, year };
+			currentAttendance->startTime = Time{ hour, minute };
+			in >> hour >> minute;
+			currentAttendance->endTime = Time{ hour, minute };
+			currentAttendance->next = nullptr;
+			in >> hour >> minute;
+		}
+		in.close();
+	}
 }
 
 // Show menu of staff, lecturer and student.

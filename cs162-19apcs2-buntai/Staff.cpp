@@ -8,20 +8,21 @@
 
 // 2.1
 void importStudentFromCsv() {
+	cout << "Input the following info of new class:\n";
 	string filepath, className; // store the path to CSV file
-	cout << "Class: ";
-	cin >> className; // store class name
-	toUpper(className);
-	cout << "Enter the path to CSV file: ";
+	cout << "\tClass: ";
+	cin >> className; toUpper(className);
+	cout << "\tPlease make sure the CSV file has 6 columns:\n";
+	cout << "\tNo., Student ID, Last name, Full name, DOB(yyyy - mm - dd), Gender(male / female)\n";
+	cout << "\tPath to CSV file: ";
 	cin >> filepath;
 	cout << "\n";
 
 	// Try to open file at given filepath.
-	ifstream in;
-	in.open(filepath);
+	ifstream in(filepath);
 	while (!in.is_open()) {
-		cout << "The file path you entered is not valid.\n";
-		cout << "Please input another path or ""0"" to stop: ";
+		cout << "\tThe file path you entered is not valid.\n";
+		cout << "\tPlease input another path or ""0"" to stop: ";
 		cin >> filepath;
 		cout << "\n";
 		if (filepath == "0")
@@ -31,7 +32,7 @@ void importStudentFromCsv() {
 
 	// Read all information from csv.
 	Student* studentList = nullptr; // Student list
-	string row, no, studentId, lastName, firstName, gender, dob;
+	string row, no, studentId, lastName, firstName, gender, dob, confirm;
 
 	// Count the columns to make sure the csv is in the right format.
 	getline(in, row);
@@ -44,6 +45,8 @@ void importStudentFromCsv() {
 		in.close();
 		return;
 	}
+
+	// Read all students from CSV.
 	Student* currentStudent = studentList;
 	while (getline(in, row)) {
 		stringstream thisRow(row);
@@ -74,13 +77,120 @@ void importStudentFromCsv() {
 		currentStudent->next = nullptr;
 	}
 	in.close();
+
+	if (studentList == nullptr) {
+		cout << "There's no students in this CSV. Please check and try again.\n\n";
+		return;
+	}
+
+	// Print student list to confirm.
+	cout << "\t\t\t\t\tSTUDENT LISTS\n\n";
+	printStudentListTable(studentList);
 	
-	// Write to database.
+	cout << "Continue importing this class? Y/N\t";
+	cin >> confirm; toUpper(confirm);
+	cout << "\n";
+	if (confirm == "N") {
+		deleteStudentList(studentList);
+		cout << "Importing class cancelled.\n\n";
+		return;
+	}
+
+	// Delete students with existent student ID.
+	int failedStudent = 0, successfulStudent = 0;
+	string failedStudentNo = "";
+	currentStudent = studentList;
+	Student* previousStudent = nullptr;
+	int count = 0;
+	while (currentStudent != nullptr) {
+		++count;
+		if (isStudentIdExist(currentStudent->studentId)) {
+			failedStudent++;
+			failedStudentNo += to_string(count) + ",";
+			if (previousStudent == nullptr)
+				studentList = currentStudent->next;
+			else
+				previousStudent->next = currentStudent->next;
+			Student* temp = currentStudent;
+			currentStudent = currentStudent->next;
+			delete temp;
+		}
+		else {
+			successfulStudent++;
+			previousStudent = currentStudent;
+			currentStudent = currentStudent->next;
+		}
+	}
+
+	// Check if class already exists. If yes, add new users to User.txt
+	// and register new students for existent courses.
+	if (isClassExist(className)) {
+		cout << "This class already exists. We're appending the new students to the existing class.\n\n";
+		cout << "Do you want to continue? Y/N \t";
+		string confirm;
+		cin >> confirm; toUpper(confirm);
+		cout << "\n";
+		if (confirm == "N") {
+			deleteStudentList(studentList);
+			cout << "Importing students cancelled.\n\n";
+			return;
+		}
+		cout << "\tAdding users to User.txt...\n";
+		addStudentUsers(studentList);
+
+		// Register existent courses with default class as this class.
+		cout << "\tRegistering existent default courses of class...\n";
+		AcademicYear* academicYears = nullptr;
+		readAcademicYearsFromFile(academicYears);
+		AcademicYear* currentYear = academicYears;
+		while (currentYear != nullptr) {
+			string sem;
+			stringstream semesterNames(currentYear->semester);
+			while (getline(semesterNames, sem, ',')) {
+				CourseInfo* courseList = nullptr;
+				string ay = to_string(currentYear->academicYear) + "-"
+					+ to_string(currentYear->academicYear + 1);
+				readCourseListFromFile(courseList, ay, sem);
+				CourseInfo* currentCourse = courseList;
+				while (currentCourse != nullptr) {
+					if (currentCourse->defaultClass == className)
+						registerCourseForStudentList(studentList, currentCourse);
+					currentCourse = currentCourse->next;
+				}
+				currentYear = currentYear->next;
+				deleteCourseInfo(courseList);
+			}
+		}
+		deleteAcademicYears(academicYears);
+
+		// Read existent students of class.
+		Student* existentClass = nullptr;
+		readClassFromFile(className, existentClass);
+		Student* currentStudent = existentClass;
+		while (currentStudent->next != nullptr)
+			currentStudent = currentStudent->next;
+		currentStudent->next = studentList;
+		studentList = existentClass;
+	}
+	else {
+		cout << "\tAdding users to User.txt...\n";
+		addStudentUsers(studentList);
+		addClass(className);
+	}
 	writeClassToFile(studentList, className);
-	addClass(className);
-	addStudentUsers(studentList);
 	deleteStudentList(studentList);
-	cout << "Import succesful. You can find the database at folder Database/Class.\n\n";
+	if (!failedStudentNo.empty())
+		failedStudentNo.pop_back(); // Pop the last comma.
+
+	cout << "\n";
+	cout << "Import successful " << successfulStudent << " student";
+	if (successfulStudent) cout << "s.\n";
+	else cout << ".\n";
+	cout << "Import failed " << failedStudent << " student";
+	if (failedStudent) cout << "s. No.: " << failedStudentNo << "\n\tError: Student ID already exists.\n";
+	else cout << ".\n";
+	if (successfulStudent)
+		cout << "\nYou can find the database at folder Database/Class.\n\n";
 }
 
 // 2.2
