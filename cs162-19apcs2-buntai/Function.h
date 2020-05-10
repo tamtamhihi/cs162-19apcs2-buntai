@@ -51,6 +51,7 @@ void toLower(string& text);
 string toUsername(string fullName);
 string toPassword(Date date);
 string toPasswordGeneral(string name);
+bool isDateStringSuitable(string date);
 Date getDate(string date);
 string dateToString(Date date);
 string toFormalCase(string name);

@@ -61,6 +61,16 @@ string toPasswordGeneral(string name) {
 	return password;
 }
 
+// Check if a date string is in form yyyy-mm-dd.
+bool isDateStringSuitable(string date) {
+	if (date.size() != 10 || date[4] != '-' || date[7] != '-')
+		return false;
+	for (int i = 0; i < 10; ++i)
+		if (i != 4 && i != 7 && (date[i] - '0' < 0 || date[i] - '0' > 9))
+			return false;
+	return true;
+}
+
 // Retrieve date of birth from a string of form "yyyy-mm-dd".
 Date getDate(string date) {
 	stringstream DATEss(date);

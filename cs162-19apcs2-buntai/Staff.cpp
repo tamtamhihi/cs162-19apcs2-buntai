@@ -41,7 +41,7 @@ void importStudentFromCsv() {
 	while (getline(columnNames, no, ','))
 		columnCount++;
 	if (columnCount != 6) {
-		cout << "Import unsuccesful. Error: The number of columns is not compatible.\n\n";
+		cout << "Import unsuccessful. Error: The number of columns is not compatible.\n\n";
 		in.close();
 		return;
 	}
@@ -55,8 +55,17 @@ void importStudentFromCsv() {
 		getline(thisRow, lastName, ',');
 		getline(thisRow, firstName, ',');
 		getline(thisRow, dob, ',');
-		getline(thisRow, gender, ',');
-		toLower(gender);
+		if (!isDateStringSuitable(dob)) {
+			cout << "Import unsuccessful. Error: The date of birth column is not in format of yyyy-mm-dd.\n\n";
+			deleteStudentList(studentList);
+			return;
+		}
+		getline(thisRow, gender, ','); toLower(gender);
+		if (gender != "male" && gender != "female") {
+			cout << "Import unsuccessful. Error: The gender column is not female/male.\n\n";
+			deleteStudentList(studentList);
+			return;
+		}
 		if (studentList == nullptr) {
 			studentList = new Student;
 			currentStudent = studentList;
@@ -205,16 +214,30 @@ void manuallyAddStudent() {
 	// Retrieve each information.
 	stringstream info(row);
 	getline(info, studentId, ',');
-	getline(info, name, ',');
-	name = toFormalCase(name);
-	getline(info, className, ',');
-	toUpper(className);
+	getline(info, name, ','); name = toFormalCase(name);
+	getline(info, className, ','); toUpper(className);
 	getline(info, dob, ',');
+	while (!isDateStringSuitable(dob)) {
+		cout << "The date of birth is not in format of yyyy-mm-dd. Please input again or ""0"" to stop: ";
+		getline(cin, dob);
+		if (dob == "0") {
+			cout << "\nAdding student cancelled.\n\n";
+			return;
+		}
+	}
 	Date Dob = getDate(dob);
-	getline(info, gender, ',');
-	toLower(gender);
+	getline(info, gender, ','); toLower(gender);
+	while (gender != "male" && gender != "female") {
+		cout << "The gender is not male/female. Please input again or ""0"" to stop: ";
+		getline(cin, gender); toLower(gender);
+		if (gender == "0") {
+			cout << "\nAdding student cancelled.\n\n";
+			return;
+		}
+	}
 	string username = getValidUsername(name), password = toPassword(Dob);
 	int genderNum = (gender == "male") ? MALE : FEMALE;
+	cout << "\n";
 
 	// Ask again.
 	cout << "Student info:\n";
@@ -225,10 +248,9 @@ void manuallyAddStudent() {
 	cout << "\tPassword: " << password << "\n";
 	cout << "\tDate of birth: " << Dob.day << "-" << Dob.month << "-" << Dob.year << "\n";
 	cout << "\tGender: " << gender << "\n";
-	cout << "Do you want to add this student? Y/N\n";
-	cin >> row;
+	cout << "Do you want to add this student? Y/N\t";
+	cin >> row;	toUpper(row);
 	cout << "\n";
-	toUpper(row);
 	if (row == "N")
 		return;
 
@@ -237,20 +259,83 @@ void manuallyAddStudent() {
 		cout << "Adding student failed. Error: Student ID already exists.\n\n";
 		return;
 	}
+	if (isClassExist(className)) {
+		cout << "This class already exists. We're appending the new student to the existing class.\n\n";
+		cout << "Do you want to continue? Y/N \t";
+		string confirm;
+		cin >> confirm; toUpper(confirm);
+		cout << "\n";
+		if (confirm == "N") {
+			cout << "Adding student cancelled.\n\n";
+			return;
+		}
+		cout << "\tAdding user to User.txt...\n";
+		addUser(username, password, STUDENT);
 
-	// Save to database.
-	ofstream out("Database/Class/" + className + ".txt", ios::app);
-	out << username << "\n" << password << "\n" << 1 << "\n";
-	out << name << "\n" << studentId << "\n" << genderNum << "\n";
-	out << Dob.day << " " << Dob.month << " " << Dob.year << "\n";
-	out << 0 << "\n\n";
-	out.close();
+		Student* students = new Student;
+		students->studentId = studentId;
+		students->username = username;
+		students->name = name;
+		students->dob = Dob;
+		students->status = 1;
+		students->gender = genderNum;
+		students->numberOfCourse = 0;
+		students->myCourse = nullptr;
+		students->next = nullptr;
 
-	// Edit other related files.
-	addClass(className);
-	addUser(username, password, STUDENT);
+		// Register existent courses with default class as this class.
+		cout << "\tRegistering existent default courses of class...\n";
+		AcademicYear* academicYears = nullptr;
+		readAcademicYearsFromFile(academicYears);
+		AcademicYear* currentYear = academicYears;
+		while (currentYear != nullptr) {
+			string sem;
+			stringstream semesterNames(currentYear->semester);
+			while (getline(semesterNames, sem, ',')) {
+				CourseInfo* courseList = nullptr;
+				string ay = to_string(currentYear->academicYear) + "-"
+					+ to_string(currentYear->academicYear + 1);
+				readCourseListFromFile(courseList, ay, sem);
+				CourseInfo* currentCourse = courseList;
+				while (currentCourse != nullptr) {
+					if (currentCourse->defaultClass == className)
+						registerCourseForStudentList(students, currentCourse);
+					currentCourse = currentCourse->next;
+				}
+				currentYear = currentYear->next;
+				deleteCourseInfo(courseList);
+			}
+		}
+		deleteAcademicYears(academicYears);
 
-	cout << "Student added successfully.\n\n";
+		// Read existent students of class.
+		cout << "\tReading existent class file...\n";
+		Student* existentClass = nullptr;
+		readClassFromFile(className, existentClass);
+		Student* currentStudent = existentClass;
+		while (currentStudent->next != nullptr)
+			currentStudent = currentStudent->next;
+		currentStudent->next = students;
+		students = existentClass;
+		cout << "\tWriting to class file...\n";
+		writeClassToFile(students, className);
+		deleteStudentList(existentClass);
+	}
+	else {
+		cout << "\tAdding user to User.txt...\n";
+		addUser(username, password, STUDENT);
+		cout << "\tCreating new class file...\n";
+		addClass(className);
+		// Save to new file.
+		cout << "\tSaving to class file...\n";
+		ofstream out("Database/Class/" + className + ".txt");
+		out << username << "\n" << password << "\n" << 1 << "\n";
+		out << name << "\n" << studentId << "\n" << genderNum << "\n";
+		out << Dob.day << " " << Dob.month << " " << Dob.year << "\n";
+		out << 0 << "\n\n";
+		out.close();
+	}
+	cout << "\nStudent added successfully.\n\n";
 }
 
 // 2.3
