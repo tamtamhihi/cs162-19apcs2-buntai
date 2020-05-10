@@ -110,6 +110,7 @@ void writeLecturersToFile(Lecturer*& lecturers);
 void deleteLecturers(Lecturer*& lecturers);
 void deleteAcademicYear(int academicYear);
 void registerCourseForStudentList(Student*& students, CourseInfo*& courseInfo);
+void unregisterCourseForStudent(Student*& student, CourseInfo*& courseInfo);
 bool findStudentInfoFromFile(Student& newTurn, string userName);
 void findAttendanceDateOfCourse(Attendance*& attendanceDate, CourseInfo*& courseInfo);
 void showStaffMenu();

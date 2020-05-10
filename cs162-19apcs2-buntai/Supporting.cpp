@@ -538,15 +538,23 @@ void printStudentInfo(Student*& student) {
 	cout << "\tGender: ";
 	if (student->gender == FEMALE) cout << "female\n";
 	else cout << "male\n";
-	cout << "\tDate of birth: " << student->dob.day << "-"
-		<< student->dob.month << "-" << student->dob.year << "\n";
+	cout << "\tDate of birth: " << dateToString(student->dob) << "\n";
 	cout << "\tCourses: " << student->numberOfCourse << "\n";
-	CourseInfo* courseInfo = student->myCourse;
-	for (int i = 0; i < student->numberOfCourse; ++i) {
-		cout << "\t- " << courseInfo->academicYear << "-"
-			<< courseInfo->academicYear + 1 << ", "
-			<< courseInfo->semester << " semester, "
-			<< courseInfo->courseName << "\n";
+	if (student->numberOfCourse) {
+		cout << "\t" << setw(20) << "Academic year |" << setw(20) << "Semester |"
+			<< setw(20) << "Course ID |" << " Default class\n";
+		cout << "\t" << setfill('-') << setw(20) << "+" << setw(20) << "+"
+			<< setw(20) << "+" << setw(20) << " " << "\n";
+		CourseInfo* currentCourse = student->myCourse;
+		while (currentCourse != nullptr) {
+			string year = to_string(currentCourse->academicYear) + "-"
+				+ to_string(currentCourse->academicYear + 1);
+			cout << "\t" << setfill(' ') << setw(19) << year << "|"
+				<< setw(19) << currentCourse->semester << "|"
+				<< setw(19) << currentCourse->courseName << "| "
+				<< currentCourse->defaultClass << "\n";
+			currentCourse = currentCourse->next;
+		}
 	}
 	cout << "\n";
 }
@@ -1285,6 +1293,21 @@ void registerCourseForStudentList(Student*& students, CourseInfo*& courseInfo) {
 	}
 	deleteAttendance(attendance);
 	out.close();
+}
+
+// Change the status of a single student in a course to be 0.
+void unregisterCourseForStudent(Student*& student, CourseInfo*& courseInfo) {
+	Course* course = new Course;
+	readCourseFromFile(courseInfo, course);
+	Student* currentStudent = course->students;
+	StudentCourseInfo* currentStudentInfo = course->studentCourseInfo;
+	while (currentStudent->username != student->username) {
+		currentStudent = currentStudent->next;
+		currentStudentInfo = currentStudentInfo->next;
+	}
+	currentStudentInfo->status = 0;
+	writeCourseToFile(course);
+	deleteCourse(course);
 }
 
 // Find all attendance dates (sessions) of a course.

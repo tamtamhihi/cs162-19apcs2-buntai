@@ -415,13 +415,16 @@ void editExistingStudent() {
 		}
 		else {
 			cout << "New date of birth yyyy-mm-dd: ";
-			cin >> row;
+			cin.ignore();
+			getline(cin, row);
+			while (!isDateStringSuitable(row)) {
+				cout << "Date string is not in yyyy-mm-dd format. Please input again: ";
+				getline(cin, row);
+			}
 			Date Dob = getDate(row);
-			cout << "Do you want to change date of birth from "
-				<< editedStudent->dob.day << "-"
-				<< editedStudent->dob.month << "-"
-				<< editedStudent->dob.year << " to "
-				<< Dob.day << "-" << Dob.month << "-" << Dob.year << "? Y/N\n\t";
+			cout << "Do you want to change date of birth from " 
+				<< dateToString(editedStudent->dob) << " to " 
+				<< dateToString(Dob) << "? Y/N\n\t";
 			cin >> row;
 			cout << "\n";
 			toUpper(row);
@@ -494,16 +497,40 @@ void removeStudent() {
 		return;
 	}
 
+	removeStudent->password = findPasswordFromUsername(removeStudent->username);
+	// Confirm student info.
+	printStudentInfo(removeStudent);
+	cout << "Are you sure to remove this student? This will remove him from all enrolled courses and can't be undone.\n";
+	cout << "Y/N?\t";
+	string confirm;
+	cin >> confirm; toUpper(confirm);
+	cout << "\n";
+	if (confirm == "N") {
+		deleteStudentList(studentList);
+		cout << "Removing student cancelled.\n\n";
+		return;
+	}
+
 	// Change status of student
+	cout << "\tRemoving student...\n";
 	removeStudent->status = 0;
 
 	// Save students to class file.
+	cout << "\tWriting class to file...\n";
 	writeClassToFile(studentList, className);
+
+	// Change status of removed student in enrolled courses to be 0.
+	cout << "\tRemoving students from enrolled courses...\n";
+	CourseInfo* myCourse = removeStudent->myCourse,* currentCourse = myCourse;
+	while (currentCourse != nullptr) {
+		unregisterCourseForStudent(removeStudent, currentCourse);
+		currentCourse = currentCourse->next;
+	}
 
 	// Delete linked lists.
 	deleteStudentList(studentList);
 
-	cout << "Remove student successfully.\n\n";
+	cout << "\nRemove student successfully.\n\n";
 }
 
 // 2.5 
