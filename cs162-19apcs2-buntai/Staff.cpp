@@ -543,10 +543,8 @@ void changeStudentClass() {
 	cout << "\n";
 	stringstream info(row);
 	getline(info, id, ',');
-	getline(info, oldClass, ',');
-	toUpper(oldClass);
-	getline(info, newClass);
-	toUpper(newClass);
+	getline(info, oldClass, ','); toUpper(oldClass);
+	getline(info, newClass); toUpper(newClass);
 
 	// Check if old class exists.
 	if (!isClassExist(oldClass)) {
@@ -576,40 +574,95 @@ void changeStudentClass() {
 		return;
 	}
 
-	// Change status of the student in old class.
+	changeStudent->password = findPasswordFromUsername(changeStudent->username);
+	// Confirm student info.
+	printStudentInfo(changeStudent);
+	cout << "Are you sure to move this student from class " 
+		<< oldClass << " to " << newClass << "?\n";
+	cout << "It will remove him from enrolled courses and enroll in default courses of new class.\n";
+	cout << "Y/N?\t";
+	string confirm;
+	cin >> confirm; toUpper(confirm);
+	cout << "\n";
+	if (confirm == "N") {
+		deleteStudentList(studentList);
+		cout << "Removing student cancelled.\n\n";
+		return;
+	}
+
+	// Change status of student
+	cout << "\tRemoving student from old class...\n";
 	changeStudent->status = 0;
 
-	// Save old class file.
+	// Save students to class file.
+	cout << "\tWriting old class to file...\n";
 	writeClassToFile(studentList, oldClass);
+
+	// Change status of removed student in enrolled courses to be 0.
+	cout << "\tRemoving students from enrolled courses...\n";
+	CourseInfo* myCourse = changeStudent->myCourse, * currentCourse = myCourse;
+	while (currentCourse != nullptr) {
+		unregisterCourseForStudent(changeStudent, currentCourse);
+		currentCourse = currentCourse->next;
+	}
+
+	Student* temp = changeStudent;
+	changeStudent = new Student;
+	changeStudent->username = temp->username;
+	changeStudent->name = temp->name;
+	changeStudent->studentId = temp->studentId;
+	changeStudent->dob = temp->dob;
+	changeStudent->gender = temp->gender;
+	changeStudent->status = 1;
+	changeStudent->numberOfCourse = 0;
+	changeStudent->myCourse = nullptr;
+	changeStudent->next = nullptr;
+
+	// Delete old class linked list.
+	deleteStudentList(studentList);
+
+	// Register default courses of new class for change student.
+	cout << "\tRegistering default courses of new class...\n";
+	AcademicYear* academicYears = nullptr;
+	readAcademicYearsFromFile(academicYears);
+	AcademicYear* currentYear = academicYears;
+	while (currentYear != nullptr) {
+		string sem;
+		stringstream semesterNames(currentYear->semester);
+		while (getline(semesterNames, sem, ',')) {
+			CourseInfo* courseList = nullptr;
+			string ay = to_string(currentYear->academicYear) + "-"
+				+ to_string(currentYear->academicYear + 1);
+			readCourseListFromFile(courseList, ay, sem);
+			CourseInfo* currentCourse = courseList;
+			while (currentCourse != nullptr) {
+				if (currentCourse->defaultClass == newClass)
+					registerCourseForStudentList(changeStudent, currentCourse);
+				currentCourse = currentCourse->next;
+			}
+			currentYear = currentYear->next;
+			deleteCourseInfo(courseList);
+		}
+	}
+	deleteAcademicYears(academicYears);
+
+	// Read new class linked list.
+	studentList = nullptr;
+	cout << "\tReading new class from file...\n";
+	readClassFromFile(newClass, studentList);
+	Student* currentStudent = studentList;
+	while (currentStudent->next != nullptr)
+		currentStudent = currentStudent->next;
+	currentStudent->next = changeStudent;
 	
 	// Write info of student to new class.
-	ofstream out;
-	out.open("Database/Class/" + newClass + ".txt", ios::app);
-	out << changeStudent->username <<"\n";
-	out << 1 <<"\n";
-	out << changeStudent->name << "\n";
-	out << changeStudent->studentId << "\n";
-	out << changeStudent->gender << "\n";
-	out << changeStudent->dob.day << " "
-		<< changeStudent->dob.month << " "
-		<< changeStudent->dob.year << "\n";
-	out << changeStudent->numberOfCourse << "\n";
-	CourseInfo* changeCourseInfo = changeStudent->myCourse;
-	while (changeCourseInfo != nullptr) {
-		out << changeCourseInfo->academicYear << " "
-			<< changeCourseInfo->academicYear + 1 << " "
-			<< changeCourseInfo->semester << " "
-			<< changeCourseInfo->courseName << "\n"
-			<< changeCourseInfo->defaultClass << "\n";
-		changeCourseInfo = changeCourseInfo->next;
-	}
-	out << "\n";
-	out.close();
+	cout << "\tWriting class to new file...\n";
+	writeClassToFile(studentList, newClass);
 
 	// Delete linked lists.
 	deleteStudentList(studentList);
 
-	cout << "Change class of student successfully." << endl;
+	cout << "\nChange class of student successfully." << endl;
 }
 
 // 2.6
@@ -633,7 +686,8 @@ void viewListOfStudentInAClass() {
 	// Ask for class name.
 	cout << "Please enter class name: ";
 	string className;
-	getline(cin, className);
+	getline(cin, className); toUpper(className);
+	cout << "\n";
 
 	// Check if class exists.
 	if (!isClassExist(className)) {
@@ -646,13 +700,8 @@ void viewListOfStudentInAClass() {
 	readClassFromFile(className, studentList);
 
 	// Print all students' name in class.
-	Student* studentCur = studentList;
-	cout << "The list of students in class " << className << " :\n";
-	while (studentCur != nullptr) {
-		if(studentCur->status == 1)
-		    cout << "\t" << studentCur->name << endl;
-		studentCur = studentCur->next;
-	}
+	cout << "The list of students in class " << className << ":\n";
+	printStudentListTable(studentList);
 	cout << "The list has been loaded successfully.\n\n";
 
 	// Delete linked lists.
@@ -798,15 +847,16 @@ void manipulateAcademicYearsAndSemester() {
 
 // 3.2
 void importCourseFromCsv() {
+	cout << "Please input the following information:\n";
 	string filepath; // store the path to CSV file
 	int academicYear;
 	string semester;
-	cout << "Academic year: ";
+	cout << "\tAcademic year: ";
 	cin >> academicYear; // store academic year
-	cout << "Semester: ";
+	cout << "\tSemester: ";
 	cin >> semester; // store semester
 	semester = toFormalCase(semester);
-	cout << "Enter the path to CSV file: ";
+	cout << "\tEnter the path to CSV file: ";
 	cin >> filepath;
 	cout << "\n";
 
@@ -814,8 +864,7 @@ void importCourseFromCsv() {
 	ifstream in;
 	in.open(filepath);
 	while (!in.is_open()) {
-		cout << "The file path you entered is not valid.\n";
-		cout << "Please input another path or ""0"" to stop: ";
+		cout << "\tThe file path you entered is not valid. Please input another path or ""0"" to stop: ";
 		cin >> filepath;
 		cout << "\n";
 		if (filepath == "0")
@@ -1531,51 +1580,56 @@ void removeCourse() {
 
 // 3.8
 void viewListOfCourses() {
+	cout << "Please input the following information:\n";
 	int academicYear;
 	string semester;
-	cout << "Academic year: ";
+	cout << "\tAcademic year: ";
 	cin >> academicYear;
-	cout << "Semester: ";
-	cin >> semester;
-
-	string filepath = "Database/"
-		+ to_string(academicYear) + "-"
-		+ to_string(academicYear + 1) + "/"
-		+ semester + "/";
-	ifstream in(filepath + "Courses.txt");
-	string row, courseId, defaultClass, courseName;
-	cout << "List of courses in " << semester << " semester of academic year "
-		 << academicYear << "-" << academicYear + 1 << ":\n";
-	while (getline(in, row)) {
-		stringstream info(row);
-		info >> courseId >> defaultClass;
-		ifstream fin(filepath + courseId + "-" + defaultClass + ".txt");
-		getline(fin, courseId);
-		getline(fin, courseName);
-		cout << "\tCourse ID: " << courseId << "\n"
-			 << "\tCourse name: " << courseName << "\n"
-			 << "\tDefault class: " << defaultClass << "\n";
-		cout << "\n";
-		fin.close();
-	}
+	cout << "\tSemester: ";
+	cin >> semester; semester = toFormalCase(semester);
 	cout << "\n";
 
-	in.close();
+	if (!isSemesterExist(academicYear, semester)) {
+		cout << "View list of courses failed. Error: Semester does not exist.\n\n";
+		return;
+	}
+
+	CourseInfo* courseList = nullptr;
+	readCourseListFromFile(courseList, to_string(academicYear) + "-" + 
+		to_string(academicYear + 1), semester);
+	cout << "List of courses in " << semester << " semester of academic year "
+		 << academicYear << "-" << academicYear + 1 << ":\n";
+	CourseInfo* currentCourse = courseList;
+	if (currentCourse != nullptr) {
+		cout << "\t" << setw(20) << "Course ID |" << " Default class\n";
+		cout << "\t" << setfill('-') << setw(20) << "+" << setw(20) << " " << "\n";
+		while (currentCourse != nullptr) {
+			string year = to_string(currentCourse->academicYear) + "-"
+				+ to_string(currentCourse->academicYear + 1);
+			cout << "\t" << setfill(' ') << setw(19) << currentCourse->courseName << "| "
+				<< currentCourse->defaultClass << "\n";
+			currentCourse = currentCourse->next;
+		}
+	}
+	cout << "\n";
+	deleteCourseInfo(courseList);
 }
 
 // 3.9
 void viewListOfStudentsOfCourse() {
 	// Get course information.
+	cout << "Please input the following information:\n";
 	int academicYear;
 	string semester, courseId, defaultClass;
-	cout << "Academic year: ";
+	cout << "\tAcademic year: ";
 	cin >> academicYear;
-	cout << "Semester: ";
-	cin >> semester;
-	cout << "Course ID: ";
-	cin >> courseId;
-	cout << "Default class: ";
-	cin >> defaultClass;
+	cout << "\tSemester: ";
+	cin >> semester; semester = toFormalCase(semester);
+	cout << "\tCourse ID: ";
+	cin >> courseId; toUpper(courseId);
+	cout << "\tDefault class: ";
+	cin >> defaultClass; toUpper(defaultClass);
+	cout << "\n";
 
 	// Check if course exists.
 	CourseInfo* courseInfo = new CourseInfo;
@@ -1590,13 +1644,6 @@ void viewListOfStudentsOfCourse() {
 	}
 	
 	// Read course information into a course.
-	string filepath = "Database/"
-		+ to_string(academicYear) + "-"
-		+ to_string(academicYear + 1) + "/"
-		+ semester + "/"
-		+ courseId + "-"
-		+ defaultClass + ".txt";
-	ifstream in(filepath);
 	Course* course = new Course;
 	readCourseFromFile(courseInfo, course);
 
@@ -1604,37 +1651,29 @@ void viewListOfStudentsOfCourse() {
 	cout << "List of students enrolled in course " << courseId
 		 << " of " << semester << " semester, academic year "
 		 << academicYear << "-" << academicYear + 1 << ":\n";
-	Student* currentStudent = course->students;
-	int studentNum = 1;
-	while (currentStudent != nullptr) {
-		cout << "\t";
-		cout << studentNum << ". ";
-		cout << currentStudent->name << "\n";
-		studentNum++;
-		currentStudent = currentStudent->next;
-	}
+	printStudentListTable(course->students);
 	cout << "\n";
 
 	// Delete linked list.
 	deleteCourseInfo(courseInfo);
 	deleteCourse(course);
-
-	in.close();
 }
 
 // 3.10
 void viewAttendanceListOfCourse() {
 	// Get course information.
+	cout << "Please input the following information:\n";
 	int academicYear;
 	string semester, courseId, defaultClass;
-	cout << "Academic year: ";
+	cout << "\tAcademic year: ";
 	cin >> academicYear;
-	cout << "Semester: ";
+	cout << "\tSemester: "; semester = toFormalCase(semester);
 	cin >> semester;
-	cout << "Course ID: ";
-	cin >> courseId;
-	cout << "Default class: ";
-	cin >> defaultClass;
+	cout << "\tCourse ID: ";
+	cin >> courseId; toUpper(courseId);
+	cout << "\tDefault class: ";
+	cin >> defaultClass; toUpper(defaultClass);
+	cout << "\n";
 
 	// Check if course exists.
 	CourseInfo* courseInfo = new CourseInfo;
@@ -1686,7 +1725,7 @@ void viewAttendanceListOfCourse() {
 		studentNum++;
 		currentStudent = currentStudent->next;
 	}
-	cout << "n";
+	cout << "\n";
 
 	// Delete linked list.
 	deleteCourseInfo(courseInfo);

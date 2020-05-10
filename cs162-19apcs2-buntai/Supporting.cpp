@@ -927,14 +927,29 @@ void addSemester(int academicYear, string mySemester) {
 	}
 	AcademicYear* academicYears = nullptr;
 	readAcademicYearsFromFile(academicYears);
-	AcademicYear* currentYear = academicYears;
+	AcademicYear* currentYear = academicYears,* previousYear = nullptr;
 	while (currentYear != nullptr) {
 		if (currentYear->academicYear == academicYear) {
 			currentYear->numberOfSemester++;
 			currentYear->semester += mySemester + ',';
 			break;
 		}
+		previousYear = currentYear;
 		currentYear = currentYear->next;
+	}
+	if (currentYear == nullptr) {
+		if (academicYears == nullptr) {
+			academicYears = new AcademicYear;
+			currentYear = academicYears;
+		}
+		else {
+			previousYear->next = new AcademicYear;
+			currentYear = previousYear->next;
+		}
+		currentYear->academicYear = academicYear;
+		currentYear->numberOfSemester = 1;
+		currentYear->semester = mySemester + ',';
+		currentYear->next = nullptr;
 	}
 	writeAcademicYearsToFile(academicYears);
 	deleteAcademicYears(academicYears);
