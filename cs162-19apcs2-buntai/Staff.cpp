@@ -1606,6 +1606,100 @@ void removeCourse() {
 	cout << "Remove course successfully!\n";
 }
 
+// 3.6 Remove a specific student from a course.
+void removeStudentFromCourse() {
+	// Get input.
+	string studentID, studentClass, semester, courseID, courseClass;
+	cout << "Please enter student ID: \n\t";
+	cin >> studentID;
+	cout << "Please enter student class: \n\t";
+	cin >> studentClass;
+	toUpper(studentClass);
+	cout << "Please enter academic year, semester, courseID and default class of that course with the same format: \n";
+	cout << "\t<academicYear> <Semester> <courseID> <defaulClass> \n";
+	cout << "\t(Note that academic year 2018-2019 enter 2018 only)\n\t";
+	int academicYear;
+	cin >> academicYear;
+	cin >> semester;
+	semester = toFormalCase(semester);
+	cin >> courseID;
+	toUpper(courseID);
+	cin >> courseClass;
+	toUpper(courseClass);
+
+	// Remove student from file <course>-<default>.txt.
+	CourseInfo* courseInfo = new CourseInfo;
+	courseInfo->academicYear = academicYear;
+	courseInfo->semester = semester;
+	courseInfo->courseName = courseID;
+	courseInfo->defaultClass = courseClass;
+	courseInfo->next = nullptr;
+	Course* course = new Course;
+	readCourseFromFile(courseInfo, course);
+	Student* currentStudent = course->students;
+	StudentCourseInfo* currentStudentCourseInfo = course->studentCourseInfo;
+	while (currentStudent != nullptr) {
+		if (currentStudent->studentId == studentID) {
+			currentStudentCourseInfo->status = 0;
+			break;
+		}
+		currentStudent = currentStudent->next;
+		currentStudentCourseInfo = currentStudentCourseInfo->next;
+	}
+	if (currentStudent == nullptr) {
+		cout << "Error: Can not find student in given course.\n";
+		return;
+	}
+	writeCourseToFile(course);
+	
+	// Read class file to find student and remove in his/her courses.
+	Student* studentList = nullptr;
+	readClassFromFile(studentClass, studentList);
+	Student* current = studentList;
+	while (current != nullptr) {
+		if (current->studentId == studentID) {
+			if (current->myCourse->academicYear== academicYear
+				&& current->myCourse->semester == semester
+				&& current->myCourse->courseName==courseID
+				&& current->myCourse->defaultClass==courseClass) {
+				CourseInfo* temp = current->myCourse;
+				current->myCourse = current->myCourse->next;
+				delete temp;
+				break;
+			}
+			else {
+				CourseInfo* currentCourseInfo = current->myCourse;
+				while (currentCourseInfo->next!= nullptr) {
+					if (currentCourseInfo->next->academicYear==academicYear
+						&& currentCourseInfo->next->semester==semester
+						&& currentCourseInfo->next->courseName==courseID
+						&& currentCourseInfo->next->defaultClass==courseClass) {
+						CourseInfo* temp = currentCourseInfo->next;
+						currentCourseInfo->next = currentCourseInfo->next->next;
+						delete temp;
+						break;
+					}
+					currentCourseInfo=currentCourseInfo->next;
+					if (currentCourseInfo == nullptr) {
+						cout << "Error: Can not find given course in student's courses.\n";
+						return;
+					}
+				}
+			}
+		}
+		current = current->next;
+	}
+	writeClassToFile(studentList, studentClass);
+
+	// Delete pointer.
+	deleteCourse(course);
+	deleteCourseInfo(courseInfo);
+	deleteStudentList(studentList);
+
+	// Annoucement.
+	cout << "Remove student from course successfully!\n";
+}
+
 // 3.8
 void viewListOfCourses() {
 	cout << "Please input the following information:\n";
