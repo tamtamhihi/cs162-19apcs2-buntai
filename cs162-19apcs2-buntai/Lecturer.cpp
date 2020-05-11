@@ -54,7 +54,7 @@ void viewCoursesInSemester(string lecturerUsername) {
 	}
 	else {
 		CourseInfo* courseList = nullptr;
-		readCourseListFromFile(courseList, to_string(academicYear) + "-" + to_string(academicYear + 1), semester);
+		readCourseListFromFile(courseList, academicYear, semester);
 		CourseInfo* currentCourse = courseList;
 		if (currentCourse != nullptr) {
 			cout << "\t\t     ALL COURSES\n";

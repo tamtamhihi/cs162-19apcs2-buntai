@@ -864,11 +864,10 @@ void deleteCourse(Course*& myCourse) {
 }
 
 // Read "Courses.txt" file to a course list.
-void readCourseListFromFile(CourseInfo*& courseList, string academicYear, string semester) {
+void readCourseListFromFile(CourseInfo*& courseList, int academicYear, string semester) {
 	ifstream in;
-	in.open("Database/" + academicYear + "/" + semester + "/" + "Courses.txt");
+	in.open("Database/" + to_string (academicYear) +"-"+ to_string (academicYear+1) + "/" + semester + "/" + "Courses.txt");
 	if (in.is_open()) {
-		int year = stoi(academicYear.substr(0, 4));
 		string currentCourseID;
 		CourseInfo* currentCourseList = courseList;
 		while (in >> currentCourseID) {
@@ -880,7 +879,7 @@ void readCourseListFromFile(CourseInfo*& courseList, string academicYear, string
 				currentCourseList->next = new CourseInfo;
 				currentCourseList = currentCourseList->next;
 			}
-			currentCourseList->academicYear = year;
+			currentCourseList->academicYear = academicYear;
 			currentCourseList->semester = semester;
 			currentCourseList->courseName = currentCourseID;
 			in >> currentCourseList->defaultClass;
@@ -891,9 +890,9 @@ void readCourseListFromFile(CourseInfo*& courseList, string academicYear, string
 }
 
 // Write/overwrite a course list into "Courses.txt" file.
-void writeCourseListToFile(CourseInfo* courseList, string academicYear, string semester) {
+void writeCourseListToFile(CourseInfo* courseList, int academicYear, string semester) {
 	ofstream out;
-	out.open("Database/" + academicYear + "/" + semester + "/" + "Courses.txt");
+	out.open("Database/" + to_string(academicYear)+"-"+ to_string(academicYear+1) + "/" + semester + "/" + "Courses.txt");
 	if (out.is_open()) {
 		while (courseList != nullptr) {
 			out << courseList->courseName << " " << courseList->defaultClass << "\n";
