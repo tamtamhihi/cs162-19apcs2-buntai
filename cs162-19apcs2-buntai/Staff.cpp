@@ -1699,7 +1699,142 @@ void removeStudentFromCourse() {
 	// Annoucement.
 	cout << "Remove student from course successfully!\n";
 }
+// 3.7
+void addAStudentToCourse() {
+	// Get input.
+	string studentID, studentClass, semester, courseID, courseClass;
+	cout << "Please enter student ID: \n\t";
+	cin >> studentID;
+	cout << "Please enter student class: \n\t";
+	cin >> studentClass;
+	toUpper(studentClass);
+	cout << "Please enter academic year, semester, courseID and default class of that course with the same format: \n";
+	cout << "\t<academicYear> <Semester> <courseID> <defaulClass> \n";
+	cout << "\t(Note that academic year 2018-2019 enter 2018 only)\n\t";
+	int academicYear;
+	cin >> academicYear;
+	cin >> semester;
+	semester = toFormalCase(semester);
+	cin >> courseID;
+	toUpper(courseID);
+	cin >> courseClass;
+	toUpper(courseClass);
 
+	// Read class file to read the information of added student and add course in student's courses.
+	Student* studentList = nullptr;
+	readClassFromFile(studentClass, studentList);
+	Student* currentStudent = studentList;
+	while (currentStudent!= nullptr) {
+		if (currentStudent->studentId == studentID) {
+			// add course
+			if (currentStudent->myCourse == nullptr) {
+				currentStudent->myCourse = new CourseInfo;
+				currentStudent->myCourse->academicYear = academicYear;
+				currentStudent->myCourse->semester = semester;
+				currentStudent->myCourse->courseName = courseID;
+				currentStudent->myCourse->defaultClass = courseClass;
+				currentStudent->myCourse->next = nullptr;
+				break;
+			}
+			else {
+				CourseInfo* currentCourse = currentStudent->myCourse;
+				while (currentCourse->next != nullptr) {
+					currentCourse = currentCourse->next;
+				}
+				currentCourse->next = new CourseInfo;
+				currentCourse->next->academicYear = academicYear;
+				currentCourse->next->semester = semester;
+				currentCourse->next->courseName = courseID;
+				currentCourse->next->defaultClass = courseClass;
+				currentCourse->next->next = nullptr;
+				break;
+			}
+		}
+		currentStudent = currentStudent->next;
+	}
+	if (currentStudent == nullptr) {
+		cout << "Error: Cannot find student in given class. \n";
+		return;
+	}
+	writeClassToFile(studentList, studentClass);
+	Student* addedStudent = currentStudent;
+
+	// Add student to course file.
+	CourseInfo* courseInfo = new CourseInfo;
+	courseInfo->academicYear = academicYear;
+	courseInfo->semester = semester;
+	courseInfo->courseName = courseID;
+	courseInfo->defaultClass = courseClass;
+	courseInfo->next = nullptr;
+	Course* course = new Course;
+	readCourseFromFile(courseInfo, course);
+	Student* curStudent = course->students;
+	StudentCourseInfo* curStudentCourseInfo = course->studentCourseInfo;
+	while (curStudent->next != nullptr) {
+		curStudent=curStudent->next;
+		curStudentCourseInfo = curStudentCourseInfo->next;
+	}
+
+	curStudent->next = new Student;
+	curStudent->next->username = addedStudent->username;
+	curStudent->next->name = addedStudent->name;
+	curStudent->next->studentId = addedStudent->studentId;
+	curStudent->next->gender = addedStudent->gender;
+	curStudent->next->dob = addedStudent->dob;
+	curStudent->next->next = nullptr;
+
+	curStudentCourseInfo->next = new StudentCourseInfo;
+	curStudentCourseInfo->next->midterm = 0;
+	curStudentCourseInfo->next->lab = 0;
+	curStudentCourseInfo->next->final = 0;
+	curStudentCourseInfo->next->bonus = 0;
+	curStudentCourseInfo->next->status = 1;
+	curStudentCourseInfo->next->next = nullptr;
+	curStudentCourseInfo->next->attendance = nullptr;
+	Attendance* currentAttendance = nullptr;
+	Date nextSession = course->startDate;
+	int daysToNext;
+	SessionInfo* currentSession = course->sessionInfo;
+	// Link session info list circularly.
+	while (currentSession != nullptr && currentSession->next != nullptr)
+		currentSession = currentSession->next;
+	currentSession->next = course->sessionInfo;
+	currentSession = currentSession->next;
+	for (int i = 0; i < course->totalSessions; ++i) {
+		if (curStudentCourseInfo->next->attendance == nullptr) {
+			curStudentCourseInfo->next->attendance = new Attendance;
+			currentAttendance = curStudentCourseInfo->next->attendance;
+		}
+		else {
+			currentAttendance->next = new Attendance;
+			currentAttendance = currentAttendance->next;
+		}
+		currentAttendance->date = nextSession;
+		currentAttendance->startTime = currentSession->startTime;
+		currentAttendance->endTime = currentSession->endTime;
+		currentAttendance->time = Time{ 0,0 };
+		currentAttendance->next = nullptr;
+		daysToNext = currentSession->next->day - currentSession->day;
+		daysToNext += (daysToNext > 0) ? 0 : 7;
+		nextSession = dateAfterDays(nextSession, daysToNext);
+		currentSession = currentSession->next;
+	}
+	// Unlink circularly.
+	currentSession = course->sessionInfo->next;
+	while (currentSession->next != course->sessionInfo)
+		currentSession = currentSession->next;
+	currentSession->next = nullptr;
+
+	writeCourseToFile(course);
+
+	// Delete pointer.
+	deleteStudentList(studentList);
+	deleteCourse(course);
+	deleteCourseInfo(courseInfo);
+
+	// Annoucement.
+	cout << "Add student to course successfully. \n";
+}
 // 3.8
 void viewListOfCourses() {
 	cout << "Please input the following information:\n";

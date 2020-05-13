@@ -26,7 +26,8 @@ void importCourseFromCsv(); // 3.2
 void manuallyAddCourse(); // 3.3
 void editAnExistingCourse(); // 3.4
 void removeCourse(); // 3.5
-void removeStudentFromCourse(); //3.6
+void removeStudentFromCourse(); // 3.6
+void addAStudentToCourse(); // 3.7
 void viewListOfCourses(); // 3.8
 void viewListOfStudentsOfCourse(); // 3.9
 void viewAttendanceListOfCourse(); // 3.10
