@@ -222,6 +222,125 @@ void viewProfileInfo(string& userName, int& userRole) {
 	}
 }
 
+//1.4
+void changePassword(string& userName) {
+	string userPassword = "", checkName, checkPassword, newPassword, confirmedPassword;
+	string* userlist[1000];
+	cout << "\tPlease enter your password: ";
+	char c = _getch();
+	while (c != 13) { // c != '\n'
+		if (c == 8) { // c == backspace
+			if (!userPassword.empty()) {
+				userPassword.pop_back();
+				cout << "\b \b";
+			}
+			c = _getch();
+			continue;
+		}
+		_putch('*');
+		userPassword += c;
+		c = _getch();
+	}
+	cout << "\n\n";
+
+	//check password and find position of password in file User.txt
+	ifstream in;
+	in.open("Database/User.txt");
+	int count = 0,n=0;
+	if (!in) {
+		cout << "Login failed. Error: User file is missing, please try again later.\n\n";
+		return;
+	}
+
+	while (getline(in, checkName)) {
+		count++; n++;
+		getline(in, checkPassword); count++; n++;
+		in.ignore(); count++; n++;
+		in.ignore();
+		if (userName == checkName && userPassword == checkPassword) {
+			//continue to count the number of lines of file text
+			while (in)
+			{
+				in.ignore(); n++;
+				in.ignore();  n++;
+				in.ignore();  n++;
+				in.ignore();  
+			}
+			in.close();
+
+			cout << "\tPlease enter your new password:" ;
+			char d = _getch();
+			while (d!= 13) { // c != '\n'
+				if (d == 8) { // c == backspace
+					if (!newPassword.empty()) {
+						newPassword.pop_back();
+						cout << "\b \b";
+					}
+					d = _getch();
+					continue;
+				}
+				_putch('*');
+				newPassword += d;
+				d = _getch();
+			}
+			cout << "\n\n";
+
+			cout << "\tEnter again your new password:" ;
+			char e = _getch();
+			while (e!= 13) { // c != '\n'
+				if (e == 8) { // c == backspace
+					if (!confirmedPassword.empty()) {
+						confirmedPassword.pop_back();
+						cout << "\b \b";
+					}
+					e = _getch();
+					continue;
+				}
+				_putch('*');
+				confirmedPassword += e;
+				e = _getch();
+			}
+			cout << "\n\n";
+
+			if (newPassword == confirmedPassword) {
+				// in file text, replace old password by new password
+
+				//create a array to store each line of file text, replace the line store old password by new password
+				string* userFile;
+				userFile = new string[n];
+				ifstream in;
+				in.open("Database/User.txt");
+				for (int i = 0; i < n; i++) {
+					if (i + 1 == count) {
+						userFile[i - 1] = newPassword;
+						in.ignore();
+						in >> userFile[i];
+					}
+					else in >> userFile[i];
+				}
+				in.close();
+
+				//rewrite User.txt
+				ofstream out;
+				out.open("Database/User.txt");
+				for (int i = 0; i < n; i++) {
+					out << userFile[i] << endl;
+				}
+				out.close();
+				cout << "Your password has been changed successfully" << endl;
+				delete[]userFile;
+			}
+			else cout << "The new password entered again is incorrect" << endl;
+			return;
+		}
+		else if (userName == checkName && userPassword != checkPassword) {
+			in.close();
+			cout << " Wrong password for " << userName << ".\n\n";
+			return;
+		}
+	}
+}
+
 //1.5 
 void logout(string& userName, int& userRole) {
 	int choice;

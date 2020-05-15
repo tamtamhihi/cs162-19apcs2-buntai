@@ -1359,6 +1359,7 @@ void findAttendanceDateOfCourse(Attendance*& attendanceDate, CourseInfo*& course
 	}
 }
 
+
 // Show menu of staff, lecturer and student.
 void showStaffMenu() {
 	int choice;

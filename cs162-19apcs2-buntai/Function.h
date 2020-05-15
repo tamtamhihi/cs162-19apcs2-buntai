@@ -8,6 +8,7 @@
 void login(string& userName, int& userRole); // 1.1
 void showMenu(int& userRole); // 1.2
 void viewProfileInfo(string& userName, int& userRole); // 1.3
+void changePassword(string& userName); //1.4
 void logout(string& userName, int& userRole); //1.5
 
 // ====== STAFF - CLASS ======
