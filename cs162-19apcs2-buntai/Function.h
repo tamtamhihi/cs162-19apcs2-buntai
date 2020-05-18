@@ -43,7 +43,7 @@ void manipulateAllLecturers(); // 3.11
 
 // ====== LECTURER ======
 void viewCoursesInSemester(string lecturerUsername); // 6.1
-
+void viewScoreboardOfCourse(string lecturerUsername); // 6.7
 
 // ====== STUDENT ======
 
