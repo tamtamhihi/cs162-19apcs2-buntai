@@ -73,3 +73,32 @@ void viewCoursesInSemester(string lecturerUsername) {
 		deleteCourseInfo(courseList);
 	}
 }
+
+// 6.5 
+
+// 6.7
+void viewScoreboardOfCourse(string lecturerUsername) {
+	// Get input
+	cout << "Please input the following information:\n";
+	int academicYear;
+	CourseInfo* courseInfo = new CourseInfo;
+	cout << "\tAcademic year: ";
+	cin >> courseInfo->academicYear;
+	cout << "\tSemester: ";
+	cin >> courseInfo->semester; courseInfo->semester = toFormalCase(courseInfo->semester);
+	cout << "\tCourese ID: ";
+	cin >> courseInfo->courseName; toUpper(courseInfo->courseName);
+	cout << "\tDefault class: ";
+	cin >> courseInfo->defaultClass; toUpper(courseInfo->defaultClass);
+	courseInfo->next = nullptr;
+
+	// Check if course exist
+	if (!isCourseExist(courseInfo)) {
+		cout << "Error: Course not found.\n\n";
+		return;
+	}
+
+	// Check whether given course is in lecturer's courses
+	
+	
+}

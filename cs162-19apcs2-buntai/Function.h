@@ -120,3 +120,4 @@ void findAttendanceDateOfCourse(Attendance*& attendanceDate, CourseInfo*& course
 void showStaffMenu();
 void showLecturerMenu();
 void showStudentMenu();
+bool isLecturerCourse(CourseInfo* courseInfo, string lecturerUsername);

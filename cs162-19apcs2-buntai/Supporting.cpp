@@ -1582,3 +1582,27 @@ bool findStudentInfoFromFile(Student& newTurn, string userName) {
 	in.close();
 	return false;
 }
+
+// Check whether given course is in lecturer's courses
+bool isLecturerCourse(CourseInfo* courseInfo, string lecturerUsername) {
+	Lecturer* lecturers = nullptr;
+	readLecturersFromFile(lecturers);
+	Lecturer* curLecturer = lecturers;
+	while (curLecturer->username != lecturerUsername) {
+		curLecturer = curLecturer->next;
+	}
+	if (curLecturer->totalCourse) {
+		CourseInfo* curCourse = curLecturer->myCourse;
+		while (curCourse != nullptr) {
+			if (curCourse->academicYear == courseInfo->academicYear
+				&& curCourse->semester == courseInfo->semester
+				&& curCourse->courseName == courseInfo->courseName
+				&& curCourse->defaultClass == courseInfo->defaultClass) {
+				deleteLecturers(lecturers);
+				return true;
+			}
+		}
+	}
+	deleteLecturers(lecturers);
+	return false;
+}
