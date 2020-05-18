@@ -178,10 +178,32 @@ int calculateDaysBetDates(Date startDate, Date endDate) {
 
 // Calculate total sessions based on start date, end date and day of week.
 int calculateTotalSessions(Course* course) {
-	int daysInStudyWeeks = calculateDaysBetDates(course->startDate, course->endDate) + 1;
-	daysInStudyWeeks += getDayOfWeek(course->startDate) - 1;
-	daysInStudyWeeks += 7 - getDayOfWeek(course->endDate);
-	return daysInStudyWeeks / 7 * course->sessionsPerWeek;
+	int start = getDayOfWeek(course->startDate), end = getDayOfWeek(course->endDate);
+	int countStart = 0, countEnd = 0;
+	SessionInfo* currentSession = course->sessionInfo;
+	while (currentSession != nullptr) {
+		if (currentSession->day == start)
+			break;
+		countStart++;
+		currentSession = currentSession->next;
+	}
+	currentSession = course->sessionInfo;
+	while (currentSession != nullptr) {
+		if (currentSession->day > end)
+			break;
+		countEnd++;
+		currentSession = currentSession->next;
+	}
+
+	int totalSessions = 0;
+	totalSessions += course->sessionsPerWeek - countStart;
+	int days = calculateDaysBetDates(course->startDate, course->endDate) + 1;
+	if (start <= end)
+		totalSessions += (days / 7 - 1) * course->sessionsPerWeek;
+	else
+		totalSessions += days / 7 * course->sessionsPerWeek;
+	totalSessions += countEnd;
+	return totalSessions;
 }
 
 // Determine the date for next session.
