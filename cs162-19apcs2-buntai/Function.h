@@ -91,6 +91,7 @@ string findPasswordFromUsername(string username);
 bool findLecturerFromUsername(string username, Lecturer& lecturer);
 void printStudentInfo(Student*& student);
 void printStudentListTable(Student*& students);
+void printScoreboardTable(Course* course);
 void printLecturerInfo(Lecturer*& lecturer);
 void readClassFromFile(string className, Student*& studentList);
 void readCourseFromFile(CourseInfo* courseInfo, Course*& course);
