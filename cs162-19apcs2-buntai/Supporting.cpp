@@ -529,6 +529,28 @@ string findPasswordFromUsername(string username) {
 // Search "Lecturer.txt" to find a lecture from username.
 bool findLecturerFromUsername(string username, Lecturer& lecturer) {
 	ifstream in("Database/Lecturer.txt");
+	if (in.is_open()) {
+		string user, name, title, temp;
+		int gender, totalCourse;
+		while (in >> user) {
+			in.ignore();
+			getline(in, name);
+			getline(in, title);
+			in >> gender >> totalCourse;
+			in.ignore();
+			for (int i = 0; i < totalCourse; ++i)
+				getline(in, temp);
+			if (user == username) {
+				lecturer.username = user;
+				lecturer.name = name;
+				lecturer.title = title;
+				lecturer.gender = gender;
+				return true;
+			}
+		}
+		return false;
+		in.close();
+	}
 	string user, name, title;
 	int gender;
 	while (in >> user) {
@@ -1558,4 +1580,33 @@ bool findStudentInfoFromFile(Student& newTurn, string userName) {
 	}
 	in.close();
 	return false;
+}
+
+// Print a single course's info.
+void printCourseInfo(Course* course) {
+	cout << "Course info:\n";
+	cout << "\tAcademic year: " << course->academicYear << "\n";
+	cout << "\tSemester: " << course->semester << "\n";
+	cout << "\tCourse ID: " << course->courseId << "\n";
+	cout << "\tCourse name: " << course->courseName << "\n";
+	cout << "\tDefault class: " << course->defaultClass << "\n";
+	cout << "\tLecturer account: " << course->lecturer.title << " " << course->lecturer.name << "\n";
+	cout << "\tStart date: " << course->startDate.day << "-" << course->startDate.month << "-" << course->startDate.year << "\n";
+	cout << "\tEnd date: " << course->endDate.day << "-" << course->endDate.month << "-" << course->endDate.year << "\n";
+	cout << "\tSessions per week: " << course->sessionsPerWeek << "\n";
+	cout << "\tSessions info:\n";
+	cout << "\t" << setw(20) << "Day of week |" << setw(20) << "Start time |" << " End time\n";
+	cout << "\t" << setfill('-') << setw(20) << "+" << setw(20) << "+" << setw(20) << " " << "\n";
+	SessionInfo* currentSession = course->sessionInfo;
+	for (int i = 0; i < course->sessionsPerWeek; ++i) {
+		string sessionStart = to_string(currentSession->startTime.hour) + ":"
+			+ to_string(currentSession->startTime.minute);
+		string sessionEnd = to_string(currentSession->endTime.hour) + ":"
+			+ to_string(currentSession->endTime.minute);
+		cout << "\t" << setfill(' ') << setw(19) << numToDay(currentSession->day) << "|"
+			<< setw(19) << sessionStart << "| " << sessionEnd << "\n";
+		currentSession = currentSession->next;
+	}
+	cout << "\tRoom: " << course->room << "\n";
+	cout << "\n";
 }

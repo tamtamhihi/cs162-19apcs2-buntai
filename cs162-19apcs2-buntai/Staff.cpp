@@ -1267,7 +1267,7 @@ void manuallyAddCourse() {
 	cout << "\tCourse ID: " << courseId << "\n";
 	cout << "\tCourse name: " << courseName << "\n";
 	cout << "\tDefault class: " << defaultClass << "\n";
-	cout << "\tLecturer Account: " << lecturerUsername << "\n";
+	cout << "\tLecturer account: " << lecturerUsername << "\n";
 	Date start = getDate(startDate), end = getDate(endDate);
 	cout << "\tStart date: " << start.day << "-" << start.month << "-" << start.year << "\n";
 	cout << "\tEnd date: " << end.day << "-" << end.month << "-" << end.year << "\n";
@@ -1463,8 +1463,139 @@ void manuallyAddCourse() {
 }
 
 // 3.4
-void editAnExistingCourse() {
+void editExistingCourse() {
+	// Ask for academic year, semester, course ID and default class.
+	cout << "Please input course information with the same format:\n";
+	cout << "<academic-year>,<semester>,<course-id>,<default-class>\n\t";
+	string row, academicYear, semester, courseId, defaultClass;
+	getline(cin, row);
+	cout << "\n";
+	stringstream info(row);
+	getline(info, academicYear, ',');
+	getline(info, semester, ',');
+	semester = toFormalCase(semester);
+	getline(info, courseId, ',');
+	toUpper(courseId);
+	getline(info, defaultClass, ',');
+	toUpper(defaultClass);
 
+	// Check if course exists.
+	CourseInfo* editedInfo = new CourseInfo;
+	editedInfo->academicYear = stoi(academicYear);
+	editedInfo->semester = semester;
+	editedInfo->courseName = courseId;
+	editedInfo->defaultClass = defaultClass;
+	editedInfo->next = nullptr;
+	if (!isCourseExist(editedInfo)) {
+		cout << "Edit failed. Error: Can't find course.\n\n";
+		deleteCourseInfo(editedInfo);
+		return;
+	}
+
+	// Confirm course info.
+	Course* editedCourse = new Course;
+	readCourseFromFile(editedInfo, editedCourse);
+	findLecturerFromUsername(editedCourse->lecturer.username, editedCourse->lecturer);
+	printCourseInfo(editedCourse);
+
+	// Ask for field to edit and prompt editing.
+	cout << "What field do you want to edit?\n";
+	cout << "\t1-Course name\n\t2-Lecturer\n";
+	cout << "Input in increasing order with a space between.\n\t";
+	getline(cin, row);
+	cout << "\n";
+	info = stringstream(row);
+	int choice = 0;
+	bool isLecChanged = false;
+	while (info >> choice) {
+		if (choice == 1) {
+			string name;
+			cout << "New name: ";
+			getline(cin, name);
+			name = toFormalCase(name);
+			cout << "Do you want to change name from "
+				<< editedCourse->courseName << " to " << name << "? Y/N\n\t";
+			cin >> row;
+			cout << "\n";
+			toUpper(row);
+			if (row == "Y")
+				editedCourse->courseName = name;
+		}
+		else {
+			isLecChanged = true;
+			string username;
+			cout << "New lecturer username: ";
+			cin.ignore();
+			getline(cin, username);
+			toLower(username);
+			Lecturer newLecturer;
+			if (!findLecturerFromUsername(username, newLecturer))
+				cout << "Edit failed. Error: Can't find new lecturer.\n\n";
+			else {
+				cout << "Do you want to change lecturer from "
+					<< editedCourse->lecturer.title << " " << editedCourse->lecturer.name << " to "
+					<< newLecturer.title << " " << newLecturer.name << "? Y/N\n\t";
+				cin >> row;
+				cout << "\n";
+				toUpper(row);
+				if (row == "Y") {
+					// Edit "Lecturer.txt" file.
+					Lecturer* lecturers = nullptr;
+					readLecturersFromFile(lecturers);
+					Lecturer* currentLecturer = lecturers;
+					// Loop twice to modify info of new/old lecturer.
+					for (int i = 0; i < 2; ++i) {
+						while (currentLecturer != nullptr) {
+							if (currentLecturer->username == editedCourse->lecturer.username) {
+								currentLecturer->totalCourse--;
+								CourseInfo* currentInfo = currentLecturer->myCourse, * previousInfo = nullptr;
+								while (currentInfo != nullptr) {
+									if (currentInfo->courseName == editedInfo->courseName && currentInfo->defaultClass == editedInfo->defaultClass) {
+										CourseInfo* temp = currentInfo;
+										if (previousInfo == nullptr)
+											currentLecturer->myCourse = currentLecturer->myCourse->next;
+										else
+											previousInfo->next = currentInfo->next;
+										currentInfo = currentInfo->next;
+										delete temp;
+									}
+									else {
+										previousInfo = currentInfo;
+										currentInfo = currentInfo->next;
+									}
+								}
+								currentLecturer = currentLecturer->next;
+								break;
+							}
+							if (currentLecturer->username == newLecturer.username) {
+								currentLecturer->totalCourse++;
+								CourseInfo* temp = editedInfo;
+								editedInfo->next = currentLecturer->myCourse;
+								currentLecturer->myCourse = temp;
+								currentLecturer = currentLecturer->next;
+								break;
+							}
+							currentLecturer = currentLecturer->next;
+						}
+					}
+					writeLecturersToFile(lecturers);
+					deleteLecturers(lecturers);
+					editedCourse->lecturer.username = newLecturer.username;
+					editedCourse->lecturer.title = newLecturer.title;
+				}
+			}
+		}
+	}
+
+	// Edit "<course-id>-<default-class>.txt" file.
+	writeCourseToFile(editedCourse);
+	deleteCourse(editedCourse);
+
+	// Delete linked lists.
+	if (!isLecChanged)
+		deleteCourseInfo(editedInfo);
+
+	cout << "Edit course successfully.\n\n";
 }
 
 // 3.5

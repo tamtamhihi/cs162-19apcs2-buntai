@@ -25,7 +25,7 @@ void viewListOfStudentInAClass(); // 2.7
 void manipulateAcademicYearsAndSemester(); // 3.1
 void importCourseFromCsv(); // 3.2
 void manuallyAddCourse(); // 3.3
-void editAnExistingCourse(); // 3.4
+void editExistingCourse(); // 3.4
 void removeCourse(); // 3.5
 void removeStudentFromCourse(); // 3.6
 void addAStudentToCourse(); // 3.7
@@ -119,3 +119,4 @@ void findAttendanceDateOfCourse(Attendance*& attendanceDate, CourseInfo*& course
 void showStaffMenu();
 void showLecturerMenu();
 void showStudentMenu();
+void printCourseInfo(Course* course);
