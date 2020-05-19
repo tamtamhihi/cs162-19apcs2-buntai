@@ -1634,7 +1634,7 @@ void printCourseInfo(Course* course) {
 	cout << "\n";
 }
 
-// Check whether given course is in lecturer's courses
+// Check whether given course is in lecturer's courses.
 bool isLecturerCourse(CourseInfo* courseInfo, string lecturerUsername) {
 	Lecturer* lecturers = nullptr;
 	readLecturersFromFile(lecturers);
@@ -1656,4 +1656,28 @@ bool isLecturerCourse(CourseInfo* courseInfo, string lecturerUsername) {
 	}
 	deleteLecturers(lecturers);
 	return false;
+}
+
+// Turn a time into a string.
+string timeToString(Time time) {
+	string timeString = "";
+	if (time.hour < 10) timeString += "0";
+	timeString += to_string(time.hour) + ":";
+	if (time.minute < 10) timeString += "0";
+	timeString += to_string(time.minute);
+	return timeString;
+}
+
+// Compare check-in time vs scheduled time.
+bool isPresent(Attendance* attendance) {
+	if ((attendance->time.hour < attendance->startTime.hour) ||
+		(attendance->time.hour == attendance->startTime.hour &&
+			attendance->time.minute < attendance->startTime.minute))
+		return false;
+	else if ((attendance->time.hour > attendance->endTime.hour) ||
+		(attendance->time.hour == attendance->endTime.hour &&
+			attendance->time.minute > attendance->endTime.minute))
+		return false;
+	else
+		return true;
 }

@@ -74,6 +74,8 @@ bool isStudentIdExist(string studentId);
 bool isAcademicYearExist(int academicYear);
 bool isSemesterExist(int academicYear, string mySemester);
 void removeSemesterDirectory(int academicYear, string semester);
+string timeToString(Time time);
+bool isPresent(Attendance* attendance);
 
 
 // ====== APP-RELATED ======
