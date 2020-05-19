@@ -1681,3 +1681,22 @@ bool isPresent(Attendance* attendance) {
 	else
 		return true;
 }
+
+//get info of student from file
+void getInfoOfStudent(Student& newTurn, string studentUsername) {
+	ifstream in;
+	int count = 0;
+	in.open("Database/Class/Classes.txt");
+	count++;
+	if (!in) cout << "Cannot open class file, please try it later" << endl;
+	else (in >> newTurn.myClass);
+	in.close();
+	while (findStudentInfoFromFile(newTurn, studentUsername) == false) {
+		ifstream in;
+		in.open("Database/Class/Classes.txt");
+		while (in) {
+			for (int i = 0; i < count; i++) in >> newTurn.myClass;
+		}
+		in.close();
+	}
+}

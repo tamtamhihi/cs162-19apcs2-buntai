@@ -46,6 +46,7 @@ void viewCoursesInSemester(string lecturerUsername); // 6.1
 void viewScoreboardOfCourse(string lecturerUsername); // 6.7
 
 // ====== STUDENT ======
+void viewSchedules(string studentUsername); //7.3
 
 
 // ====== SUPPORTING FUNCTION ======
@@ -124,3 +125,4 @@ void showLecturerMenu();
 void showStudentMenu();
 void printCourseInfo(Course* course);
 bool isLecturerCourse(CourseInfo* courseInfo, string lecturerUsername);
+void getInfoOfStudent(Student& newTurn, string studentUsername);
