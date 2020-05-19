@@ -1966,6 +1966,7 @@ void addAStudentToCourse() {
 	// Annoucement.
 	cout << "Add student to course successfully. \n";
 }
+
 // 3.8
 void viewListOfCourses() {
 	cout << "Please input the following information:\n";
@@ -2054,8 +2055,8 @@ void viewAttendanceListOfCourse() {
 	string semester, courseId, defaultClass;
 	cout << "\tAcademic year: ";
 	cin >> academicYear;
-	cout << "\tSemester: "; semester = toFormalCase(semester);
-	cin >> semester;
+	cout << "\tSemester: "; 
+	cin >> semester; semester = toFormalCase(semester);
 	cout << "\tCourse ID: ";
 	cin >> courseId; toUpper(courseId);
 	cout << "\tDefault class: ";
@@ -2320,3 +2321,9 @@ void manipulateAllLecturers() {
 		cout << "\n";
 	}
 }
+
+// 5.1
+void viewAttendanceList() {
+
+}
+

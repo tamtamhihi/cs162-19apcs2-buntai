@@ -625,6 +625,29 @@ void printStudentListTable(Student*& students) {
 	}
 	cout << "\n";
 }
+// Print a table displaying scoreboard of a course
+void printScoreboardTable(Course* course) {
+	Student* curStudent = course->students;
+	StudentCourseInfo* curStudentCourseInfo = course->studentCourseInfo;
+	cout << "\t" << setw(5) << "No. |" << setw(15) << "Student ID |" << setw(30) << "Full name |"
+		<< setw(10) << "Midterm |"<< setw(10) << "Final |" << setw(10) << "Lab |"<< setw(10) << "Bonus\n";
+	cout << "\t" << setfill('-') << setw(5) << "+" << setw(15) << "+" << setw(30) << "+"
+		<< setw(10) << "+" << setw(10) << "+" << setw(10) << "+" << setw(10) << " " << "\n";
+	int count = 0;
+	while (curStudent != nullptr) {
+		++count;
+		cout << "\t" << setfill(' ') << setw(4) << count << "|"
+			<< setw(14) << curStudent->studentId << "|"
+			<< setw(29) << curStudent->name << "|"
+			<< setw(9) << curStudentCourseInfo->midterm << "|"
+			<< setw(9) << curStudentCourseInfo->final << "|"
+			<< setw(9) << curStudentCourseInfo->lab << "|"
+			<< setw(9) << curStudentCourseInfo->bonus << "\n";
+		curStudent = curStudent->next;
+		curStudentCourseInfo = curStudentCourseInfo->next;
+	}
+	cout << "\n";
+}
 
 // Print a single lecturer's info.
 void printLecturerInfo(Lecturer*& lecturer) {
@@ -1609,4 +1632,28 @@ void printCourseInfo(Course* course) {
 	}
 	cout << "\tRoom: " << course->room << "\n";
 	cout << "\n";
+}
+
+// Check whether given course is in lecturer's courses
+bool isLecturerCourse(CourseInfo* courseInfo, string lecturerUsername) {
+	Lecturer* lecturers = nullptr;
+	readLecturersFromFile(lecturers);
+	Lecturer* curLecturer = lecturers;
+	while (curLecturer->username != lecturerUsername) {
+		curLecturer = curLecturer->next;
+	}
+	if (curLecturer->totalCourse) {
+		CourseInfo* curCourse = curLecturer->myCourse;
+		while (curCourse != nullptr) {
+			if (curCourse->academicYear == courseInfo->academicYear
+				&& curCourse->semester == courseInfo->semester
+				&& curCourse->courseName == courseInfo->courseName
+				&& curCourse->defaultClass == courseInfo->defaultClass) {
+				deleteLecturers(lecturers);
+				return true;
+			}
+		}
+	}
+	deleteLecturers(lecturers);
+	return false;
 }

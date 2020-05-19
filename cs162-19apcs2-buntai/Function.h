@@ -43,7 +43,7 @@ void manipulateAllLecturers(); // 3.11
 
 // ====== LECTURER ======
 void viewCoursesInSemester(string lecturerUsername); // 6.1
-
+void viewScoreboardOfCourse(string lecturerUsername); // 6.7
 
 // ====== STUDENT ======
 
@@ -91,6 +91,7 @@ string findPasswordFromUsername(string username);
 bool findLecturerFromUsername(string username, Lecturer& lecturer);
 void printStudentInfo(Student*& student);
 void printStudentListTable(Student*& students);
+void printScoreboardTable(Course* course);
 void printLecturerInfo(Lecturer*& lecturer);
 void readClassFromFile(string className, Student*& studentList);
 void readCourseFromFile(CourseInfo* courseInfo, Course*& course);
@@ -120,3 +121,4 @@ void showStaffMenu();
 void showLecturerMenu();
 void showStudentMenu();
 void printCourseInfo(Course* course);
+bool isLecturerCourse(CourseInfo* courseInfo, string lecturerUsername);

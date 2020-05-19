@@ -73,3 +73,45 @@ void viewCoursesInSemester(string lecturerUsername) {
 		deleteCourseInfo(courseList);
 	}
 }
+
+// 6.5 
+
+// 6.7
+void viewScoreboardOfCourse(string lecturerUsername) {
+	// Get input.
+	cout << "Please input the following information:\n";
+	int academicYear;
+	CourseInfo* courseInfo = new CourseInfo;
+	cout << "\tAcademic year: ";
+	cin >> courseInfo->academicYear;
+	cout << "\tSemester: ";
+	cin >> courseInfo->semester; courseInfo->semester = toFormalCase(courseInfo->semester);
+	cout << "\tCourese ID: ";
+	cin >> courseInfo->courseName; toUpper(courseInfo->courseName);
+	cout << "\tDefault class: ";
+	cin >> courseInfo->defaultClass; toUpper(courseInfo->defaultClass);
+	courseInfo->next = nullptr;
+	cout << "\n";
+
+	// Check if course exist.
+	if (!isCourseExist(courseInfo)) {
+		cout << "Error: Course not found.\n\n";
+		return;
+	}
+
+	// Check whether given course is in lecturer's courses.
+	if (!isLecturerCourse(courseInfo, lecturerUsername)) {
+		cout << "Sorry, you do not have a right to view scoreboard of this course. \n\n";
+		return;
+	}
+	// If yes print scoreboard.
+	cout << "Loading scoreboard...\n";
+	Course* course = new Course;
+	readCourseFromFile(courseInfo, course);
+	printScoreboardTable(course);
+	cout << "\n";
+
+	deleteCourseInfo(courseInfo);
+	deleteCourse(course);
+	return;
+}
