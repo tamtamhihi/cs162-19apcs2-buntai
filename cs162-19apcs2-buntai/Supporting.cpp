@@ -1681,3 +1681,84 @@ bool isPresent(Attendance* attendance) {
 	else
 		return true;
 }
+
+// Find whether a student ID exists, if yes store the info.
+bool findStudentInfoFromId(Student& student, string studentId) {
+	ifstream in("Database/Class/Classes.txt");
+	string className;
+	while (in >> className) {
+		Student* studentList = nullptr;
+		readClassFromFile(className, studentList);
+		Student* currentStudent = studentList;
+		while (currentStudent != nullptr) {
+			if (currentStudent->studentId == studentId) {
+				student.name = currentStudent->name;
+				student.studentId = studentId;
+				student.numberOfCourse = currentStudent->numberOfCourse;
+				student.myCourse = nullptr;
+				CourseInfo* currentInfo = currentStudent->myCourse;
+				for (int i = 0; i < currentStudent->numberOfCourse; ++i) {
+					if (student.myCourse == nullptr) {
+						student.myCourse = new CourseInfo;
+						currentInfo = student.myCourse;
+					}
+					else {
+						currentInfo->next = new CourseInfo;
+						currentInfo = currentInfo->next;
+					}
+					currentInfo->academicYear = currentStudent->myCourse->academicYear;
+					currentInfo->semester = currentStudent->myCourse->semester;
+					currentInfo->courseName = currentStudent->myCourse->courseName;
+					currentInfo->defaultClass = currentStudent->myCourse->defaultClass;
+					currentInfo->next = nullptr;
+					currentStudent->myCourse = currentStudent->myCourse->next;
+				}
+				deleteStudentList(studentList);
+				in.close();
+				return true;
+			}
+			currentStudent = currentStudent->next;
+		}
+		deleteStudentList(studentList);
+	}
+	in.close();
+	return false;
+}
+
+// Read attendance list from a course info.
+void readAttendanceList(Attendance*& attendance, CourseInfo* courseInfo, Student student) {
+	// Read student list from file.
+	Course* course = new Course;
+	readCourseFromFile(courseInfo, course);
+	
+	// Find student course info and read attendance list.
+	Student* currentStudent = course->students;
+	StudentCourseInfo* currentStudentInfo = course->studentCourseInfo;
+	while (currentStudent != nullptr) {
+		if (currentStudent->studentId == student.studentId) {
+			Attendance* currentAttendance = currentStudentInfo->attendance, * currentList = attendance;
+			while (currentAttendance != nullptr) {
+				if (currentList == nullptr) {
+					attendance = new Attendance;
+					currentList = attendance;
+				}
+				else {
+					currentList->next = new Attendance;
+					currentList = currentList->next;
+				}
+				currentList->date = currentAttendance->date;
+				currentList->startTime = currentAttendance->startTime;
+				currentList->endTime = currentAttendance->endTime;
+				currentList->time = currentAttendance->time;
+				currentList->next = nullptr;
+				currentAttendance = currentAttendance->next;
+			}
+			break;
+		}
+		currentStudent = currentStudent->next;
+		currentStudentInfo = currentStudentInfo->next;
+	}
+
+	// Delete linked list.
+	deleteCourse(course);
+}

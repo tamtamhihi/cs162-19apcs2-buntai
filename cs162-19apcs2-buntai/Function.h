@@ -39,7 +39,7 @@ void manipulateAllLecturers(); // 3.11
 
 
 // ====== STAFF - ATTENDANCE ======
-
+void searchAndViewAttendance(); // 5.1
 
 // ====== LECTURER ======
 void viewCoursesInSemester(string lecturerUsername); // 6.1
@@ -124,3 +124,5 @@ void showLecturerMenu();
 void showStudentMenu();
 void printCourseInfo(Course* course);
 bool isLecturerCourse(CourseInfo* courseInfo, string lecturerUsername);
+bool findStudentInfoFromId(Student& student, string studentId);
+void readAttendanceList(Attendance*& attendance, CourseInfo* courseInfo, Student student);
