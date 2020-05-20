@@ -40,6 +40,7 @@ void manipulateAllLecturers(); // 3.11
 
 // ====== STAFF - ATTENDANCE ======
 void searchAndViewAttendance(); // 5.1
+void exportAttendanceListToCsv(); // 5.2
 
 // ====== LECTURER ======
 void viewCoursesInSemester(string lecturerUsername); // 6.1

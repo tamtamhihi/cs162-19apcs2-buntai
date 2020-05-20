@@ -2440,3 +2440,86 @@ void searchAndViewAttendance() {
 	deleteCourseInfo(student.myCourse);
 	deleteAttendance(attendance);
 }
+
+// 5.2
+void exportAttendanceListToCsv() {
+	// Get course information.
+	cout << "Please input course information with the same format:\n";
+	cout << "<academic-year>,<semester>,<course-id>,<default-class>\n\t";
+	string row, academicYear, semester, courseId, defaultClass;
+	getline(cin, row);
+	cout << "\n";
+	stringstream info(row);
+	getline(info, academicYear, ',');
+	getline(info, semester, ',');
+	semester = toFormalCase(semester);
+	getline(info, courseId, ',');
+	toUpper(courseId);
+	getline(info, defaultClass, ',');
+	toUpper(defaultClass);
+
+	// Check whether course exists.
+	CourseInfo* courseInfo = new CourseInfo;
+	courseInfo->academicYear = stoi(academicYear);
+	courseInfo->semester = semester;
+	courseInfo->courseName = courseId;
+	courseInfo->defaultClass = defaultClass;
+	courseInfo->next = nullptr;
+	if (!isCourseExist(courseInfo)) {
+		cout << "Export failed. Error: Can't find course.\n\n";
+		deleteCourseInfo(courseInfo);
+		return;
+	}
+
+	// Read course from file.
+	Course* course = new Course;
+	readCourseFromFile(courseInfo, course);
+
+	// Export attendance list to csv file.
+	cout << "Please enter filepath to store attendance CSV file:\n\t";
+	getline(cin, row);
+	cout << "\n";
+	ofstream out(row);
+	if (!out.is_open()) {
+		cout << "Export failed. Error: Can't create file.\n\n";
+		deleteCourseInfo(courseInfo);
+		deleteCourse(course);
+		return;
+	}
+	else {
+		out << "Number,"
+			<< "Name,"
+			<< "Status,"
+			<< "Session date,"
+			<< "Start time,"
+			<< "End time,"
+			<< "Check-in time\n";
+		int count = 1;
+		Student* currentStudent = course->students;
+		StudentCourseInfo* currentInfo = course->studentCourseInfo;
+		while (currentStudent != nullptr) {
+			out << count << ","
+				<< currentStudent->name << ","
+				<< currentInfo->status << ","
+				<< currentInfo->attendance->date.year << "-"
+				<< currentInfo->attendance->date.month << "-"
+				<< currentInfo->attendance->date.day << ","
+				<< currentInfo->attendance->startTime.hour << " "
+				<< currentInfo->attendance->startTime.minute << ","
+				<< currentInfo->attendance->endTime.hour << " "
+				<< currentInfo->attendance->endTime.minute << ","
+				<< currentInfo->attendance->time.hour << " "
+				<< currentInfo->attendance->time.minute << "\n";
+			count++;
+			currentStudent = currentStudent->next;
+			currentInfo = currentInfo->next;
+		}
+		out.close();
+	}
+	
+	// Delete linked list.
+	deleteCourseInfo(courseInfo);
+	deleteCourse(course);
+
+	cout << "Export successfully. Please check CSV file in " << row << "\n\n";
+}
