@@ -131,9 +131,165 @@ void viewStudentListOfCourse(string lecturerUsername) {
 }
 
 // 6.5
+void importScoreboardFromCsv(string lecturerUsername) {
+	// Read all courses info of that lecturer.
+	Lecturer* lecturers = nullptr;
+	readLecturersFromFile(lecturers);
+	Lecturer* currentLecturer = lecturers;
+	while (currentLecturer->username != lecturerUsername)
+		currentLecturer = currentLecturer->next;
+	if (currentLecturer->totalCourse) {
+		cout << "LIST OF YOUR COURSES:\n";
+		printCourseListTable(currentLecturer->myCourse);
+	}
+	else {
+		cout << "Sorry, you have no courses to import scoreboard.\n\n";
+		deleteLecturers(lecturers);
+		return;
+	}
+
+	// Get input.
+	cout << "Please input the following information:\n";
+	int academicYear;
+	CourseInfo* courseInfo = new CourseInfo;
+	cout << "\tAcademic year: ";
+	cin >> courseInfo->academicYear;
+	cout << "\tSemester: ";
+	cin >> courseInfo->semester; courseInfo->semester = toFormalCase(courseInfo->semester);
+	cout << "\tCourese ID: ";
+	cin >> courseInfo->courseName; toUpper(courseInfo->courseName);
+	cout << "\tDefault class: ";
+	cin >> courseInfo->defaultClass; toUpper(courseInfo->defaultClass);
+	courseInfo->next = nullptr;
+	cout << "\tFilepath to csv file: ";
+	string filepath;
+	cin >> filepath;
+	cout << "\n";
+
+	// Check if course exist.
+	if (!isCourseExist(courseInfo)) {
+		cout << "Error: Course not found.\n\n";
+		return;
+	}
+
+	// Check whether given course is in lecturer's courses.
+	if (!isLecturerCourse(courseInfo, lecturerUsername)) {
+		cout << "Sorry, you do not have a right to update scoreboard of this course. \n\n";
+		return;
+	}
+
+	// Try to open file at given filepath.
+	ifstream in;
+	in.open(filepath);
+	while (!in.is_open()) {
+		cout << "\tThe file path you entered is not valid. Please input another path or ""0"" to stop: ";
+		cin >> filepath;
+		cout << "\n";
+		if (filepath == "0")
+			return;
+		in.open(filepath);
+	}
+
+	// Read all infomation from csv
+	string row, no, studentID, name, midterm, final, lab, bonus;
+
+	// Check whether the csv file is in right format.
+	getline(in, row);
+	stringstream columnNames(row);
+	int columnCount = 0;
+	while (getline(columnNames, no, ','))
+		columnCount++;
+	if (columnCount != 7) {
+		cout << "Import unsuccesful. Error: The number of columns is not compatible.\n\n";
+		in.close();
+		return;
+	}
+
+	Student* studentCsv = nullptr;
+	Student* curStudent = studentCsv;
+	StudentCourseInfo* studentScore = nullptr;
+	StudentCourseInfo* curStudentScore = nullptr;
+	while (getline(in, row)) {
+		stringstream thisRow(row);
+		getline(thisRow, no, ',');
+		getline(thisRow, studentID, ',');
+		getline(thisRow, name, ',');
+		getline(thisRow, midterm, ',');
+		getline(thisRow, final, ',');
+		getline(thisRow, lab, ',');
+		getline(thisRow, bonus);
+
+		if (studentCsv == nullptr) {
+			studentCsv = new Student;
+			curStudent = studentCsv;
+		}
+		else {
+			curStudent->next = new Student;
+			curStudent = curStudent->next;
+		}
+		curStudent->studentId = studentID;
+		curStudent->name = name;
+		curStudent->next = nullptr;
+
+		if (studentScore == nullptr) {
+			studentScore = new StudentCourseInfo;
+			curStudentScore = studentScore;
+		}
+		else {
+			curStudentScore->next = new StudentCourseInfo;
+			curStudentScore = curStudentScore->next;
+		}
+		curStudentScore->midterm = stoi(midterm);
+		curStudentScore->final = stoi(final);
+		curStudentScore->lab = stoi(lab);
+		curStudentScore->bonus = stoi(bonus);
+		curStudentScore->attendance = nullptr;
+		curStudentScore->next = nullptr;
+	}
+
+	// Update scoreboard to course file.
+	Course* course = new Course;
+	readCourseFromFile(courseInfo, course);
+	StudentCourseInfo* curStudentCourseScore = course->studentCourseInfo;
+	curStudentScore = studentScore;
+	while (curStudentCourseScore != nullptr) {
+		curStudentCourseScore->midterm = curStudentScore->midterm;
+		curStudentCourseScore->final = curStudentScore->final;
+		curStudentCourseScore->lab = curStudentScore->lab;
+		curStudentCourseScore->bonus = curStudentScore->bonus;
+		curStudentCourseScore = curStudentCourseScore->next;
+		curStudentScore = curStudentScore->next;
+	}
+	writeCourseToFile(course);
+
+	// Delete linked list.
+	deleteCourseInfo(courseInfo);
+	deleteCourse(course);
+	deleteStudent(studentCsv);
+	deleteStudentCourseInfo(studentScore);
+
+	// Annoucement.
+	cout << "Import scoreboard from file csv successfully!\n\n";
+}
 
 // 6.7
 void viewScoreboardOfCourse(string lecturerUsername) {
+	// Read all courses info of that lecturer.
+	Lecturer* lecturers = nullptr;
+	readLecturersFromFile(lecturers);
+	Lecturer* currentLecturer = lecturers;
+	while (currentLecturer->username != lecturerUsername)
+		currentLecturer = currentLecturer->next;
+	if (currentLecturer->totalCourse) {
+		cout << "LIST OF YOUR COURSES:\n";
+		printCourseListTable(currentLecturer->myCourse);
+	}
+	else {
+		cout << "Sorry, you have no courses to view student list.\n\n";
+		deleteLecturers(lecturers);
+		return;
+	}
+
 	// Get input.
 	cout << "Please input the following information:\n";
 	int academicYear;
