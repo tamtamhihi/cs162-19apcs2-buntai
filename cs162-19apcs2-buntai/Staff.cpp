@@ -2106,71 +2106,22 @@ void viewAttendanceListOfCourse() {
 	readCourseFromFile(courseInfo, course);
 
 	// Print attendance list.
-	cout << "Attendance list in course " << courseId << " of " 
-		<< semester << " semester, academic year "
+	toUpper(semester);
+	cout << "\t\tATTENDANCE LIST OF COURSE " << courseId << " OF " 
+		<< semester << " SEMESTER, "
 		<< academicYear << "-" << academicYear + 1 << ":\n";
+	semester = toFormalCase(semester);
+
 	// Print session list.
 	cout << "Session list:\n";
-	cout << "\t" << setw(20) << "Date |" << setw(13) << " Start time |" << " End time\n";
-	StudentCourseInfo* currentStudentInfo = course->studentCourseInfo;
-	Attendance* currentAttendance = currentStudentInfo->attendance;
-	while (currentAttendance != nullptr) {
-		cout << "\t" << setfill('-') << setw(20) << "+" << setw(13) << "+" << setw(13) << " " << "\n";
-		string date, start, end;
-		date = numToDay(getDayOfWeek(currentAttendance->date)) + ", " + dateToString(currentAttendance->date) + " |";
-		start = timeToString(currentAttendance->startTime) + " |";
-		end = " " + timeToString(currentAttendance->endTime) + "\n";
-		cout << "\t" << setfill(' ') << setw(20) << date << setw(13) << start << end;
-		currentAttendance = currentAttendance->next;
-	}
-	cout << "\n";
+	printAllSessionsTable(course->studentCourseInfo->attendance);
+
 	// Print student list.
-	cout << "Student list:\n";
-	cout << "\t" << setw(20) << "Student name |";
-	int* studentCount = new int[course->totalSessions];
-	for (int i = 0; i < course->totalSessions - 1; ++i) {
-		studentCount[i] = 0;
-		string session = " S" + to_string(i + 1) + " |";
-		cout << setw(8) << session;
-	}
-	studentCount[course->totalSessions - 1] = 0;
-	cout << " S" + to_string(course->totalSessions) + "\n";
-	cout << "\t" << setfill('-') << setw(20);
-	for (int i = 0; i < course->totalSessions; ++i)
-		cout << "+" << setw(8);
-	cout << "\n";
-	Student* currentStudent = course->students;
-	while (currentStudent != nullptr) {
-		string name = currentStudent->name + " |";
-		cout << "\t" << setfill(' ') << setw(20) << name;
-		currentAttendance = currentStudentInfo->attendance;
-		for (int i = 0; i < course->totalSessions - 1; ++i) {
-			string time = timeToString(currentAttendance->time) + " |";
-			cout << setw(8) << time;
-			if (isPresent(currentAttendance))
-				studentCount[i]++;
-			currentAttendance = currentAttendance->next;
-		}
-		cout << " " << timeToString(currentAttendance->time) << "\n";
-		if (isPresent(currentAttendance))
-			studentCount[course->totalSessions - 1]++;
-		cout << "\t" << setfill('-') << setw(20);
-		for (int i = 0; i < course->totalSessions; ++i)
-			cout << "+" << setw(8);
-		cout << "\n";
-		currentStudent = currentStudent->next;
-	}
-	cout << "\t" << setfill(' ') << setw(20) << "Total |";
-	for (int i = 0; i < course->totalSessions - 1; ++i) {
-		string total = to_string(studentCount[i]) + " |";
-		cout << setw(8) << total;
-	}
-	cout << " " << studentCount[course->totalSessions - 1] << "\n\n";
+	printAttendanceListOfCourse(course);
 
 	// Delete linked list.
 	deleteCourseInfo(courseInfo);
 	deleteCourse(course);
-	delete[] studentCount;
 
 	in.close();
 }

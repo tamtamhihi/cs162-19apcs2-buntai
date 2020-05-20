@@ -254,6 +254,19 @@ bool isCourseExist(CourseInfo* courseInfo) {
 	return false;
 }
 
+// Check if a course info is in a course list.
+bool isCourseInCourseList(int academicYear, string semester, string courseId, CourseInfo*& courseList) {
+	CourseInfo* currentCourse = courseList;
+	while (currentCourse != nullptr) {
+		if (currentCourse->academicYear == academicYear 
+			&& currentCourse->semester == semester 
+			&& currentCourse->courseName == courseId)
+			return true;
+		currentCourse = currentCourse->next;
+	}
+	return false;
+}
+
 // Check if a lecturer with given username exists.
 bool isLecturerExist(string lecturerAccount) {
 	ifstream in("Database/Lecturer.txt");
@@ -677,6 +690,98 @@ void printLecturerInfo(Lecturer*& lecturer) {
 		}
 	}
 	cout << "\n";
+}
+
+// Print a course list into a table.
+void printCourseListTable(CourseInfo* courseList) {
+	if (courseList == nullptr) {
+		cout << "Sorry there's no courses to view.\n\n";
+		return;
+	}
+	cout << "\t" << setw(5) << "No |" << setw(20) << "Academic year |" << setw(20) << "Semester |"
+		<< setw(20) << "Course ID |" << " Default class\n";
+	cout << "\t" << setfill('-') << setw(5) << "+" << setw(20) << "+" << setw(20) << "+"
+		<< setw(20) << "+" << setw(20) << " " << "\n";
+	int count = 0;
+	CourseInfo* currentCourse = courseList;
+	while (currentCourse != nullptr) {
+		string year = to_string(currentCourse->academicYear) + "-"
+			+ to_string(currentCourse->academicYear + 1);
+		cout << "\t" << setfill(' ') << setw(4) << ++count << "|" 
+			<< setw(19) << year << "|"
+			<< setw(19) << currentCourse->semester << "|"
+			<< setw(19) << currentCourse->courseName << "| "
+			<< currentCourse->defaultClass << "\n";
+		currentCourse = currentCourse->next;
+	}
+	cout << "\n";
+}
+
+// Print all sessions info of a course into a table.
+void printAllSessionsTable(Attendance*& attendanceDate) {
+	cout << "\t" << setw(5) << "No. |" << setw(20) << "Date |"
+		<< setw(18) << "Study time\n";
+	cout << "\t" << setfill('-') << setw(5) << "+" << setw(20) << "+"
+		<< setw(25) << " " << "\n";
+	int count = 0;
+	Attendance* currentAttendance = attendanceDate;
+	while (currentAttendance != nullptr) {
+		string date = numToDay(getDayOfWeek(currentAttendance->date)) + ", " + dateToString(currentAttendance->date);
+		string sessionTime = "\t" + timeToString(currentAttendance->startTime) 
+			+ "-" + timeToString(currentAttendance->endTime);
+		cout << "\t" << setfill(' ') << setw(4) << ++count << "|"
+			<< setw(19) << date << "|"
+			<< sessionTime << "\n";
+		currentAttendance = currentAttendance->next;
+	}
+	cout << "\n";
+}
+
+// Print an attendance list in a table.
+void printAttendanceListOfCourse(Course* course) {
+	StudentCourseInfo* currentStudentInfo = course->studentCourseInfo;
+	Attendance* currentAttendance;
+	cout << setw(20) << "STUDENT NAME |";
+	int* studentCount = new int[course->totalSessions];
+	for (int i = 0; i < course->totalSessions - 1; ++i) {
+		studentCount[i] = 0;
+		string session = " S" + to_string(i + 1) + " |";
+		cout << setw(6) << session;
+	}
+	studentCount[course->totalSessions - 1] = 0;
+	cout << " S" + to_string(course->totalSessions) + "\n";
+	cout << setfill('-') << setw(20);
+	for (int i = 0; i < course->totalSessions; ++i)
+		cout << "+" << setw(6);
+	cout << "\n";
+	Student* currentStudent = course->students;
+	while (currentStudent != nullptr) {
+		string name = currentStudent->name + " |";
+		cout << setfill(' ') << setw(20) << name;
+		currentAttendance = currentStudentInfo->attendance;
+		for (int i = 0; i < course->totalSessions - 1; ++i) {
+			string time = timeToString(currentAttendance->time) + "|";
+			cout << setw(6) << time;
+			if (isPresent(currentAttendance))
+				studentCount[i]++;
+			currentAttendance = currentAttendance->next;
+		}
+		cout << timeToString(currentAttendance->time) << "\n";
+		if (isPresent(currentAttendance))
+			studentCount[course->totalSessions - 1]++;
+		cout << setfill('-') << setw(20);
+		for (int i = 0; i < course->totalSessions; ++i)
+			cout << "+" << setw(6);
+		cout << "\n";
+		currentStudent = currentStudent->next;
+	}
+	cout << setfill(' ') << setw(20) << "Total |";
+	for (int i = 0; i < course->totalSessions - 1; ++i) {
+		string total = to_string(studentCount[i]) + " |";
+		cout << setw(6) << total;
+	}
+	cout << " " << studentCount[course->totalSessions - 1] << "\n\n";
+	delete[] studentCount;
 }
 
 // Read a "<class-name>.txt" file to a Student linked list.
@@ -1398,7 +1503,6 @@ void findAttendanceDateOfCourse(Attendance*& attendanceDate, CourseInfo*& course
 		+ courseInfo->semester + "/" + courseInfo->courseName + "-"
 		+ courseInfo->defaultClass + ".txt");
 	if (in.is_open()) {
-		cout << "\tFinding attendance date of course...\n";
 		string waste;
 		int totalSessions;
 		Attendance* currentAttendance = nullptr;
@@ -1761,4 +1865,23 @@ void readAttendanceList(Attendance*& attendance, CourseInfo* courseInfo, Student
 
 	// Delete linked list.
 	deleteCourse(course);
+}
+
+// Get info of student from file.
+void getInfoOfStudent(Student& newTurn, string studentUsername) {
+	ifstream in;
+	int count = 0;
+	in.open("Database/Class/Classes.txt");
+	count++;
+	if (!in) cout << "Cannot open class file, please try it later" << endl;
+	else (in >> newTurn.myClass);
+	in.close();
+	while (findStudentInfoFromFile(newTurn, studentUsername) == false) {
+		ifstream in;
+		in.open("Database/Class/Classes.txt");
+		while (in) {
+			for (int i = 0; i < count; i++) in >> newTurn.myClass;
+		}
+		in.close();
+	}
 }
