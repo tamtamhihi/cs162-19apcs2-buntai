@@ -25,7 +25,7 @@ void viewListOfStudentInAClass(); // 2.7
 void manipulateAcademicYearsAndSemester(); // 3.1
 void importCourseFromCsv(); // 3.2
 void manuallyAddCourse(); // 3.3
-void editAnExistingCourse(); // 3.4
+void editExistingCourse(); // 3.4
 void removeCourse(); // 3.5
 void removeStudentFromCourse(); // 3.6
 void addAStudentToCourse(); // 3.7
@@ -44,9 +44,10 @@ void manipulateAllLecturers(); // 3.11
 // ====== LECTURER ======
 void viewCoursesInSemester(string lecturerUsername); // 6.1
 void viewStudentListOfCourse(string lecturerUsername); // 6.2
-
+void viewScoreboardOfCourse(string lecturerUsername); // 6.7
 
 // ====== STUDENT ======
+void viewSchedules(string studentUsername); //7.3
 
 
 // ====== SUPPORTING FUNCTION ======
@@ -76,6 +77,8 @@ bool isStudentIdExist(string studentId);
 bool isAcademicYearExist(int academicYear);
 bool isSemesterExist(int academicYear, string mySemester);
 void removeSemesterDirectory(int academicYear, string semester);
+string timeToString(Time time);
+bool isPresent(Attendance* attendance);
 
 
 // ====== APP-RELATED ======
@@ -93,6 +96,7 @@ string findPasswordFromUsername(string username);
 bool findLecturerFromUsername(string username, Lecturer& lecturer);
 void printStudentInfo(Student*& student);
 void printStudentListTable(Student*& students);
+void printScoreboardTable(Course* course);
 void printLecturerInfo(Lecturer*& lecturer);
 void printCourseListTable(CourseInfo* courseList);
 void readClassFromFile(string className, Student*& studentList);
@@ -122,3 +126,6 @@ void findAttendanceDateOfCourse(Attendance*& attendanceDate, CourseInfo*& course
 void showStaffMenu();
 void showLecturerMenu();
 void showStudentMenu();
+void printCourseInfo(Course* course);
+bool isLecturerCourse(CourseInfo* courseInfo, string lecturerUsername);
+void getInfoOfStudent(Student& newTurn, string studentUsername);

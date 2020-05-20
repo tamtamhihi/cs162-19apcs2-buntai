@@ -1267,7 +1267,7 @@ void manuallyAddCourse() {
 	cout << "\tCourse ID: " << courseId << "\n";
 	cout << "\tCourse name: " << courseName << "\n";
 	cout << "\tDefault class: " << defaultClass << "\n";
-	cout << "\tLecturer Account: " << lecturerUsername << "\n";
+	cout << "\tLecturer account: " << lecturerUsername << "\n";
 	Date start = getDate(startDate), end = getDate(endDate);
 	cout << "\tStart date: " << start.day << "-" << start.month << "-" << start.year << "\n";
 	cout << "\tEnd date: " << end.day << "-" << end.month << "-" << end.year << "\n";
@@ -1463,8 +1463,157 @@ void manuallyAddCourse() {
 }
 
 // 3.4
-void editAnExistingCourse() {
+void editExistingCourse() {
+	// Ask for academic year, semester, course ID and default class.
+	cout << "Please input course information with the same format:\n";
+	cout << "<academic-year>,<semester>,<course-id>,<default-class>\n\t";
+	string row, academicYear, semester, courseId, defaultClass;
+	getline(cin, row);
+	cout << "\n";
+	stringstream info(row);
+	getline(info, academicYear, ',');
+	getline(info, semester, ',');
+	semester = toFormalCase(semester);
+	getline(info, courseId, ',');
+	toUpper(courseId);
+	getline(info, defaultClass, ',');
+	toUpper(defaultClass);
 
+	// Check if course exists.
+	CourseInfo* editedInfo = new CourseInfo;
+	editedInfo->academicYear = stoi(academicYear);
+	editedInfo->semester = semester;
+	editedInfo->courseName = courseId;
+	editedInfo->defaultClass = defaultClass;
+	editedInfo->next = nullptr;
+	if (!isCourseExist(editedInfo)) {
+		cout << "Edit failed. Error: Can't find course.\n\n";
+		deleteCourseInfo(editedInfo);
+		return;
+	}
+
+	// Confirm course info.
+	Course* editedCourse = new Course;
+	readCourseFromFile(editedInfo, editedCourse);
+	findLecturerFromUsername(editedCourse->lecturer.username, editedCourse->lecturer);
+	printCourseInfo(editedCourse);
+
+	// Ask for field to edit and prompt editing.
+	cout << "What field do you want to edit?\n";
+	cout << "\t1-Course name\n\t2-Lecturer\n";
+	cout << "Input in increasing order with a space between.\n\t";
+	getline(cin, row);
+	cout << "\n";
+	info = stringstream(row);
+	int choice = 0;
+	bool isNameChanged = false, isLecChanged = false;
+	while (info >> choice) {
+		if (choice == 1) {
+			string name;
+			cout << "New name: ";
+			getline(cin, name);
+			name = toFormalCase(name);
+			cout << "Do you want to change name from "
+				<< editedCourse->courseName << " to " << name << "? Y/N\n\t";
+			cin >> row;
+			cout << "\n";
+			toUpper(row);
+			if (row == "Y") {
+				editedCourse->courseName = name;
+				isNameChanged = true;
+			}
+		}
+		else {
+			string username;
+			cout << "New lecturer username: ";
+			cin.ignore();
+			getline(cin, username);
+			toLower(username);
+			Lecturer newLecturer;
+			if (!findLecturerFromUsername(username, newLecturer)) {
+				cout << "Edit failed. Error: Can't find new lecturer.\n\n";
+
+				// Edit "<course-id>-<default-class>.txt" file.
+				writeCourseToFile(editedCourse);
+				deleteCourse(editedCourse);
+
+				// Delete linked list.
+				deleteCourseInfo(editedInfo);
+
+				if (!isNameChanged)
+					cout << "Edit course name successfully.\n\n";
+				return;
+			}
+			else {
+				cout << "Do you want to change lecturer from "
+					<< editedCourse->lecturer.title << " " << editedCourse->lecturer.name << " to "
+					<< newLecturer.title << " " << newLecturer.name << "? Y/N\n\t";
+				cin >> row;
+				cout << "\n";
+				toUpper(row);
+				if (row == "Y") {
+					isLecChanged = true;
+					// Edit "Lecturer.txt" file.
+					Lecturer* lecturers = nullptr;
+					readLecturersFromFile(lecturers);
+					Lecturer* currentLecturer = lecturers;
+					// Loop twice to modify info of new/old lecturer.
+					for (int i = 0; i < 2; ++i) {
+						while (currentLecturer != nullptr) {
+							if (currentLecturer->username == editedCourse->lecturer.username) {
+								currentLecturer->totalCourse--;
+								CourseInfo* currentInfo = currentLecturer->myCourse, * previousInfo = nullptr;
+								while (currentInfo != nullptr) {
+									if (currentInfo->courseName == editedInfo->courseName && 
+										currentInfo->defaultClass == editedInfo->defaultClass) {
+										CourseInfo* temp = currentInfo;
+										if (previousInfo == nullptr)
+											currentLecturer->myCourse = currentLecturer->myCourse->next;
+										else
+											previousInfo->next = currentInfo->next;
+										currentInfo = currentInfo->next;
+										delete temp;
+									}
+									else {
+										previousInfo = currentInfo;
+										currentInfo = currentInfo->next;
+									}
+								}
+								currentLecturer = currentLecturer->next;
+								break;
+							}
+							if (currentLecturer->username == newLecturer.username) {
+								currentLecturer->totalCourse++;
+								CourseInfo* temp = editedInfo;
+								editedInfo->next = currentLecturer->myCourse;
+								currentLecturer->myCourse = temp;
+								currentLecturer = currentLecturer->next;
+								break;
+							}
+							currentLecturer = currentLecturer->next;
+						}
+					}
+					writeLecturersToFile(lecturers);
+					deleteLecturers(lecturers);
+					editedCourse->lecturer.username = newLecturer.username;
+					editedCourse->lecturer.title = newLecturer.title;
+				}
+			}
+		}
+	}
+
+	// Edit "<course-id>-<default-class>.txt" file.
+	writeCourseToFile(editedCourse);
+	deleteCourse(editedCourse);
+
+	// Delete linked lists.
+	if (!isLecChanged)
+		deleteCourseInfo(editedInfo);
+
+	if (!isNameChanged && !isLecChanged)
+		cout << "No change was made.\n\n";
+	else
+		cout << "Edit course successfully.\n\n";
 }
 
 // 3.5
@@ -1835,6 +1984,7 @@ void addAStudentToCourse() {
 	// Annoucement.
 	cout << "Add student to course successfully. \n";
 }
+
 // 3.8
 void viewListOfCourses() {
 	cout << "Please input the following information:\n";
@@ -1923,8 +2073,8 @@ void viewAttendanceListOfCourse() {
 	string semester, courseId, defaultClass;
 	cout << "\tAcademic year: ";
 	cin >> academicYear;
-	cout << "\tSemester: "; semester = toFormalCase(semester);
-	cin >> semester;
+	cout << "\tSemester: "; 
+	cin >> semester; semester = toFormalCase(semester);
 	cout << "\tCourse ID: ";
 	cin >> courseId; toUpper(courseId);
 	cout << "\tDefault class: ";
@@ -1955,37 +2105,72 @@ void viewAttendanceListOfCourse() {
 	readCourseFromFile(courseInfo, course);
 
 	// Print attendance list.
-	cout << "Attendance list in course " << courseId
-		<< " of " << semester << " semester, academic year "
+	cout << "Attendance list in course " << courseId << " of " 
+		<< semester << " semester, academic year "
 		<< academicYear << "-" << academicYear + 1 << ":\n";
-	Student* currentStudent = course->students;
+	// Print session list.
+	cout << "Session list:\n";
+	cout << "\t" << setw(20) << "Date |" << setw(13) << " Start time |" << " End time\n";
 	StudentCourseInfo* currentStudentInfo = course->studentCourseInfo;
-	int studentNum = 1;
-	while (currentStudent != nullptr) {
-		cout << "\t";
-		cout << studentNum << ". ";
-		cout << currentStudent->name << ":\n";
-		Attendance* currentAttendance = currentStudentInfo->attendance;
-		while (currentAttendance != nullptr) {
-			cout << "\t\tDATE: " << currentAttendance->date.day
-				<< "-" << currentAttendance->date.month
-				<< "-" << currentAttendance->date.year << "\n";
-			cout << "\t\tSession time:\n"
-				<< "\t\t\tStart time: " << currentAttendance->startTime.hour << ":" << currentAttendance->startTime.minute << "\n"
-				<< "\t\t\tEnd time: " << currentAttendance->endTime.hour << ":" << currentAttendance->endTime.minute << "\n";
-			cout << "\t\tCheck-in time: " << currentAttendance->time.hour << ":" << currentAttendance->time.minute << "\n";
-			cout << "\n";
-			currentAttendance = currentAttendance->next;
-		}
-		cout << "\n";
-		studentNum++;
-		currentStudent = currentStudent->next;
+	Attendance* currentAttendance = currentStudentInfo->attendance;
+	while (currentAttendance != nullptr) {
+		cout << "\t" << setfill('-') << setw(20) << "+" << setw(13) << "+" << setw(13) << " " << "\n";
+		string date, start, end;
+		date = numToDay(getDayOfWeek(currentAttendance->date)) + ", " + dateToString(currentAttendance->date) + " |";
+		start = timeToString(currentAttendance->startTime) + " |";
+		end = " " + timeToString(currentAttendance->endTime) + "\n";
+		cout << "\t" << setfill(' ') << setw(20) << date << setw(13) << start << end;
+		currentAttendance = currentAttendance->next;
 	}
 	cout << "\n";
+
+	// Print student list.
+	cout << "Student list:\n";
+	cout << "\t" << setw(20) << "Student name |";
+	int* studentCount = new int[course->totalSessions];
+	for (int i = 0; i < course->totalSessions - 1; ++i) {
+		studentCount[i] = 0;
+		string session = " S" + to_string(i + 1) + " |";
+		cout << setw(8) << session;
+	}
+	studentCount[course->totalSessions - 1] = 0;
+	cout << " S" + to_string(course->totalSessions) + "\n";
+	cout << "\t" << setfill('-') << setw(20);
+	for (int i = 0; i < course->totalSessions; ++i)
+		cout << "+" << setw(8);
+	cout << "\n";
+	Student* currentStudent = course->students;
+	while (currentStudent != nullptr) {
+		string name = currentStudent->name + " |";
+		cout << "\t" << setfill(' ') << setw(20) << name;
+		currentAttendance = currentStudentInfo->attendance;
+		for (int i = 0; i < course->totalSessions - 1; ++i) {
+			string time = timeToString(currentAttendance->time) + " |";
+			cout << setw(8) << time;
+			if (isPresent(currentAttendance))
+				studentCount[i]++;
+			currentAttendance = currentAttendance->next;
+		}
+		cout << " " << timeToString(currentAttendance->time) << "\n";
+		if (isPresent(currentAttendance))
+			studentCount[course->totalSessions - 1]++;
+		cout << "\t" << setfill('-') << setw(20);
+		for (int i = 0; i < course->totalSessions; ++i)
+			cout << "+" << setw(8);
+		cout << "\n";
+		currentStudent = currentStudent->next;
+	}
+	cout << "\t" << setfill(' ') << setw(20) << "Total |";
+	for (int i = 0; i < course->totalSessions - 1; ++i) {
+		string total = to_string(studentCount[i]) + " |";
+		cout << setw(8) << total;
+	}
+	cout << " " << studentCount[course->totalSessions - 1] << "\n\n";
 
 	// Delete linked list.
 	deleteCourseInfo(courseInfo);
 	deleteCourse(course);
+	delete[] studentCount;
 
 	in.close();
 }
@@ -2189,3 +2374,9 @@ void manipulateAllLecturers() {
 		cout << "\n";
 	}
 }
+
+// 5.1
+void viewAttendanceList() {
+
+}
+

@@ -542,6 +542,28 @@ string findPasswordFromUsername(string username) {
 // Search "Lecturer.txt" to find a lecture from username.
 bool findLecturerFromUsername(string username, Lecturer& lecturer) {
 	ifstream in("Database/Lecturer.txt");
+	if (in.is_open()) {
+		string user, name, title, temp;
+		int gender, totalCourse;
+		while (in >> user) {
+			in.ignore();
+			getline(in, name);
+			getline(in, title);
+			in >> gender >> totalCourse;
+			in.ignore();
+			for (int i = 0; i < totalCourse; ++i)
+				getline(in, temp);
+			if (user == username) {
+				lecturer.username = user;
+				lecturer.name = name;
+				lecturer.title = title;
+				lecturer.gender = gender;
+				return true;
+			}
+		}
+		return false;
+		in.close();
+	}
 	string user, name, title;
 	int gender;
 	while (in >> user) {
@@ -613,6 +635,29 @@ void printStudentListTable(Student*& students) {
 			cout << "male\n";
 		else cout << "female\n";
 		currentStudent = currentStudent->next;
+	}
+	cout << "\n";
+}
+// Print a table displaying scoreboard of a course
+void printScoreboardTable(Course* course) {
+	Student* curStudent = course->students;
+	StudentCourseInfo* curStudentCourseInfo = course->studentCourseInfo;
+	cout << "\t" << setw(5) << "No. |" << setw(15) << "Student ID |" << setw(30) << "Full name |"
+		<< setw(10) << "Midterm |"<< setw(10) << "Final |" << setw(10) << "Lab |"<< setw(10) << "Bonus\n";
+	cout << "\t" << setfill('-') << setw(5) << "+" << setw(15) << "+" << setw(30) << "+"
+		<< setw(10) << "+" << setw(10) << "+" << setw(10) << "+" << setw(10) << " " << "\n";
+	int count = 0;
+	while (curStudent != nullptr) {
+		++count;
+		cout << "\t" << setfill(' ') << setw(4) << count << "|"
+			<< setw(14) << curStudent->studentId << "|"
+			<< setw(29) << curStudent->name << "|"
+			<< setw(9) << curStudentCourseInfo->midterm << "|"
+			<< setw(9) << curStudentCourseInfo->final << "|"
+			<< setw(9) << curStudentCourseInfo->lab << "|"
+			<< setw(9) << curStudentCourseInfo->bonus << "\n";
+		curStudent = curStudent->next;
+		curStudentCourseInfo = curStudentCourseInfo->next;
 	}
 	cout << "\n";
 }
@@ -1594,4 +1639,100 @@ bool findStudentInfoFromFile(Student& newTurn, string userName) {
 	}
 	in.close();
 	return false;
+}
+
+// Print a single course's info.
+void printCourseInfo(Course* course) {
+	cout << "Course info:\n";
+	cout << "\tAcademic year: " << course->academicYear << "\n";
+	cout << "\tSemester: " << course->semester << "\n";
+	cout << "\tCourse ID: " << course->courseId << "\n";
+	cout << "\tCourse name: " << course->courseName << "\n";
+	cout << "\tDefault class: " << course->defaultClass << "\n";
+	cout << "\tLecturer account: " << course->lecturer.title << " " << course->lecturer.name << "\n";
+	cout << "\tStart date: " << course->startDate.day << "-" << course->startDate.month << "-" << course->startDate.year << "\n";
+	cout << "\tEnd date: " << course->endDate.day << "-" << course->endDate.month << "-" << course->endDate.year << "\n";
+	cout << "\tSessions per week: " << course->sessionsPerWeek << "\n";
+	cout << "\tSessions info:\n";
+	cout << "\t" << setw(20) << "Day of week |" << setw(20) << "Start time |" << " End time\n";
+	cout << "\t" << setfill('-') << setw(20) << "+" << setw(20) << "+" << setw(20) << " " << "\n";
+	SessionInfo* currentSession = course->sessionInfo;
+	for (int i = 0; i < course->sessionsPerWeek; ++i) {
+		string sessionStart = to_string(currentSession->startTime.hour) + ":"
+			+ to_string(currentSession->startTime.minute);
+		string sessionEnd = to_string(currentSession->endTime.hour) + ":"
+			+ to_string(currentSession->endTime.minute);
+		cout << "\t" << setfill(' ') << setw(19) << numToDay(currentSession->day) << "|"
+			<< setw(19) << sessionStart << "| " << sessionEnd << "\n";
+		currentSession = currentSession->next;
+	}
+	cout << "\tRoom: " << course->room << "\n";
+	cout << "\n";
+}
+
+// Check whether given course is in lecturer's courses.
+bool isLecturerCourse(CourseInfo* courseInfo, string lecturerUsername) {
+	Lecturer* lecturers = nullptr;
+	readLecturersFromFile(lecturers);
+	Lecturer* curLecturer = lecturers;
+	while (curLecturer->username != lecturerUsername) {
+		curLecturer = curLecturer->next;
+	}
+	if (curLecturer->totalCourse) {
+		CourseInfo* curCourse = curLecturer->myCourse;
+		while (curCourse != nullptr) {
+			if (curCourse->academicYear == courseInfo->academicYear
+				&& curCourse->semester == courseInfo->semester
+				&& curCourse->courseName == courseInfo->courseName
+				&& curCourse->defaultClass == courseInfo->defaultClass) {
+				deleteLecturers(lecturers);
+				return true;
+			}
+		}
+	}
+	deleteLecturers(lecturers);
+	return false;
+}
+
+// Turn a time into a string.
+string timeToString(Time time) {
+	string timeString = "";
+	if (time.hour < 10) timeString += "0";
+	timeString += to_string(time.hour) + ":";
+	if (time.minute < 10) timeString += "0";
+	timeString += to_string(time.minute);
+	return timeString;
+}
+
+// Compare check-in time vs scheduled time.
+bool isPresent(Attendance* attendance) {
+	if ((attendance->time.hour < attendance->startTime.hour) ||
+		(attendance->time.hour == attendance->startTime.hour &&
+			attendance->time.minute < attendance->startTime.minute))
+		return false;
+	else if ((attendance->time.hour > attendance->endTime.hour) ||
+		(attendance->time.hour == attendance->endTime.hour &&
+			attendance->time.minute > attendance->endTime.minute))
+		return false;
+	else
+		return true;
+}
+
+//get info of student from file
+void getInfoOfStudent(Student& newTurn, string studentUsername) {
+	ifstream in;
+	int count = 0;
+	in.open("Database/Class/Classes.txt");
+	count++;
+	if (!in) cout << "Cannot open class file, please try it later" << endl;
+	else (in >> newTurn.myClass);
+	in.close();
+	while (findStudentInfoFromFile(newTurn, studentUsername) == false) {
+		ifstream in;
+		in.open("Database/Class/Classes.txt");
+		while (in) {
+			for (int i = 0; i < count; i++) in >> newTurn.myClass;
+		}
+		in.close();
+	}
 }
