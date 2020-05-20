@@ -91,6 +91,8 @@ void viewStudentListOfCourse(string lecturerUsername) {
 		deleteLecturers(lecturers);
 		return;
 	}
+
+	// Ask for the specific course to print student list.
 	string row, ay, courseId, semester, defaultClass;
 	int academicYear;
 	cout << "\nPlease enter information of course to view student list:\n\t";
@@ -115,6 +117,8 @@ void viewStudentListOfCourse(string lecturerUsername) {
 		getline(info, defaultClass, ','); toUpper(defaultClass);
 		cout << "\n";
 	}
+
+	// Read that course and print.
 	Course* course = new Course;
 	CourseInfo* courseInfo = new CourseInfo;
 	courseInfo->academicYear = academicYear;
@@ -126,6 +130,54 @@ void viewStudentListOfCourse(string lecturerUsername) {
 	cout << "Student list of course " << courseId << "-" << defaultClass << ":\n";
 	printStudentListTable(course->students);
 	deleteCourseInfo(courseInfo);
+	deleteCourse(course);
+	deleteLecturers(lecturers);
+}
+
+// 6.3
+void viewAttendanceListOfCourseByLecturer(string lecturerUsername) {
+	// Read all courses info of that lecturer.
+	Lecturer* lecturers = nullptr;
+	readLecturersFromFile(lecturers);
+	Lecturer* currentLecturer = lecturers;
+	while (currentLecturer->username != lecturerUsername)
+		currentLecturer = currentLecturer->next;
+	if (currentLecturer->totalCourse) {
+		cout << "LIST OF YOUR COURSES:\n";
+		printCourseListTable(currentLecturer->myCourse);
+	}
+	else {
+		cout << "Sorry, you have no courses to view attendance list.\n\n";
+		deleteLecturers(lecturers);
+		return;
+	}
+
+	// Ask for specific course to print attendance list.
+	cout << "Please enter the number of the course to view attendance list: ";
+	int choice;
+	cin >> choice;
+	while (choice > currentLecturer->totalCourse) {
+		cout << "Course number not available. Please enter again: ";
+		cin >> choice;
+	}
+	cout << "\n";
+	CourseInfo* courseInfo = currentLecturer->myCourse;
+	for (int i = 0; i < choice - 1; ++i)
+		courseInfo = courseInfo->next;
+
+	// Read that course and print.
+	toUpper(courseInfo->semester);
+	cout << "\t\tATTENDANCE LIST OF COURSE " << courseInfo->courseName << " OF "
+		<< courseInfo->semester << " SEMESTER, "
+		<< courseInfo->academicYear << "-" << courseInfo->academicYear + 1 << ":\n";
+	courseInfo->semester = toFormalCase(courseInfo->semester);
+	Course* course = new Course;
+	readCourseFromFile(courseInfo, course);
+	Attendance* attendanceDate = new Attendance;
+	findAttendanceDateOfCourse(attendanceDate, courseInfo);
+	printAllSessionsTable(attendanceDate);
+	printAttendanceListOfCourse(course);
+	deleteAttendance(attendanceDate);
 	deleteCourse(course);
 	deleteLecturers(lecturers);
 }

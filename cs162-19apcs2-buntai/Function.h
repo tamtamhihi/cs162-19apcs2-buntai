@@ -44,6 +44,7 @@ void manipulateAllLecturers(); // 3.11
 // ====== LECTURER ======
 void viewCoursesInSemester(string lecturerUsername); // 6.1
 void viewStudentListOfCourse(string lecturerUsername); // 6.2
+void viewAttendanceListOfCourseByLecturer(string lecturerUsername); // 6.3
 void viewScoreboardOfCourse(string lecturerUsername); // 6.7
 
 // ====== STUDENT ======
@@ -99,6 +100,8 @@ void printStudentListTable(Student*& students);
 void printScoreboardTable(Course* course);
 void printLecturerInfo(Lecturer*& lecturer);
 void printCourseListTable(CourseInfo* courseList);
+void printAllSessionsTable(Attendance*& attendanceDate);
+void printAttendanceListOfCourse(Course* course);
 void readClassFromFile(string className, Student*& studentList);
 void readCourseFromFile(CourseInfo* courseInfo, Course*& course);
 void writeCourseToFile(Course*& course);
