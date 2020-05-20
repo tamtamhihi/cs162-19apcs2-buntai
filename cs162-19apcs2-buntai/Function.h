@@ -45,7 +45,9 @@ void searchAndViewAttendance(); // 5.1
 void viewCoursesInSemester(string lecturerUsername); // 6.1
 void viewStudentListOfCourse(string lecturerUsername); // 6.2
 void viewAttendanceListOfCourseByLecturer(string lecturerUsername); // 6.3
+void importScoreboardFromCsv(string lecturerUsername); // 6.5
 void viewScoreboardOfCourse(string lecturerUsername); // 6.7
+
 
 // ====== STUDENT ======
 void viewSchedules(string studentUsername); //7.3
