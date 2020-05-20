@@ -291,10 +291,10 @@ void importScoreboardFromCsv(string lecturerUsername) {
 			curStudentScore->next = new StudentCourseInfo;
 			curStudentScore = curStudentScore->next;
 		}
-		curStudentScore->midterm = stoi(midterm);
-		curStudentScore->final = stoi(final);
-		curStudentScore->lab = stoi(lab);
-		curStudentScore->bonus = stoi(bonus);
+		curStudentScore->midterm = stod(midterm);
+		curStudentScore->final = stod(final);
+		curStudentScore->lab = stod(lab);
+		curStudentScore->bonus = stod(bonus);
 		curStudentScore->attendance = nullptr;
 		curStudentScore->next = nullptr;
 	}
@@ -322,6 +322,145 @@ void importScoreboardFromCsv(string lecturerUsername) {
 
 	// Annoucement.
 	cout << "Import scoreboard from file csv successfully!\n\n";
+}
+
+// 6.6
+void editGradeOfStudent(string lecturerUsername) {
+	// Read all courses info of that lecturer.
+	Lecturer* lecturers = nullptr;
+	readLecturersFromFile(lecturers);
+	Lecturer* currentLecturer = lecturers;
+	while (currentLecturer->username != lecturerUsername)
+		currentLecturer = currentLecturer->next;
+	if (currentLecturer->totalCourse) {
+		cout << "LIST OF YOUR COURSES:\n";
+		printCourseListTable(currentLecturer->myCourse);
+	}
+	else {
+		cout << "Sorry, you have no courses to view attendance list.\n\n";
+		deleteLecturers(lecturers);
+		return;
+	}
+
+	// Get input.
+	cout << "Please input the following information:\n";
+	int academicYear;
+	CourseInfo* courseInfo = new CourseInfo;
+	cout << "\tAcademic year: ";
+	cin >> courseInfo->academicYear;
+	cout << "\tSemester: ";
+	cin >> courseInfo->semester; courseInfo->semester = toFormalCase(courseInfo->semester);
+	cout << "\tCourese ID: ";
+	cin >> courseInfo->courseName; toUpper(courseInfo->courseName);
+	cout << "\tDefault class: ";
+	cin >> courseInfo->defaultClass; toUpper(courseInfo->defaultClass);
+	cout << "\tStudent ID: ";
+	string studentID;  cin >> studentID;
+	cout << "\n";
+	courseInfo->next = nullptr;
+
+	// Check if course exist.
+	if (!isCourseExist(courseInfo)) {
+		cout << "Error: Course not found.\n\n";
+		return;
+	}
+
+	// Check whether given course is in lecturer's courses.
+	if (!isLecturerCourse(courseInfo, lecturerUsername)) {
+		cout << "Sorry, you do not have a right to update scoreboard of this course. \n\n";
+		return;
+	}
+
+	// Find student in course file.
+	Course* course = new Course;
+	readCourseFromFile(courseInfo, course);
+	Student* curStudent = course->students;
+	StudentCourseInfo* curStudentCourseInfo = course->studentCourseInfo;
+	while (curStudent != nullptr) {
+		if (curStudent->studentId == studentID) {
+			break;
+		}
+		curStudent = curStudent->next;
+		curStudentCourseInfo = curStudentCourseInfo->next;
+	}
+
+	// If student doesn't exist.
+	if (curStudent == nullptr) {
+		cout << "Error: Can not find given student in your course.";
+		deleteCourse(course);
+		deleteCourseInfo(courseInfo);
+		return ;
+	}
+
+	// If yes, print student scoreboard.
+	cout << "Scoreboard of the student:\n";
+	printScoreboardOfStudent(curStudentCourseInfo);
+
+	// Add what type of score lecturer want to edit and  edit them.
+	cout << "What types of score you want to edit?\n"
+		<< "\t1. Midterm \n\t2. Final \n\t3. Lab \n\t4. Bonus \n";
+	cout << "Please input in an increasing order with a space between. \n\t";
+	string row;
+	cin.ignore();
+	getline(cin, row);
+	
+	cout << "\n";
+	stringstream in(row);
+	int choice = 0;
+	double score;
+	while (in >> choice) {
+		if (choice == 1) {
+			cout << "New midterm score: ";
+			cin >> score;
+			cout << "You want to change midterm score from " << curStudentCourseInfo->midterm << " to " << setprecision(2)<< score << "? Y/N \n\t";
+			cin >> row; toUpper(row);
+			if (row == "Y") {
+				curStudentCourseInfo->midterm = score;
+				cout << "The midterm score has been changed successfully.\n\n";
+			}
+		}
+		else if (choice == 2) {
+			cout << "New final score: ";
+			cin >> score; 
+			cout << "You want to change final score from " << curStudentCourseInfo-> final << " to " << setprecision(2) << score << "? Y/N \n\t";
+			cin >> row; toUpper(row);
+			if (row == "Y") {
+				curStudentCourseInfo->final = score; 
+				cout << "The final score has been changed successfully.\n\n";
+			}
+		}
+		else if (choice == 3) {
+			cout << "New lab score: ";
+			cin >> score;
+			cout << "You want to change lab score from " << curStudentCourseInfo->lab << " to " << setprecision(2) << score << "? Y/N \n\t";
+			cin >> row; toUpper(row);
+			if (row == "Y") {
+				curStudentCourseInfo->lab = score;
+				cout << "The lab score has been changed successfully.\n\n";
+			}
+		}
+		else if (choice == 4) {
+			cout << "New bonus score: ";
+			cin >> score;
+			cout << "You want to change bonus score from " << curStudentCourseInfo->bonus << " to " << setprecision(2) << score << "? Y/N \n\t";
+			cin >> row; toUpper(row);
+			if (row == "Y") {
+				curStudentCourseInfo->bonus = score;
+				cout << "The lab score has been changed successfully.\n\n";
+			}
+		}
+	}
+
+	// Print scoreboard of student again.
+	cout << "The scoreboard of student after editing: \n";
+	printScoreboardOfStudent(curStudentCourseInfo);
+
+	// Write course to file.
+	writeCourseToFile(course);
+
+	// Delete linked list.
+	deleteCourse(course);
+	deleteCourseInfo(courseInfo);
 }
 
 // 6.7

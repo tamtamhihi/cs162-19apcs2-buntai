@@ -638,7 +638,8 @@ void printStudentListTable(Student*& students) {
 	}
 	cout << "\n";
 }
-// Print a table displaying scoreboard of a course
+
+// Print a table displaying scoreboard of a course.
 void printScoreboardTable(Course* course) {
 	Student* curStudent = course->students;
 	StudentCourseInfo* curStudentCourseInfo = course->studentCourseInfo;
@@ -660,6 +661,16 @@ void printScoreboardTable(Course* course) {
 		curStudentCourseInfo = curStudentCourseInfo->next;
 	}
 	cout << "\n";
+}
+
+// Print a table displaying scoreboard of a single student.
+void printScoreboardOfStudent(StudentCourseInfo* student) {
+	cout << "\t" << setw(5) << "No.|" << setw(15) << "Score type |" << setw(10) << "Score\n";
+	cout << "\t" << setfill('-') << setw(5) << "+" << setw(15) << "+" << setw(10) << "\n";
+	cout << "\t" << setfill(' ') << setw(4) << 1 << "|" << setw(15) << "Midterm |" << setw(9) << student->midterm << "\n";
+	cout << "\t" << setfill(' ') << setw(4) << 2 << "|" << setw(15) << "  Final |" << setw(9) << student->final << "\n";
+	cout << "\t" << setfill(' ') << setw(4) << 3 << "|" << setw(15) << "    Lab |" << setw(9) << student->lab << "\n";
+	cout << "\t" << setfill(' ') << setw(4) << 4 << "|" << setw(15) << "  Bonus |" << setw(9) << student->bonus << "\n\n";
 }
 
 // Print a single lecturer's info.

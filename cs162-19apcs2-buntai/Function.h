@@ -46,6 +46,7 @@ void viewCoursesInSemester(string lecturerUsername); // 6.1
 void viewStudentListOfCourse(string lecturerUsername); // 6.2
 void viewAttendanceListOfCourseByLecturer(string lecturerUsername); // 6.3
 void importScoreboardFromCsv(string lecturerUsername); // 6.5
+void editGradeOfStudent(string lecturerUsername); //6.6
 void viewScoreboardOfCourse(string lecturerUsername); // 6.7
 
 
@@ -100,6 +101,7 @@ bool findLecturerFromUsername(string username, Lecturer& lecturer);
 void printStudentInfo(Student*& student);
 void printStudentListTable(Student*& students);
 void printScoreboardTable(Course* course);
+void printScoreboardOfStudent(StudentCourseInfo* student);
 void printLecturerInfo(Lecturer*& lecturer);
 void printCourseListTable(CourseInfo* courseList);
 void printAllSessionsTable(Attendance*& attendanceDate);
