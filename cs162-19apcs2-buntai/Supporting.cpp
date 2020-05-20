@@ -741,7 +741,7 @@ void printAllSessionsTable(Attendance*& attendanceDate) {
 void printAttendanceListOfCourse(Course* course) {
 	StudentCourseInfo* currentStudentInfo = course->studentCourseInfo;
 	Attendance* currentAttendance;
-	cout << setw(20) << "STUDENT NAME |";
+	cout << "\t" << setw(20) << "STUDENT NAME |";
 	int* studentCount = new int[course->totalSessions];
 	for (int i = 0; i < course->totalSessions - 1; ++i) {
 		studentCount[i] = 0;
@@ -750,14 +750,14 @@ void printAttendanceListOfCourse(Course* course) {
 	}
 	studentCount[course->totalSessions - 1] = 0;
 	cout << " S" + to_string(course->totalSessions) + "\n";
-	cout << setfill('-') << setw(20);
+	cout << "\t" << setfill('-') << setw(20);
 	for (int i = 0; i < course->totalSessions; ++i)
 		cout << "+" << setw(6);
 	cout << "\n";
 	Student* currentStudent = course->students;
 	while (currentStudent != nullptr) {
 		string name = currentStudent->name + " |";
-		cout << setfill(' ') << setw(20) << name;
+		cout << "\t" << setfill(' ') << setw(20) << name;
 		currentAttendance = currentStudentInfo->attendance;
 		for (int i = 0; i < course->totalSessions - 1; ++i) {
 			string time = timeToString(currentAttendance->time) + "|";
@@ -769,13 +769,13 @@ void printAttendanceListOfCourse(Course* course) {
 		cout << timeToString(currentAttendance->time) << "\n";
 		if (isPresent(currentAttendance))
 			studentCount[course->totalSessions - 1]++;
-		cout << setfill('-') << setw(20);
+		cout << "\t" << setfill('-') << setw(20);
 		for (int i = 0; i < course->totalSessions; ++i)
 			cout << "+" << setw(6);
 		cout << "\n";
 		currentStudent = currentStudent->next;
 	}
-	cout << setfill(' ') << setw(20) << "Total |";
+	cout << "\t" << setfill(' ') << setw(20) << "Total |";
 	for (int i = 0; i < course->totalSessions - 1; ++i) {
 		string total = to_string(studentCount[i]) + " |";
 		cout << setw(6) << total;

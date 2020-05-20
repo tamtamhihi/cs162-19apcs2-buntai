@@ -2113,7 +2113,6 @@ void viewAttendanceListOfCourse() {
 	semester = toFormalCase(semester);
 
 	// Print session list.
-	cout << "Session list:\n";
 	printAllSessionsTable(course->studentCourseInfo->attendance);
 
 	// Print student list.
@@ -2410,7 +2409,7 @@ void searchAndViewAttendance() {
 	}
 	else {
 		// Print session list.
-
+		printAllSessionsTable(attendance);
 
 		// Choose date to view.
 		cout << "Please input date to view with the same format:\n";
@@ -2430,11 +2429,11 @@ void searchAndViewAttendance() {
 			currentAttendance = currentAttendance->next;
 		}
 		string DATE, TIME;
-		DATE = numToDay(getDayOfWeek(date)) + ", " + dateToString(date) + " |";
-		TIME = timeToString(currentAttendance->time) + " |";
-		cout << "\t" << setfill(' ') << setw(20) << "Date |" << setw(20) << "Check-in time |" << " Status\n";
-		cout << "\t" << setfill('-') << setw(20) << "+" << setw(20) << "+" << setw(20) << "\n";
-		cout << "\t" << setfill(' ') << setw(20) << DATE << setw(20) << TIME << ((isPresent(currentAttendance)) ? " On time" : " Absent\n\n");
+		DATE = numToDay(getDayOfWeek(date)) + ", " + dateToString(date) + "|";
+		TIME = timeToString(currentAttendance->time) + "|";
+		cout << "\t" << setfill(' ') << setw(25) << "DATE |" << setw(17) << "Check-in time |" << " Status\n";
+		cout << "\t" << setfill('-') << setw(25) << "+" << setw(17) << "+" << setw(8) << "\n";
+		cout << "\t" << setfill(' ') << setw(25) << DATE << setw(17) << TIME << ((isPresent(currentAttendance)) ? " On time" : " Absent\n\n");
 	}
 
 	// Delete linked list.
