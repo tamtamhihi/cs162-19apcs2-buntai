@@ -73,3 +73,59 @@ void viewCoursesInSemester(string lecturerUsername) {
 		deleteCourseInfo(courseList);
 	}
 }
+
+// 6.2
+void viewStudentListOfCourse(string lecturerUsername) {
+	// Read all courses info of that lecturer.
+	Lecturer* lecturers = nullptr;
+	readLecturersFromFile(lecturers);
+	Lecturer* currentLecturer = lecturers;
+	while (currentLecturer->username != lecturerUsername)
+		currentLecturer = currentLecturer->next;
+	if (currentLecturer->totalCourse) {
+		cout << "LIST OF YOUR COURSES:\n";
+		printCourseListTable(currentLecturer->myCourse);
+	}
+	else {
+		cout << "Sorry, you have no courses to view student list.\n\n";
+		deleteLecturers(lecturers);
+		return;
+	}
+	string row, ay, courseId, semester, defaultClass;
+	int academicYear;
+	cout << "\nPlease enter information of course to view student list:\n\t";
+	cout << "<academic-year>,<semester>,<course-Id>,<default-class>\n\t";
+	getline(cin, row);
+	stringstream info(row);
+	getline(info, ay, ',');
+	academicYear = stoi(ay);
+	getline(info, semester, ','); semester = toFormalCase(semester);
+	getline(info, courseId, ','); toUpper(courseId);
+	getline(info, defaultClass, ','); toUpper(defaultClass);
+	cout << "\n";
+	while (!isCourseInCourseList(academicYear, semester, courseId, currentLecturer->myCourse)) {
+		cout << "You don't have the inputted course. Please try again:\n\t";
+		getline(cin, row);
+		info.clear();
+		info << row;
+		getline(info, ay, ',');
+		academicYear = stoi(ay);
+		getline(info, semester, ','); semester = toFormalCase(semester);
+		getline(info, courseId, ','); toUpper(courseId);
+		getline(info, defaultClass, ','); toUpper(defaultClass);
+		cout << "\n";
+	}
+	Course* course = new Course;
+	CourseInfo* courseInfo = new CourseInfo;
+	courseInfo->academicYear = academicYear;
+	courseInfo->semester = semester;
+	courseInfo->courseName = courseId;
+	courseInfo->defaultClass = defaultClass;
+	courseInfo->next = nullptr;
+	readCourseFromFile(courseInfo, course);
+	cout << "Student list of course " << courseId << "-" << defaultClass << ":\n";
+	printStudentListTable(course->students);
+	deleteCourseInfo(courseInfo);
+	deleteCourse(course);
+	deleteLecturers(lecturers);
+}

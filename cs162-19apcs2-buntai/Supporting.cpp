@@ -254,6 +254,19 @@ bool isCourseExist(CourseInfo* courseInfo) {
 	return false;
 }
 
+// Check if a course info is in a course list.
+bool isCourseInCourseList(int academicYear, string semester, string courseId, CourseInfo*& courseList) {
+	CourseInfo* currentCourse = courseList;
+	while (currentCourse != nullptr) {
+		if (currentCourse->academicYear == academicYear 
+			&& currentCourse->semester == semester 
+			&& currentCourse->courseName == courseId)
+			return true;
+		currentCourse = currentCourse->next;
+	}
+	return false;
+}
+
 // Check if a lecturer with given username exists.
 bool isLecturerExist(string lecturerAccount) {
 	ifstream in("Database/Lecturer.txt");
@@ -630,6 +643,29 @@ void printLecturerInfo(Lecturer*& lecturer) {
 				<< currentCourse->defaultClass << "\n";
 			currentCourse = currentCourse->next;
 		}
+	}
+	cout << "\n";
+}
+
+// Print a course list into a table.
+void printCourseListTable(CourseInfo* courseList) {
+	if (courseList == nullptr) {
+		cout << "Sorry there's no courses to view.\n\n";
+		return;
+	}
+	cout << "\t" << setw(20) << "Academic year |" << setw(20) << "Semester |"
+		<< setw(20) << "Course ID |" << " Default class\n";
+	cout << "\t" << setfill('-') << setw(20) << "+" << setw(20) << "+"
+		<< setw(20) << "+" << setw(20) << " " << "\n";
+	CourseInfo* currentCourse = courseList;
+	while (currentCourse != nullptr) {
+		string year = to_string(currentCourse->academicYear) + "-"
+			+ to_string(currentCourse->academicYear + 1);
+		cout << "\t" << setfill(' ') << setw(19) << year << "|"
+			<< setw(19) << currentCourse->semester << "|"
+			<< setw(19) << currentCourse->courseName << "| "
+			<< currentCourse->defaultClass << "\n";
+		currentCourse = currentCourse->next;
 	}
 	cout << "\n";
 }

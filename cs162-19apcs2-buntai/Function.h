@@ -43,6 +43,7 @@ void manipulateAllLecturers(); // 3.11
 
 // ====== LECTURER ======
 void viewCoursesInSemester(string lecturerUsername); // 6.1
+void viewStudentListOfCourse(string lecturerUsername); // 6.2
 
 
 // ====== STUDENT ======
@@ -69,6 +70,7 @@ Date dateAfterDays(Date startDate, int days);
 Time getTime(string time);
 string numToDay(int day);
 bool isCourseExist(CourseInfo* courseInfo);
+bool isCourseInCourseList(int academicYear, string semester, string courseId, CourseInfo*& courseList);
 bool isLecturerExist(string lecturerAccount);
 bool isStudentIdExist(string studentId);
 bool isAcademicYearExist(int academicYear);
@@ -92,6 +94,7 @@ bool findLecturerFromUsername(string username, Lecturer& lecturer);
 void printStudentInfo(Student*& student);
 void printStudentListTable(Student*& students);
 void printLecturerInfo(Lecturer*& lecturer);
+void printCourseListTable(CourseInfo* courseList);
 void readClassFromFile(string className, Student*& studentList);
 void readCourseFromFile(CourseInfo* courseInfo, Course*& course);
 void writeCourseToFile(Course*& course);
