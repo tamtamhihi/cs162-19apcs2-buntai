@@ -39,11 +39,12 @@ void manipulateAllLecturers(); // 3.11
 
 
 // ====== STAFF - ATTENDANCE ======
-
+void searchAndViewAttendance(); // 5.1
 
 // ====== LECTURER ======
 void viewCoursesInSemester(string lecturerUsername); // 6.1
 void viewStudentListOfCourse(string lecturerUsername); // 6.2
+void viewAttendanceListOfCourseByLecturer(string lecturerUsername); // 6.3
 void importScoreboardFromCsv(string lecturerUsername); // 6.5
 void viewScoreboardOfCourse(string lecturerUsername); // 6.7
 
@@ -101,6 +102,8 @@ void printStudentListTable(Student*& students);
 void printScoreboardTable(Course* course);
 void printLecturerInfo(Lecturer*& lecturer);
 void printCourseListTable(CourseInfo* courseList);
+void printAllSessionsTable(Attendance*& attendanceDate);
+void printAttendanceListOfCourse(Course* course);
 void readClassFromFile(string className, Student*& studentList);
 void readCourseFromFile(CourseInfo* courseInfo, Course*& course);
 void writeCourseToFile(Course*& course);
@@ -130,4 +133,6 @@ void showLecturerMenu();
 void showStudentMenu();
 void printCourseInfo(Course* course);
 bool isLecturerCourse(CourseInfo* courseInfo, string lecturerUsername);
+bool findStudentInfoFromId(Student& student, string studentId);
+void readAttendanceList(Attendance*& attendance, CourseInfo* courseInfo, Student student);
 void getInfoOfStudent(Student& newTurn, string studentUsername);

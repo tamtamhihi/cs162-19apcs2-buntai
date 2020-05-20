@@ -1755,7 +1755,7 @@ void removeCourse() {
 	cout << "Remove course successfully!\n";
 }
 
-// 3.6 Remove a specific student from a course.
+// 3.6
 void removeStudentFromCourse() {
 	// Get input.
 	string studentID, studentClass, semester, courseID, courseClass;
@@ -1848,6 +1848,7 @@ void removeStudentFromCourse() {
 	// Annoucement.
 	cout << "Remove student from course successfully!\n";
 }
+
 // 3.7
 void addAStudentToCourse() {
 	// Get input.
@@ -2105,72 +2106,22 @@ void viewAttendanceListOfCourse() {
 	readCourseFromFile(courseInfo, course);
 
 	// Print attendance list.
-	cout << "Attendance list in course " << courseId << " of " 
-		<< semester << " semester, academic year "
+	toUpper(semester);
+	cout << "\t\tATTENDANCE LIST OF COURSE " << courseId << " OF " 
+		<< semester << " SEMESTER, "
 		<< academicYear << "-" << academicYear + 1 << ":\n";
+	semester = toFormalCase(semester);
+
 	// Print session list.
 	cout << "Session list:\n";
-	cout << "\t" << setw(20) << "Date |" << setw(13) << " Start time |" << " End time\n";
-	StudentCourseInfo* currentStudentInfo = course->studentCourseInfo;
-	Attendance* currentAttendance = currentStudentInfo->attendance;
-	while (currentAttendance != nullptr) {
-		cout << "\t" << setfill('-') << setw(20) << "+" << setw(13) << "+" << setw(13) << " " << "\n";
-		string date, start, end;
-		date = numToDay(getDayOfWeek(currentAttendance->date)) + ", " + dateToString(currentAttendance->date) + " |";
-		start = timeToString(currentAttendance->startTime) + " |";
-		end = " " + timeToString(currentAttendance->endTime) + "\n";
-		cout << "\t" << setfill(' ') << setw(20) << date << setw(13) << start << end;
-		currentAttendance = currentAttendance->next;
-	}
-	cout << "\n";
+	printAllSessionsTable(course->studentCourseInfo->attendance);
 
 	// Print student list.
-	cout << "Student list:\n";
-	cout << "\t" << setw(20) << "Student name |";
-	int* studentCount = new int[course->totalSessions];
-	for (int i = 0; i < course->totalSessions - 1; ++i) {
-		studentCount[i] = 0;
-		string session = " S" + to_string(i + 1) + " |";
-		cout << setw(8) << session;
-	}
-	studentCount[course->totalSessions - 1] = 0;
-	cout << " S" + to_string(course->totalSessions) + "\n";
-	cout << "\t" << setfill('-') << setw(20);
-	for (int i = 0; i < course->totalSessions; ++i)
-		cout << "+" << setw(8);
-	cout << "\n";
-	Student* currentStudent = course->students;
-	while (currentStudent != nullptr) {
-		string name = currentStudent->name + " |";
-		cout << "\t" << setfill(' ') << setw(20) << name;
-		currentAttendance = currentStudentInfo->attendance;
-		for (int i = 0; i < course->totalSessions - 1; ++i) {
-			string time = timeToString(currentAttendance->time) + " |";
-			cout << setw(8) << time;
-			if (isPresent(currentAttendance))
-				studentCount[i]++;
-			currentAttendance = currentAttendance->next;
-		}
-		cout << " " << timeToString(currentAttendance->time) << "\n";
-		if (isPresent(currentAttendance))
-			studentCount[course->totalSessions - 1]++;
-		cout << "\t" << setfill('-') << setw(20);
-		for (int i = 0; i < course->totalSessions; ++i)
-			cout << "+" << setw(8);
-		cout << "\n";
-		currentStudent = currentStudent->next;
-	}
-	cout << "\t" << setfill(' ') << setw(20) << "Total |";
-	for (int i = 0; i < course->totalSessions - 1; ++i) {
-		string total = to_string(studentCount[i]) + " |";
-		cout << setw(8) << total;
-	}
-	cout << " " << studentCount[course->totalSessions - 1] << "\n\n";
+	printAttendanceListOfCourse(course);
 
 	// Delete linked list.
 	deleteCourseInfo(courseInfo);
 	deleteCourse(course);
-	delete[] studentCount;
 
 	in.close();
 }
@@ -2375,8 +2326,118 @@ void manipulateAllLecturers() {
 	}
 }
 
+
+// ====== STAFF - SCOREBOARD ======
+
+
+// ====== STAFF - ATTENDANCE ======
+
 // 5.1
-void viewAttendanceList() {
+void searchAndViewAttendance() {
+	// Get student information.
+	cout << "Please input student information with the same format:\n";
+	cout << "<academic-year>,<semester>,<course-id>,<default-class>,<student-id>\n\t";
+	string row, academicYear, semester, courseId, defaultClass, studentId;
+	getline(cin, row);
+	cout << "\n";
+	stringstream info(row);
+	getline(info, academicYear, ',');
+	int AY = stoi(academicYear);
+	getline(info, semester, ',');
+	semester = toFormalCase(semester);
+	getline(info, courseId, ',');
+	toUpper(courseId);
+	getline(info, defaultClass, ',');
+	toUpper(defaultClass);
+	getline(info, studentId, ',');
 
+	// Check whether student exists, if yes store student info.
+	Student student;
+	if (!findStudentInfoFromId(student, studentId)) {
+		cout << "Search failed. Error: Student not found.\n\n";
+		return;
+	}
+
+	// Check whether student studies the course.
+	bool isStudy = false;
+	CourseInfo* currentCourse = student.myCourse;
+	while (currentCourse != nullptr) {
+		if (currentCourse->academicYear == AY && currentCourse->semester == semester &&
+			currentCourse->courseName == courseId && currentCourse->defaultClass == defaultClass) {
+			isStudy = true;
+			break;
+		}
+		currentCourse = currentCourse->next;
+	}
+	if (!isStudy) {
+		cout << "Search failed. Error: Course not found in student course list.\n\n";
+		deleteCourseInfo(student.myCourse);
+		return;
+	}
+
+	// Read attendance list.
+	Attendance* attendance = nullptr;
+	readAttendanceList(attendance, currentCourse, student);
+
+	// Ask for way to view and prompt editing.
+	cout << "Which way do you want to view attendance of student " 
+		<< student.name << " - " << student.studentId << "?\n";
+	cout << "\t1-All attendance\n\t2-Attendance in specific date\n";
+	cout << "Please choose one.\n\t";
+	int choice;
+	cin >> choice;
+	cout << "\n";
+	if (choice == 1) {
+		cout << "\t" << setw(20) << "Date |" << setw(20) << "Study time |" << " Check-in time\n";
+		int totalSession = 0, onTime = 0;
+		Attendance* currentAttendance = attendance;
+		while (currentAttendance->next != nullptr) {
+			cout << "\t" << setfill('-') << setw(20) << "+" << setw(20) << "+" << setw(20) << "\n";
+			string date, time, checkin;
+			date = numToDay(getDayOfWeek(currentAttendance->date)) + ", " + dateToString(currentAttendance->date) + " |";
+			time = timeToString(currentAttendance->startTime) + " - " + timeToString(currentAttendance->endTime) + " |";
+			checkin = " " + timeToString(currentAttendance->time) + "\n";
+			cout << "\t" << setfill(' ') << setw(20) << date << setw(20) << time << checkin;
+			if (isPresent(currentAttendance))
+				onTime++;
+			totalSession++;
+			currentAttendance = currentAttendance->next;
+		}
+		cout << "\nSummary:\n";
+		cout << "\t" << setfill(' ') << setw(10) << "On time |" << " " << onTime << "\n";
+		cout << "\t" << setfill('-') << setw(10) << "+" << setw(5) << "\n";
+		cout << "\t" << setfill(' ') << setw(10) << "Absent |" << " " << totalSession - onTime << "\n";
+	}
+	else {
+		// Print session list.
+
+
+		// Choose date to view.
+		cout << "Please input date to view with the same format:\n";
+		cout << "<yyyy>-<mm>-<dd>\n\t";
+		cin.ignore();
+		getline(cin, row);
+		Date date = getDate(row);
+		Attendance* currentAttendance = attendance;
+		int valid = false;
+		while (currentAttendance != nullptr) {
+			if (currentAttendance->date.day == date.day &&
+				currentAttendance->date.month == date.month &&
+				currentAttendance->date.year == date.year) {
+				valid = true;
+				break;
+			}
+			currentAttendance = currentAttendance->next;
+		}
+		string DATE, TIME;
+		DATE = numToDay(getDayOfWeek(date)) + ", " + dateToString(date) + " |";
+		TIME = timeToString(currentAttendance->time) + " |";
+		cout << "\t" << setfill(' ') << setw(20) << "Date |" << setw(20) << "Check-in time |" << " Status\n";
+		cout << "\t" << setfill('-') << setw(20) << "+" << setw(20) << "+" << setw(20) << "\n";
+		cout << "\t" << setfill(' ') << setw(20) << DATE << setw(20) << TIME << ((isPresent(currentAttendance)) ? " On time" : " Absent\n\n");
+	}
+
+	// Delete linked list.
+	deleteCourseInfo(student.myCourse);
+	deleteAttendance(attendance);
 }
-
