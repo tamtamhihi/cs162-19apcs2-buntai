@@ -37,6 +37,8 @@ void manipulateAllLecturers(); // 3.11
 
 // ====== STAFF - SCOREBOARD ======
 void searchAndViewScoreboard(); // 4.1
+void exportScoreboardToCsv(); // 4.2
+
 
 // ====== STAFF - ATTENDANCE ======
 void searchAndViewAttendance(); // 5.1
@@ -153,4 +155,3 @@ void unregisterCourseForStudent(Student*& student, CourseInfo*& courseInfo);
 void showStaffMenu();
 void showLecturerMenu();
 void showStudentMenu();
-
