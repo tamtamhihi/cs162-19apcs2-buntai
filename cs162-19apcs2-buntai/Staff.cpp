@@ -2328,6 +2328,77 @@ void manipulateAllLecturers() {
 
 // ====== STAFF - SCOREBOARD ======
 
+// 4.2
+void exportScoreboardToCsv() {
+	// Get course information.
+	cout << "Please input course information with the same format:\n";
+	cout << "<academic-year>,<semester>,<course-id>,<default-class>\n\t";
+	string row, academicYear, semester, courseId, defaultClass;
+	getline(cin, row);
+	cout << "\n";
+	stringstream info(row);
+	getline(info, academicYear, ',');
+	getline(info, semester, ',');
+	semester = toFormalCase(semester);
+	getline(info, courseId, ',');
+	toUpper(courseId);
+	getline(info, defaultClass, ',');
+	toUpper(defaultClass);
+
+	// Check whether course exists.
+	CourseInfo* courseInfo = new CourseInfo;
+	courseInfo->academicYear = stoi(academicYear);
+	courseInfo->semester = semester;
+	courseInfo->courseName = courseId;
+	courseInfo->defaultClass = defaultClass;
+	courseInfo->next = nullptr;
+	if (!isCourseExist(courseInfo)) {
+		cout << "Export failed. Error: Can't find course.\n\n";
+		deleteCourseInfo(courseInfo);
+		return;
+	}
+
+	// Read course from file.
+	Course* course = new Course;
+	readCourseFromFile(courseInfo, course);
+
+	// Export scoreboard to file csv
+	cout << "Please enter the path to file csv used to store scoreboard: \n\t";
+	getline(cin, row);
+	cout << "\n";
+	ofstream out(row);
+	if (!out.is_open()) {
+		cout << "Export failed. Error: Can't create file.\n\n";
+		deleteCourseInfo(courseInfo);
+		deleteCourse(course);
+		return;
+	}
+	else {
+		out << "No., StudentID, Full name, Midterm, Final, Lab, Bonus \n";
+		int count = 0;
+		Student* curStudent = course->students;
+		StudentCourseInfo* curStudentCourseInfo = course->studentCourseInfo;
+		while (curStudent != nullptr) {
+			out << count++ << ","
+				<< curStudent->studentId << ","
+				<< curStudent->name << ","
+				<< curStudentCourseInfo->midterm << ","
+				<< curStudentCourseInfo->final << ","
+				<< curStudentCourseInfo->lab << ","
+				<< curStudentCourseInfo->bonus << "\n";
+			curStudent = curStudent->next;
+			curStudentCourseInfo = curStudentCourseInfo->next;
+		}
+		out.close();
+	}
+
+	// Delete linked list.
+	deleteCourseInfo(courseInfo);
+	deleteCourse(course);
+
+	// Annoucement
+	cout << "Export successfully. Please check CSV file in " << row << "\n\n";
+}
 
 // ====== STAFF - ATTENDANCE ======
 

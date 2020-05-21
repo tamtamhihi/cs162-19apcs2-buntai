@@ -36,7 +36,7 @@ void manipulateAllLecturers(); // 3.11
 
 
 // ====== STAFF - SCOREBOARD ======
-
+void exportScoreboardToCsv(); // 4.2
 
 // ====== STAFF - ATTENDANCE ======
 void searchAndViewAttendance(); // 5.1
