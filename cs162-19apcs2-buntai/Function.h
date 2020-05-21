@@ -1,5 +1,6 @@
 #include "Struct.h"
-
+bool isStudentExistInCourse(string studentId, Course* course);
+bool isSessionDateExist(Date date, Attendance* attendance);
 
 // ========= ALL FUNCTION PROTOTYPES =========
 
@@ -10,6 +11,7 @@ void showMenu(int& userRole); // 1.2
 void viewProfileInfo(string& userName, int& userRole); // 1.3
 void changePassword(string& userName); //1.4
 void logout(string& userName, int& userRole); //1.5
+
 
 // ====== STAFF - CLASS ======
 void importStudentFromCsv(); // 2.1
@@ -42,17 +44,19 @@ void manipulateAllLecturers(); // 3.11
 void searchAndViewAttendance(); // 5.1
 void exportAttendanceListToCsv(); // 5.2
 
+
 // ====== LECTURER ======
 void viewCoursesInSemester(string lecturerUsername); // 6.1
 void viewStudentListOfCourse(string lecturerUsername); // 6.2
 void viewAttendanceListOfCourseByLecturer(string lecturerUsername); // 6.3
+void editAnAttendanceByLecturer(string lecturerUsername); // 6.4
 void importScoreboardFromCsv(string lecturerUsername); // 6.5
 void editGradeOfStudent(string lecturerUsername); //6.6
 void viewScoreboardOfCourse(string lecturerUsername); // 6.7
 
 
 // ====== STUDENT ======
-void viewSchedules(string studentUsername); //7.3
+void viewSchedules(string studentUsername); // 7.3
 
 
 // ====== SUPPORTING FUNCTION ======
@@ -139,3 +143,4 @@ bool isLecturerCourse(CourseInfo* courseInfo, string lecturerUsername);
 bool findStudentInfoFromId(Student& student, string studentId);
 void readAttendanceList(Attendance*& attendance, CourseInfo* courseInfo, Student student);
 void getInfoOfStudent(Student& newTurn, string studentUsername);
+void printAttendanceListWithId(Course* course);

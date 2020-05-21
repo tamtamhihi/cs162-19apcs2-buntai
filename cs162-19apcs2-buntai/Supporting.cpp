@@ -1896,3 +1896,73 @@ void getInfoOfStudent(Student& newTurn, string studentUsername) {
 		in.close();
 	}
 }
+
+// Print attendance list of course in a table with student ID.
+void printAttendanceListWithId(Course* course) {
+	StudentCourseInfo* currentStudentInfo = course->studentCourseInfo;
+	Attendance* currentAttendance;
+	cout << "\t" << setw(20) << "STUDENT ID |";
+	int* studentCount = new int[course->totalSessions];
+	for (int i = 0; i < course->totalSessions - 1; ++i) {
+		studentCount[i] = 0;
+		string session = " S" + to_string(i + 1) + " |";
+		cout << setw(6) << session;
+	}
+	studentCount[course->totalSessions - 1] = 0;
+	cout << " S" + to_string(course->totalSessions) + "\n";
+	cout << "\t" << setfill('-') << setw(20);
+	for (int i = 0; i < course->totalSessions; ++i)
+		cout << "+" << setw(6);
+	cout << "\n";
+	Student* currentStudent = course->students;
+	while (currentStudent != nullptr) {
+		string id = currentStudent->studentId + " |";
+		cout << "\t" << setfill(' ') << setw(20) << id;
+		currentAttendance = currentStudentInfo->attendance;
+		for (int i = 0; i < course->totalSessions - 1; ++i) {
+			string time = timeToString(currentAttendance->time) + "|";
+			cout << setw(6) << time;
+			if (isPresent(currentAttendance))
+				studentCount[i]++;
+			currentAttendance = currentAttendance->next;
+		}
+		cout << timeToString(currentAttendance->time) << "\n";
+		if (isPresent(currentAttendance))
+			studentCount[course->totalSessions - 1]++;
+		cout << "\t" << setfill('-') << setw(20);
+		for (int i = 0; i < course->totalSessions; ++i)
+			cout << "+" << setw(6);
+		cout << "\n";
+		currentStudent = currentStudent->next;
+	}
+	cout << "\t" << setfill(' ') << setw(20) << "Total |";
+	for (int i = 0; i < course->totalSessions - 1; ++i) {
+		string total = to_string(studentCount[i]) + " |";
+		cout << setw(6) << total;
+	}
+	cout << " " << studentCount[course->totalSessions - 1] << "\n\n";
+	delete[] studentCount;
+}
+
+// Check whether a student exists in a course, based on student ID, if yes store the info.
+bool isStudentExistInCourse(string studentId, Course* course) {
+	Student* currentStudent = course->students;
+	while (currentStudent != nullptr) {
+		if (currentStudent->studentId == studentId)
+			return true;
+		currentStudent = currentStudent->next;
+	}
+	return false;
+}
+
+// Check whether a session date is valid.
+bool isSessionDateExist(Date date, Attendance* attendance) {
+	Attendance* currentAttendance = attendance;
+	while (currentAttendance != nullptr) {
+		if (currentAttendance->date.year == date.year &&
+			currentAttendance->date.month == date.month &&
+			currentAttendance->date.day == date.day)
+			return true;
+		currentAttendance = currentAttendance->next;
+	}
+}

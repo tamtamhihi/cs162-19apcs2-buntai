@@ -182,6 +182,135 @@ void viewAttendanceListOfCourseByLecturer(string lecturerUsername) {
 	deleteLecturers(lecturers);
 }
 
+// 6.4
+void editAnAttendanceByLecturer(string lecturerUsername) {
+	// Read all courses info of that lecturer.
+	Lecturer* lecturers = nullptr;
+	readLecturersFromFile(lecturers);
+	Lecturer* currentLecturer = lecturers;
+	while (currentLecturer->username != lecturerUsername)
+		currentLecturer = currentLecturer->next;
+	if (currentLecturer->totalCourse) {
+		cout << "LIST OF YOUR COURSES:\n";
+		printCourseListTable(currentLecturer->myCourse);
+	}
+	else {
+		cout << "Sorry, you have no courses to view attendance list.\n\n";
+		deleteLecturers(lecturers);
+		return;
+	}
+
+	// Ask for specific course to print attendance list.
+	cout << "Please enter the number of the course to view attendance list: ";
+	int choice;
+	cin >> choice;
+	while (choice > currentLecturer->totalCourse) {
+		cout << "Course number not available. Please enter again: ";
+		cin >> choice;
+	}
+	cout << "\n";
+	CourseInfo* courseInfo = currentLecturer->myCourse;
+	for (int i = 0; i < choice - 1; ++i)
+		courseInfo = courseInfo->next;
+
+	// Read that course and print.
+	toUpper(courseInfo->semester);
+	cout << "\t\tATTENDANCE LIST OF COURSE " << courseInfo->courseName << " OF "
+		<< courseInfo->semester << " SEMESTER, "
+		<< courseInfo->academicYear << "-" << courseInfo->academicYear + 1 << ":\n";
+	courseInfo->semester = toFormalCase(courseInfo->semester);
+	Course* course = new Course;
+	readCourseFromFile(courseInfo, course);
+	Attendance* attendanceDate = new Attendance;
+	findAttendanceDateOfCourse(attendanceDate, courseInfo);
+	printAllSessionsTable(attendanceDate);
+	printAttendanceListWithId(course);
+
+	// Ask for student ID and date to edit.
+	cout << "Please input student id and date with the same format:\n";
+	cout << "<student-id>,<yyyy-mm-dd>\n\t";
+	string row, studentId, date;
+	cin.ignore();
+	getline(cin, row);
+	cout << "\n";
+	stringstream info(row);
+	getline(info, studentId, ',');
+	getline(info, date, ',');
+	Date editedDate = getDate(date);
+
+	// Check if student exists in course.
+	if (!isStudentExistInCourse(studentId, course)) {
+		cout << "Edit failed. Error: Student ID doesn't exist in course.\n\n";
+		deleteAttendance(attendanceDate);
+		deleteCourse(course);
+		deleteLecturers(lecturers);
+		return;
+	}
+
+	// Check if date is valid.
+	if (!isSessionDateExist(editedDate, attendanceDate)) {
+		cout << "Edit failed. Error: Session date is not valid.\n\n";
+		deleteAttendance(attendanceDate);
+		deleteCourse(course);
+		deleteLecturers(lecturers);
+		return;
+	}
+
+	// Edit attendance.
+	Student* currentStudent = course->students;
+	StudentCourseInfo* currentInfo = course->studentCourseInfo;
+	while (currentStudent != nullptr) {
+		if (currentStudent->studentId == studentId) {
+			Attendance* currentAttendance = currentInfo->attendance;
+			while (currentAttendance != nullptr) {
+				if (currentAttendance->date.year == editedDate.year &&
+					currentAttendance->date.month == editedDate.month &&
+					currentAttendance->date.day == editedDate.day) {
+					cout << "Please enter modified check-in time in the same format:\n";
+					cout << "<hh mm>\n\t";
+					getline(cin, row);
+					cout << "\n";
+					Time time = getTime(row);
+
+					// Check if time is valid.
+					Attendance* attendance = new Attendance;
+					attendance->startTime = currentAttendance->startTime;
+					attendance->endTime = currentAttendance->endTime;
+					attendance->time = time;
+					attendance->next = nullptr;
+					if (!isPresent(attendance)) {
+						cout << "Edit failed. Error: Input time is not valid.\n\n";
+						deleteAttendance(attendance);
+						deleteAttendance(attendanceDate);
+						deleteCourse(course);
+						deleteLecturers(lecturers);
+						return;
+					}
+
+					currentAttendance->time.hour = time.hour;
+					currentAttendance->time.minute = time.minute;
+					deleteAttendance(attendance);
+					break;
+				}
+				currentAttendance = currentAttendance->next;
+			}
+			break;
+		}
+		currentStudent = currentStudent->next;
+		currentInfo = currentInfo->next;
+	}
+
+	// Update course file.
+	writeCourseToFile(course);
+
+	// Delete linked list.
+	deleteAttendance(attendanceDate);
+	deleteCourse(course);
+	deleteLecturers(lecturers);
+
+	cout << "Edit attendance successfully.\n\n";
+}
+
 // 6.5
 void importScoreboardFromCsv(string lecturerUsername) {
 	// Read all courses info of that lecturer.
