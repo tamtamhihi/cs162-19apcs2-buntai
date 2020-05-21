@@ -18,7 +18,8 @@ void viewSchedules(string studentUsername) {
 	for (int i = 0; i < n; i++)
 	{
 		ifstream(fin);
-		fin.open("Database/" + to_string(cur->academicYear - 1) + "-" + to_string(cur->academicYear) + "/" + cur->semester + "/" + cur->courseName + "-" + cur->defaultClass + ".txt");
+		fin.open("Database/" + to_string(cur->academicYear - 1) + "-" + to_string(cur->academicYear) + "/" 
+			+ cur->semester + "/" + cur->courseName + "-" + cur->defaultClass + ".txt");
 		while (fin) {
 			getline(fin, coursesOfStudent[i].courseId);
 			getline(fin, coursesOfStudent[i].courseName);
@@ -268,3 +269,52 @@ void viewSchedules(string studentUsername) {
 	}
 	deleteCourseInfo(newTurn.myCourse);
 }
+
+//7.4
+
+void viewScoresOfACourse(string studentUsername) {
+	Student newTurn;
+	getInfoOfStudent(newTurn, studentUsername);
+	int choice; 
+	CourseInfo* check = newTurn.myCourse;
+
+	//print out courses for student to choose
+	printCourseListTable(newTurn.myCourse);
+	cout << "\tWhich course you want to view scores:";
+	cin >> choice;
+	for (int m = 0; m < choice-1; m++) {
+		newTurn.myCourse = newTurn.myCourse->next;
+	}
+
+	//get the student's scores of the course which be chosen
+	string checkName;
+	StudentCourseInfo scoresOfNewTurn;
+	ifstream(fin);
+	fin.open("Database/" + to_string(newTurn.myCourse->academicYear - 1) + "-" + to_string(newTurn.myCourse->academicYear) + "/" 
+		+ newTurn.myCourse->semester + "/" + newTurn.myCourse->courseName + "-" + newTurn.myCourse->defaultClass + ".txt");
+	if (!fin) cout << "Cannot open the course file now, please try later" << endl;
+	while (fin) {
+		getline(fin, checkName);
+		if (checkName == studentUsername) {
+			for (int n= 0; n < 5; n++) getline(fin,checkName);
+			fin >> scoresOfNewTurn.midterm >> scoresOfNewTurn.final >> scoresOfNewTurn.lab >> scoresOfNewTurn.bonus;
+			break;
+		}
+	}
+
+	cout << "\t" << setw(5) << "Student ID |" << setw(30) << "Full name |"
+		<< setw(10) << "Midterm |" << setw(10) << "Final |" << setw(10) << "Lab |" << setw(10) << "Bonus\n";
+	cout << "\t" << setfill('-')  << setw(12) << "+" << setw(30) << "+"
+		<< setw(10) << "+" << setw(10) << "+" << setw(10) << "+" << setw(10) << " " << "\n";
+	cout << "\t" << setfill(' ') 
+		<< setw(11) << newTurn.studentId << "|"
+		<< setw(29) << newTurn.name << "|"
+		<< setw(9) << scoresOfNewTurn.midterm << "|"
+		<< setw(9) << scoresOfNewTurn.final << "|"
+		<< setw(9) << scoresOfNewTurn.lab << "|"
+		<< setw(9) << scoresOfNewTurn.bonus << "\n";
+
+	deleteCourseInfo(newTurn.myCourse);
+
+}
+
