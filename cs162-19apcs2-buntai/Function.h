@@ -55,6 +55,7 @@ void viewScoreboardOfCourse(string lecturerUsername); // 6.7
 
 // ====== STUDENT ======
 void viewSchedules(string studentUsername); // 7.3
+void viewScoresOfACourse(string studentUsername); //7.4 
 
 
 // ====== SUPPORTING FUNCTION ======
