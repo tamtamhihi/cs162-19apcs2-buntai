@@ -476,7 +476,7 @@ void viewScoreboardOfCourse(string lecturerUsername) {
 		printCourseListTable(currentLecturer->myCourse);
 	}
 	else {
-		cout << "Sorry, you have no courses to view student list.\n\n";
+		cout << "Sorry, you have no courses to view scoreboard.\n\n";
 		deleteLecturers(lecturers);
 		return;
 	}

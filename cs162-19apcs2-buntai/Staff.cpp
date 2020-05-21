@@ -2328,6 +2328,39 @@ void manipulateAllLecturers() {
 
 // ====== STAFF - SCOREBOARD ======
 
+// 4.1
+void searchAndViewScoreboard() {
+	CourseInfo* courseList = nullptr;
+	readAllCourseInfo(courseList);
+	if (courseList == nullptr) {
+		cout << "There's no course yet to view scoreboard. Please try again next time.\n\n";
+		return;
+	}
+	cout << "\t\t\t\t\t    ALL COURSES\n\n";
+	int totalCourse = printCourseListTable(courseList);
+	cout << "Please enter the number of course to view scoreboard: ";
+	int choice;
+	cin >> choice;
+	while (choice > totalCourse) {
+		cout << "\tThat course number does not exist. Please try again.\n";
+		cout << "Enter the number of course: ";
+		cin >> choice;
+	}
+	cout << "\n";
+	CourseInfo* currentCourse = courseList;
+	for (int i = 0; i < choice - 1; ++i)
+		currentCourse = currentCourse->next;
+	Course* course = new Course;
+	readCourseFromFile(currentCourse, course);
+	toUpper(currentCourse->semester);
+	cout << "\t\t\t\tSCOREBOARD OF " << currentCourse->semester << " " << 
+		currentCourse->academicYear << "-" << currentCourse->academicYear + 1 << " " 
+		<< currentCourse->courseName << "-" << currentCourse->defaultClass << "\n\n";
+	printScoreboardTable(course);
+	deleteCourse(course);
+	deleteCourseInfo(courseList);
+}
+
 
 // ====== STAFF - ATTENDANCE ======
 

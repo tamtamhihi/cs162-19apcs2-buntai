@@ -703,11 +703,32 @@ void printLecturerInfo(Lecturer*& lecturer) {
 	cout << "\n";
 }
 
+// Print all lecturers' information into a table and return the total number of lecturers.
+int printAllLecturersTable(Lecturer*& lecturers) {
+	cout << "\t\t\t\t\t  ALL LECTURERS\n\n";
+	cout << "\t" << setw(5) << "No |" << setw(25) << "Full name |" << setw(15) << "Account |"
+		<< setw(10) << "Title |" << " Number of courses\n";
+	cout << "\t" << setfill('-') << setw(5) << "+" << setw(25) << "+" << setw(15) << "+"
+		<< setw(10) << "+" << setw(20) << " " << "\n";
+	Lecturer* currentLecturer = lecturers;
+	int count = 0;
+	while (currentLecturer != nullptr) {
+		cout << "\t" << setfill(' ') << setw(4) << ++count << "|"
+			<< setw(24) << currentLecturer->name << "|"
+			<< setw(14) << currentLecturer->username << "|"
+			<< setw(9) << currentLecturer->title << "| "
+			<< "\t" << currentLecturer->totalCourse << "\n";
+		currentLecturer = currentLecturer->next;
+	}
+	cout << "\n";
+	return count;
+}
+
 // Print a course list into a table.
-void printCourseListTable(CourseInfo* courseList) {
+int printCourseListTable(CourseInfo* courseList) {
 	if (courseList == nullptr) {
 		cout << "Sorry there's no courses to view.\n\n";
-		return;
+		return 0;
 	}
 	cout << "\t" << setw(5) << "No |" << setw(20) << "Academic year |" << setw(20) << "Semester |"
 		<< setw(20) << "Course ID |" << " Default class\n";
@@ -726,6 +747,7 @@ void printCourseListTable(CourseInfo* courseList) {
 		currentCourse = currentCourse->next;
 	}
 	cout << "\n";
+	return count;
 }
 
 // Print all sessions info of a course into a table.
@@ -1070,6 +1092,21 @@ void readCourseListFromFile(CourseInfo*& courseList, int academicYear, string se
 		}
 		in.close();
 	}
+}
+
+// Read all available courses into a CourseInfo linked list.
+void readAllCourseInfo(CourseInfo*& courseList) {
+	AcademicYear* academicYears = nullptr;
+	readAcademicYearsFromFile(academicYears);
+	AcademicYear* currentYear = academicYears;
+	string semester;
+	while (currentYear != nullptr) {
+		stringstream sem(currentYear->semester);
+		while (getline(sem, semester, ','))
+			readCourseListFromFile(courseList, currentYear->academicYear, semester);
+		currentYear = currentYear->next;
+	}
+	deleteAcademicYears(academicYears);
 }
 
 // Write/overwrite a course list into "Courses.txt" file.
