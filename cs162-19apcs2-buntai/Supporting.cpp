@@ -2003,3 +2003,4 @@ bool isSessionDateExist(Date date, Attendance* attendance) {
 		currentAttendance = currentAttendance->next;
 	}
 }
+
