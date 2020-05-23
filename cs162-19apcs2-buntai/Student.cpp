@@ -3,6 +3,150 @@
 
 // ========= STUDENTS' FUNCTIONS DEFINITION =========
 
+
+// 7.1
+
+void checkin(string studentUsername) {
+	Student newTurn;
+	getInfoOfStudent(newTurn, studentUsername);
+
+	//get all courses of a student
+	CourseInfo* cur = newTurn.myCourse;
+	int  n = newTurn.numberOfCourse;
+	if (n == 0) return;
+	Attendance* attendanceDate = nullptr;
+	printCourseListTable(newTurn.myCourse);
+	cout << "Which course you want to checkin (please enter the no. of course)" << endl;
+	int choice;
+	cin >> choice;
+	CourseInfo* current = newTurn.myCourse;
+	for (int j = 0; j < choice; j++) {
+		current = current->next;
+	}
+	ifstream(in);
+	in.open("Database/" + to_string(cur->academicYear - 1) + "-" + to_string(cur->academicYear) + "/"
+		+ cur->semester + "/" + cur->courseName + "-" + cur->defaultClass + ".txt");
+	if (in.is_open()) {
+		string waste;
+		int totalSessions;
+		Attendance* currentAttendance = nullptr;
+		for (int i = 0; i < 6; ++i) getline(in, waste); // 6 lines of irrelevant information.
+		in >> totalSessions;
+		for (int i = 0; i < 13; ++i) getline(in, waste); // 13 lines of irrelevant information.
+		for (int i = 0, day, month, year, hour, minute; i < totalSessions; ++i) {
+			in >> day >> month >> year >> hour >> minute;
+			if (currentAttendance == nullptr) {
+				attendanceDate = new Attendance;
+				currentAttendance = attendanceDate;
+			}
+			else {
+				currentAttendance->next = new Attendance;
+				currentAttendance = currentAttendance->next;
+			}
+			currentAttendance->date = Date{ day, month, year };
+			currentAttendance->startTime = Time{ hour, minute };
+			in >> hour >> minute;
+			currentAttendance->endTime = Time{ hour, minute };
+			currentAttendance->next = nullptr;
+			in >> hour >> minute;
+		}
+		in.close();
+	}
+
+	time_t t = time(0); // get time now 
+	struct tm* now = localtime(&t);
+	cout << now->tm_mday << ";" << now->tm_mon << ";" << now->tm_year + 1900 << "," << now->tm_hour << now->tm_min;
+	Attendance* temp = attendanceDate;
+	int count = 0, x = 0, o = 0;
+	while (temp != nullptr) {
+		if (temp->date.year == now->tm_year + 1900 &&
+			temp->date.month == now->tm_mon + 1 &&
+			temp->date.day == now->tm_mday) {
+			if ((now->tm_hour < temp->startTime.hour) ||
+				(now->tm_hour == temp->startTime.hour &&
+					now->tm_min < temp->startTime.minute)) {
+				cout << "There is no session taked place now " << endl;
+				deleteAttendance(attendanceDate);
+				deleteCourseInfo(newTurn.myCourse);
+				return;
+			}
+			else if ((now->tm_hour > temp->endTime.hour) ||
+				(now->tm_hour == temp->endTime.hour &&
+					now->tm_min > temp->endTime.minute))
+			{
+				cout << "There is no session taked place now " << endl;
+				deleteAttendance(attendanceDate);
+				deleteCourseInfo(newTurn.myCourse);
+				return;
+			}
+			else
+				break;
+		}
+		else if (temp->next == nullptr)
+		{
+			cout << "There is no session today." << endl;
+			deleteAttendance(attendanceDate);
+			deleteCourseInfo(newTurn.myCourse);
+			return;
+		}
+		else {
+			temp = temp->next;
+			count++;
+		}
+	}
+	string* userFile;
+	string check;
+
+	ifstream filein;
+	filein.open("Database/" + to_string(cur->academicYear - 1) + "-" + to_string(cur->academicYear) + "/"
+		+ cur->semester + "/" + cur->courseName + "-" + cur->defaultClass + ".txt");
+	while (filein) {
+		getline(filein, check);
+		x++;
+	}
+	filein.close();
+
+	ifstream filin;
+	filin.open("Database/" + to_string(cur->academicYear - 1) + "-" + to_string(cur->academicYear) + "/"
+		+ cur->semester + "/" + cur->courseName + "-" + cur->defaultClass + ".txt");
+	while (filin) {
+		getline(filin, check);
+		o++;
+		if (check == studentUsername) break;
+	}
+	filin.close();
+
+	userFile = new string[x];
+	ifstream file;
+	file.open("Database/" + to_string(cur->academicYear - 1) + "-" + to_string(cur->academicYear) + "/"
+		+ cur->semester + "/" + cur->courseName + "-" + cur->defaultClass + ".txt");
+	for (int i = 0; i < x; i++) {
+		getline(file, userFile[i]);
+	}
+	file.close();
+
+	//rewrite file text
+	ofstream out;
+	out.open("Database/" + to_string(cur->academicYear - 1) + "-" + to_string(cur->academicYear) + "/"
+		+ cur->semester + "/" + cur->courseName + "-" + cur->defaultClass + ".txt");
+	for (int l = 0; l < x; l++) {
+		if (l == o + count + 6) {
+			out << temp->date.day << " " << temp->date.month << " " << temp->date.year << " "
+				<< temp->startTime.hour << " " << temp->startTime.minute << " "
+				<< temp->endTime.hour << " " << temp->endTime.minute << " "
+				<< now->tm_hour << " " << now->tm_min << endl;
+		}
+		else out << userFile[l] << endl;
+	}
+	out.close();
+	cout << "Checkin successfully." << endl;
+
+	//deallocated
+	deleteAttendance(attendanceDate);
+	deleteCourseInfo(newTurn.myCourse);
+	delete[]userFile;
+}
+
 // 7.3
 
 void viewSchedules(string studentUsername) {
@@ -319,146 +463,3 @@ void viewScoresOfACourse(string studentUsername) {
 
 }
 
-// 7.1
-
-void checkin(string studentUsername) {
-	Student newTurn;
-	getInfoOfStudent(newTurn, studentUsername);
-
-	//get all courses of a student
-	CourseInfo* cur = newTurn.myCourse;
-	int  n = newTurn.numberOfCourse;
-	if (n == 0) return;
-	Attendance* attendanceDate=nullptr;
-	printCourseListTable(newTurn.myCourse);
-	cout << "Which course you want to checkin (please enter the no. of course)" << endl;
-	int choice;
-	cin >> choice;
-	CourseInfo* current = newTurn.myCourse;
-	for (int j = 0; j < choice; j++) {
-		current = current->next;
-	}
-	ifstream(in);
-	in.open("Database/" + to_string(cur->academicYear - 1) + "-" + to_string(cur->academicYear) + "/"
-		+ cur->semester + "/" + cur->courseName + "-" + cur->defaultClass + ".txt");
-	if (in.is_open()) {
-		string waste;
-		int totalSessions;
-		Attendance* currentAttendance = nullptr;
-		for (int i = 0; i < 6; ++i) getline(in, waste); // 6 lines of irrelevant information.
-		in >> totalSessions;
-		for (int i = 0; i < 13; ++i) getline(in, waste); // 13 lines of irrelevant information.
-		for (int i = 0, day, month, year, hour, minute; i < totalSessions; ++i) {
-			in >> day >> month >> year >> hour >> minute;
-			if (currentAttendance == nullptr) {
-				attendanceDate = new Attendance;
-				currentAttendance = attendanceDate;
-			}
-			else {
-				currentAttendance->next = new Attendance;
-				currentAttendance = currentAttendance->next;
-			}
-			currentAttendance->date = Date{ day, month, year };
-			currentAttendance->startTime = Time{ hour, minute };
-			in >> hour >> minute;
-			currentAttendance->endTime = Time{ hour, minute };
-			currentAttendance->next = nullptr;
-			in >> hour >> minute;
-		}
-		in.close();
-	}
-	
-	time_t t = time(0); // get time now 
-	struct tm* now = localtime(&t);
-	cout << now->tm_mday <<";"<< now->tm_mon<<";" << now->tm_year+1900 <<","<< now->tm_hour << now->tm_min;
-	Attendance* temp=attendanceDate;
-	int count = 0, x = 0, o=0;
-	while (temp != nullptr) {
-		if (temp->date.year == now->tm_year + 1900 &&
-			temp->date.month == now->tm_mon + 1 &&
-			temp->date.day == now->tm_mday) {
-			if ((now->tm_hour < temp->startTime.hour) ||
-				(now->tm_hour == temp->startTime.hour &&
-					now->tm_min < temp->startTime.minute)) {
-				cout << "There is no session taked place now " << endl;
-				deleteAttendance(attendanceDate);
-				deleteCourseInfo(newTurn.myCourse);
-				return;
-			}
-			else if ((now->tm_hour > temp->endTime.hour) ||
-				(now->tm_hour == temp->endTime.hour &&
-					now->tm_min > temp->endTime.minute))
-			{
-				cout << "There is no session taked place now " << endl;
-				deleteAttendance(attendanceDate);
-				deleteCourseInfo(newTurn.myCourse);
-				return;
-			}
-			else
-				break;
-		}
-		else if (temp->next == nullptr)
-		{
-			cout << "There is no session today." << endl;
-			deleteAttendance(attendanceDate);
-			deleteCourseInfo(newTurn.myCourse);
-			return;
-		}
-		else {
-			temp = temp->next;
-			count++;
-		}
-	}
-	string* userFile;
-	string check;
-
-	ifstream filein;
-	filein.open("Database/" + to_string(cur->academicYear - 1) + "-" + to_string(cur->academicYear) + "/"
-		+ cur->semester + "/" + cur->courseName + "-" + cur->defaultClass + ".txt"); 
-	while (filein){
-		getline(filein, check);
-		x++;
-	}
-	filein.close();
-
-	ifstream filin;
-	filin.open("Database/" + to_string(cur->academicYear - 1) + "-" + to_string(cur->academicYear) + "/"
-		+ cur->semester + "/" + cur->courseName + "-" + cur->defaultClass + ".txt");
-	while (filin) {
-		getline(filin, check);
-		o++;
-		if (check == studentUsername) break;
-	}
-	filin.close();
-
-	userFile = new string[x];
-	ifstream file;
-	file.open("Database/" + to_string(cur->academicYear - 1) + "-" + to_string(cur->academicYear) + "/"
-		+ cur->semester + "/" + cur->courseName + "-" + cur->defaultClass + ".txt");
-	for (int i = 0; i < x; i++) {
-		 getline(file, userFile[i]);
-	}
-	file.close();
-
-	//rewrite file text
-	ofstream out;
-	out.open("Database/" + to_string(cur->academicYear - 1) + "-" + to_string(cur->academicYear) + "/"
-		+ cur->semester + "/" + cur->courseName + "-" + cur->defaultClass + ".txt");
-	for (int l = 0; l < x; l++) {
-		if (l==o+count+6) {
-			out << temp->date.day << " " << temp->date.month << " " << temp->date.year << " "
-				<< temp->startTime.hour << " " << temp->startTime.minute<<" "
-				<< temp->endTime.hour << " " << temp->endTime.minute<<" "
-				<< now->tm_hour<<" " << now->tm_min << endl;
-		}
-		else out << userFile[l] << endl;
-	}
-	out.close();
-	cout << "Checkin successfully." << endl;
-
-		//deallocated
-    deleteAttendance(attendanceDate);
-	deleteCourseInfo(newTurn.myCourse);
-	delete[]userFile;
-}
-	
