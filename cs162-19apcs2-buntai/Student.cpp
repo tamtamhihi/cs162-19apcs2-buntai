@@ -147,6 +147,91 @@ void checkin(string studentUsername) {
 	delete[]userFile;
 }
 
+// 7.2
+
+void viewCheckinResult(string studentUsername) {
+	Student newTurn;
+	getInfoOfStudent(newTurn, studentUsername);
+
+	//get all courses of a student
+	CourseInfo* cur = newTurn.myCourse;
+	int  n = newTurn.numberOfCourse;
+	if (n == 0) return;
+	// Read attendance list.
+	Attendance* attendance = nullptr;
+	printCourseListTable(newTurn.myCourse);
+	cout << "Which course you want to checkin (please enter the no. of course)" << endl;
+	int choice;
+	cin >> choice;
+	CourseInfo* current = newTurn.myCourse;
+	for (int j = 0; j < choice; j++) {
+		current = current->next;
+	}
+
+	ifstream(in);
+	in.open("Database/" + to_string(cur->academicYear - 1) + "-" + to_string(cur->academicYear) + "/"
+		+ cur->semester + "/" + cur->courseName + "-" + cur->defaultClass + ".txt");
+	int totalSessions;
+	Attendance* currentAttendance = nullptr;
+	if (in) {
+		string waste;
+		for (int i = 0; i < 6; ++i) getline(in, waste); // 6 lines of irrelevant information.
+		in >> totalSessions;
+	}
+	while (in) {
+		string waste;
+		getline(in, waste);
+		if (waste == studentUsername) {
+			for (int i = 0; i < 6; ++i) getline(in, waste);
+			for (int i =0, day , month, year , starthour,
+				startminute, endhour,endminute,hour,minute ; i < totalSessions; ++i) {
+				in >> day >> month >> year >> starthour >>
+					startminute >> endhour >> endminute >> hour >> minute;
+				if (currentAttendance == nullptr) {
+					attendance = new Attendance;
+					currentAttendance = attendance;
+				}
+				else {
+					currentAttendance->next = new Attendance;
+					currentAttendance = currentAttendance->next;
+				}
+				currentAttendance->date = Date{ day, month, year };
+				currentAttendance->startTime = Time{ starthour, startminute };
+				currentAttendance->endTime = Time{ endhour, endminute };
+				currentAttendance->time = Time{ hour, minute };
+				currentAttendance->next = nullptr;
+			}
+		}
+	}
+	in.close();
+	// print out result
+	cout << "Your checkin result\n";
+	cout << "\t" << setw(20) << "Date |" << setw(20) << "Study time |" << " Check-in time\n";
+	cout << "\t" << setfill('-') << setw(20) << "+" << setw(20) << "+" << setw(20) << "\n";
+	Attendance* curAttendance = attendance;
+	while (curAttendance!=nullptr)
+	{
+		cout << "\t" << setfill(' ') << setw(11) << curAttendance->date.day << " " << curAttendance->date.month << " "
+			<< curAttendance->date.year << " |";
+		if (curAttendance->startTime.hour < 10) {
+			cout << setw(10)
+				<< curAttendance->startTime.hour << ":" << curAttendance->startTime.minute << "-"
+				<< curAttendance->endTime.hour << ":" << curAttendance->endTime.minute
+				<< " |"<< setw(10) << curAttendance->time.hour << ":" << curAttendance->time.minute << "\n";
+			curAttendance = curAttendance->next;
+		}
+		else {
+			cout << setw(9)
+				<< curAttendance->startTime.hour << ":" << curAttendance->startTime.minute << "-"
+				<< curAttendance->endTime.hour << ":" << curAttendance->endTime.minute
+				<< " |" << setw(10) << curAttendance->time.hour << ":" << curAttendance->time.minute << "\n";
+			curAttendance = curAttendance->next;
+		}
+	}
+	deleteCourseInfo(newTurn.myCourse);
+	deleteAttendance(attendance);
+}
+
 // 7.3
 
 void viewSchedules(string studentUsername) {

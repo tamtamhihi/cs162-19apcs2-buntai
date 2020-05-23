@@ -1,7 +1,6 @@
 #include "Struct.h"
 #pragma warning(disable : 4996).
 
-
 // ========= ALL FUNCTION PROTOTYPES =========
 
 
@@ -57,7 +56,7 @@ void viewScoreboardOfCourse(string lecturerUsername); // 6.7
 
 // ====== STUDENT ======
 void checkin(string studentUsername); // 7.1
-
+void viewCheckinResult(string studentUsername); // 7.2
 void viewSchedules(string studentUsername); // 7.3
 void viewScoresOfACourse(string studentUsername); //7.4 
 
