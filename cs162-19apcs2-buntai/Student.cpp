@@ -469,6 +469,8 @@ void viewSchedules(string studentUsername) {
 	cout << setfill(' ') << setw(9) << " |" << setw(20) << "LAB: 7h30-9h30 |" << setw(12) << mon[0].room << " |"
 		<< setw(12) << tue[0].room << " |" << setw(12) << wed[0].room << " |" << setw(12) << thu[0].room
 		<< " |" << setw(12) << fri[0].room << " |" << setw(12) << sat[0].room << " |" << endl;
+	cout << setfill('-') << setw(9) << "+" << setw(20) << "+" << setw(14) << "+" << setw(14) << "+"
+		<< setw(14) << "+" << setw(14) << "+" << setw(14) << "+" << setw(14) << "+" << endl;
 
 	cout << setfill(' ') << setw(9) << "2 |" << setw(20) << "9h30-11h10 |" << setw(12) << mon[1].courseId << " |"
 		<< setw(12) << tue[1].courseId << " |" << setw(12) << wed[1].courseId << " |" << setw(12) << thu[1].courseId
@@ -476,6 +478,8 @@ void viewSchedules(string studentUsername) {
 	cout << setfill(' ') << setw(9) << " |" << setw(20) << "LAB: 9h30-11h30 |" << setw(12) << mon[1].room << " |"
 		<< setw(12) << tue[1].room << " |" << setw(12) << wed[1].room << " |" << setw(12) << thu[1].room
 		<< " |" << setw(12) << fri[1].room << " |" << setw(12) << sat[1].room << " |" << endl;
+	cout << setfill('-') << setw(9) << "+" << setw(20) << "+" << setw(14) << "+" << setw(14) << "+"
+		<< setw(14) << "+" << setw(14) << "+" << setw(14) << "+" << setw(14) << "+" << endl;
 
 	cout << setfill(' ') << setw(9) << "3 |" << setw(20) << "13h30-15h10 |" << setw(12) << mon[2].courseId << " |"
 		<< setw(12) << tue[2].courseId << " |" << setw(12) << wed[2].courseId << " |" << setw(12) << thu[2].courseId
@@ -483,11 +487,13 @@ void viewSchedules(string studentUsername) {
 	cout << setfill(' ') << setw(9) << " |" << setw(20) << "LAB: 13h30-15h30 |" << setw(12) << mon[2].room << " |"
 		<< setw(12) << tue[2].room << " |" << setw(12) << wed[2].room << " |" << setw(12) << thu[2].room
 		<< " |" << setw(12) << fri[2].room << " |" << setw(12) << sat[2].room << " |" << endl;
+	cout << setfill('-') << setw(9) << "+" << setw(20) << "+" << setw(14) << "+" << setw(14) << "+"
+		<< setw(14) << "+" << setw(14) << "+" << setw(14) << "+" << setw(14) << "+" << endl;
 
 	cout << setfill(' ') << setw(9) << "4 |" << setw(20) << "7h30-9h10 |" << setw(12) << mon[3].courseId << " |"
 		<< setw(12) << tue[3].courseId << " |" << setw(12) << wed[3].courseId << " |" << setw(12) << thu[3].courseId
 		<< " |" << setw(12) << fri[3].courseId << " |" << setw(12) << sat[3].courseId << " |" << endl;
-	cout << setfill(' ') << setw(9) << " |" << setw(20) << "LAB: 7h30-9h30 |" << setw(12) << mon[3].room << " |"
+    cout << setfill(' ') << setw(9) << " |" << setw(20) << "LAB: 7h30-9h30 |" << setw(12) << mon[3].room << " |"
 		<< setw(12) << tue[3].room << " |" << setw(12) << wed[3].room << " |" << setw(12) << thu[3].room
 		<< " |" << setw(12) << fri[3].room << " |" << setw(12) << sat[3].room << " |" << endl;
 
