@@ -1,4 +1,5 @@
 #include "Function.h"
+#include<iostream>
 
 // ========= ALL-ROLES' FUNCTIONS DEFINITION =========
 
@@ -43,10 +44,67 @@ void login(string& userName, int& userRole) {
 		if (userName == checkName && userPassword == checkPassword) {
 			userRole = type;
 			in.close();
-			cout << "\tWelcome " << userName << ".\n\n";
+			switch (userRole)
+			{
+			case 0: {
+				Staff newTurn;
+				ifstream in;
+				in.open("Database/Staff.txt");
+				if (!in) cout << "Cannot open staff file, please try it later" << endl;
+				else
+				{
+					while (in) {
+						//read data of each user in file 
+						getline(in, newTurn.username);
+						getline(in, newTurn.name);
+						in >> newTurn.gender;
+						in.ignore();
+						in.ignore();
+						if (userName == newTurn.username)
+							break;
+					}
+					in.close();
+					if (newTurn.gender == 0)
+						cout << "Welcome Ms." << newTurn.name << "!\n";
+					if (newTurn.gender == 1)
+						cout << "Welcome Mr." << newTurn.name << "!\n";
+				}
+			}
+			case 1: {
+				Lecturer lecturer;
+				findLecturerFromUsername(userName, lecturer);
+				if (lecturer.gender == 0)
+					cout << "Welcome Ms." << lecturer.name << "!\n";
+				if (lecturer.gender == 1)
+					cout << "Welcome Mr." << lecturer.name << "!\n";
+				break;
+			}
+			case 2: {
+				Student newTurn;
+				ifstream in;
+				int count = 0;
+				in.open("Database/Class/Classes.txt");
+				count++;
+				if (!in) cout << "Cannot open class file, please try it later" << endl;
+				else (in >> newTurn.myClass);
+				in.close();
+				while (findStudentInfoFromFile(newTurn, userName) == false) {
+					ifstream in;
+					in.open("Database/Class/Classes.txt");
+					while (in) {
+						for (int i = 0; i < count; i++) in >> newTurn.myClass;
+					}
+					in.close();
+				}
+				cout << "Hello " << newTurn.name << "!\n";
+				break;
+			}
+			default:
+				break;
+			}
 			return;
 		}
-		if (userName == checkName && userPassword != checkPassword) {
+		else if (userName == checkName && userPassword != checkPassword) {
 			in.close();
 			cout << "Login failed. Error: Wrong password for " << userName << ".\n\n";
 			return;
