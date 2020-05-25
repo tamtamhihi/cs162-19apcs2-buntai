@@ -11,7 +11,7 @@ void viewCoursesInSemester(string lecturerUsername) {
 	cin >> academicYear >> semester; semester = toFormalCase(semester);
 	cout << "\n";
 
-	cout << "\nInput the action:\n";
+	cout << "Input the action:\n";
 	cout << "\tM  | View your courses in current semester\n";
 	cout << "\tA  | View all courses in current semester\n";
 	cout << "Your choice: ";
@@ -34,7 +34,7 @@ void viewCoursesInSemester(string lecturerUsername) {
 			while (currentCourse != nullptr) {
 				if (currentCourse->academicYear == academicYear && currentCourse->semester == semester) {
 					if (!semesterCourse) {
-						cout << "\t\t     YOUR COURSES\n";
+						cout << "\tYOUR COURSES\n";
 						cout << "\t" << setw(20) << "Course ID |" << " Default class\n";
 						cout << "\t" << setfill('-') << setw(20) << "+" << setw(20) << " " << "\n";
 					}
@@ -57,7 +57,7 @@ void viewCoursesInSemester(string lecturerUsername) {
 		readCourseListFromFile(courseList, academicYear, semester);
 		CourseInfo* currentCourse = courseList;
 		if (currentCourse != nullptr) {
-			cout << "\t\t     ALL COURSES\n";
+			cout << "\tALL COURSES\n";
 			cout << "\t" << setw(20) << "Course ID |" << " Default class\n";
 			cout << "\t" << setfill('-') << setw(20) << "+" << setw(20) << " " << "\n";
 			while (currentCourse != nullptr) {

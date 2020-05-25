@@ -357,7 +357,8 @@ void removeSemesterDirectory(int academicYear, string semester) {
 	string coursesDir = semesterDir + "/Courses.txt";
 	ifstream in(coursesDir);
 	if (!in.is_open()) {
-		remove(semesterDir.c_str());
+		string command = "rd " + semesterDir;
+		system(command.c_str());
 		return;
 	}
 	string courseId, defaultClass, courseDir;
@@ -1755,6 +1756,27 @@ bool findStudentInfoFromFile(Student& newTurn, string userName) {
 	}
 	in.close();
 	return false;
+}
+
+// Find class of a student from student ID.
+string findClassFromStudentId(string& studentId) {
+	ifstream in("Database/Class/Classes.txt");
+	if (in.is_open()) {
+		string className;
+		while (in >> className) {
+			Student* students = nullptr;
+			readClassFromFile(className, students);
+			Student* currentStudent = students;
+			while (currentStudent != nullptr && currentStudent->studentId != studentId)
+				currentStudent = currentStudent->next;
+			if (currentStudent != nullptr) {
+				deleteStudentList(students);
+				in.close();
+				return className;
+			}
+			deleteStudentList(students);
+		}
+	}
 }
 
 // Print a single course's info.

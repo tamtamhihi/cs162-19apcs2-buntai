@@ -8,7 +8,7 @@
 void login(string& userName, int& userRole); // 1.1
 void showMenu(int& userRole); // 1.2
 void viewProfileInfo(string& userName, int& userRole); // 1.3
-void changePassword(string& userName); //1.4
+void changePassword(string& userName); // 1.4
 void logout(string& userName, int& userRole); //1.5
 
 // ====== STAFF - CLASS ======
@@ -115,6 +115,7 @@ void addSemester(int academicYear, string mySemester);
 string findPasswordFromUsername(string username);
 bool findLecturerFromUsername(string username, Lecturer& lecturer);
 bool findStudentInfoFromFile(Student& newTurn, string userName);
+string findClassFromStudentId(string& studentId);
 void printAttendanceListWithId(Course* course);
 void findAttendanceDateOfCourse(Attendance*& attendanceDate, CourseInfo*& courseInfo);
 bool findStudentInfoFromId(Student& student, string studentId);

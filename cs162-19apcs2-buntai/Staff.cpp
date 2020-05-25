@@ -337,21 +337,16 @@ void manuallyAddStudent() {
 // 2.3
 void editExistingStudent() {
 	// Ask for class and student ID.
-	cout << "Please input student class with the same format:\n";
-	cout << "<class-name>,<studentId>\n\t";
-	string row, className, id, password;
-	getline(cin, row);
+	cout << "Please input student ID to edit: ";
+	string className, id, password;
+	getline(cin, id);
 	cout << "\n";
-	stringstream info(row);
-	getline(info, className, ',');
-	toUpper(className);
-	getline(info, id);
 
-	// Check if class exists.
-	if (!isClassExist(className)) {
-		cout << "Edit failed. Error: Can't find class.\n\n";
+	if (!isStudentIdExist(id)) {
+		cout << "Edit failed. Error: Student ID not available.\n\n";
 		return;
 	}
+	className = findClassFromStudentId(id);
 
 	// Read all students' information in class.
 	Student* studentList = nullptr;
@@ -376,12 +371,13 @@ void editExistingStudent() {
 	printStudentInfo(editedStudent);
 
 	// Ask for field to edit and prompt editing.
+	string row;
 	cout << "What field do you want to edit?\n";
 	cout << "\t1-Name\n\t2-Gender\n\t3-Date of birth\n";
 	cout << "Input in increasing order with a space between.\n\t";
 	getline(cin, row);
 	cout << "\n";
-	info = stringstream(row);
+	stringstream info(row);
 	int choice = 0;
 	while (info >> choice) {
 		if (choice == 1) {
@@ -452,10 +448,13 @@ void editExistingStudent() {
 	// Save students to class file.
 	writeClassToFile(studentList, className);
 
+	// Print new info.
+	cout << "Edit student successfully.\n";
+	printStudentInfo(editedStudent);
+	cout << "\n";
+
 	// Delete linked lists.
 	deleteStudentList(studentList);
-
-	cout << "Edit student successfully.\n\n";
 }
 
 // 2.4

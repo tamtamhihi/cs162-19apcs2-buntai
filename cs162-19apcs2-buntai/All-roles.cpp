@@ -4,7 +4,6 @@
 // ========= ALL-ROLES' FUNCTIONS DEFINITION =========
 
 // 1.1
-
 void login(string& userName, int& userRole) {
 	string userPassword = "", checkName, checkPassword;
 	int type;
@@ -115,7 +114,6 @@ void login(string& userName, int& userRole) {
 }
 
 // 1.2
-
 void showMenu(int& userRole) {
 	int chon;
 	if (userRole == 0) {
@@ -130,8 +128,7 @@ void showMenu(int& userRole) {
 }
 
 
-//1.3
-
+// 1.3
 void viewProfileInfo(string& userName, int& userRole) {
 	if (userRole == 0) {
 		Staff newTurn;
@@ -280,11 +277,12 @@ void viewProfileInfo(string& userName, int& userRole) {
 	}
 }
 
-//1.4
+// 1.4
 void changePassword(string& userName) {
 	string userPassword = "", checkName, checkPassword, newPassword, confirmedPassword;
 	string* userlist[1000];
-	cout << "\tPlease enter your password: ";
+	cout << "To change password, please enter:\n";
+	cout << "\tCurrent password: ";
 	char c = _getch();
 	while (c != 13) { // c != '\n'
 		if (c == 8) { // c == backspace
@@ -299,14 +297,14 @@ void changePassword(string& userName) {
 		userPassword += c;
 		c = _getch();
 	}
-	cout << "\n\n";
+	cout << "\n";
 
-	//check password and find position of password in file User.txt
+	// Check password and find position of password in file User.txt.
 	ifstream in;
 	in.open("Database/User.txt");
-	int count = 0,n=0;
+	int count = 0, n = 0;
 	if (!in) {
-		cout << "Login failed. Error: User file is missing, please try again later.\n\n";
+		cout << "Change password failed. Error: User file is missing, please try again later.\n\n";
 		return;
 	}
 
@@ -316,7 +314,7 @@ void changePassword(string& userName) {
 		in.ignore(); count++; n++;
 		in.ignore();
 		if (userName == checkName && userPassword == checkPassword) {
-			//continue to count the number of lines of file text
+			// Continue to count the number of lines of file text.
 			while (in)
 			{
 				in.ignore(); n++;
@@ -326,7 +324,7 @@ void changePassword(string& userName) {
 			}
 			in.close();
 
-			cout << "\tPlease enter your new password:" ;
+			cout << "\tNew password: " ;
 			char d = _getch();
 			while (d!= 13) { // c != '\n'
 				if (d == 8) { // c == backspace
@@ -341,9 +339,8 @@ void changePassword(string& userName) {
 				newPassword += d;
 				d = _getch();
 			}
-			cout << "\n\n";
-
-			cout << "\tEnter again your new password:" ;
+			cout << "\n";
+			cout << "\tEnter new password again: " ;
 			char e = _getch();
 			while (e!= 13) { // c != '\n'
 				if (e == 8) { // c == backspace
@@ -361,9 +358,8 @@ void changePassword(string& userName) {
 			cout << "\n\n";
 
 			if (newPassword == confirmedPassword) {
-				// in file text, replace old password by new password
-
-				//create a array to store each line of file text, replace the line store old password by new password
+				// In file text, replace old password by new password.
+				// Create a array to store each line of file text, replace the line store old password by new password
 				string* userFile;
 				userFile = new string[n];
 				ifstream in;
@@ -378,31 +374,31 @@ void changePassword(string& userName) {
 				}
 				in.close();
 
-				//rewrite User.txt
+				// Rewrite User.txt.
 				ofstream out;
 				out.open("Database/User.txt");
 				for (int i = 0; i < n; i++) {
 					out << userFile[i] << endl;
 				}
 				out.close();
-				cout << "Your password has been changed successfully" << endl;
+				cout << "Your password has been changed successfully.\n\n";
 				delete[]userFile;
 			}
-			else cout << "The new password entered again is incorrect" << endl;
+			else cout << "Change password failed. Error: 2 entered passwords do not match.\n\n";
 			return;
 		}
 		else if (userName == checkName && userPassword != checkPassword) {
 			in.close();
-			cout << " Wrong password for " << userName << ".\n\n";
+			cout << "\nChang password failed. Error: Wrong password for " << userName << ".\n\n";
 			return;
 		}
 	}
 }
 
-//1.5 
+// 1.5 
 void logout(string& userName, int& userRole) {
 	int choice;
-	cout << "Do you want to return to login menu or exist the program ?" << endl;
+	cout << "Do you want to return to login menu or exist the program?" << endl;
 	cout << "\t1.Login menu" << endl;
 	cout << "\t2.Exist program" << endl;
 	cout << "\tYour choice" << endl;
