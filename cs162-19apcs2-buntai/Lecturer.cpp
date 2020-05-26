@@ -92,42 +92,23 @@ void viewStudentListOfCourse(string lecturerUsername) {
 		return;
 	}
 
-	// Ask for the specific course to print student list.
-	string row, ay, courseId, semester, defaultClass;
-	int academicYear;
-	cout << "\nPlease enter information of course to view student list:\n\t";
-	cout << "<academic-year>,<semester>,<course-Id>,<default-class>\n\t";
-	getline(cin, row);
-	stringstream info(row);
-	getline(info, ay, ',');
-	academicYear = stoi(ay);
-	getline(info, semester, ','); semester = toFormalCase(semester);
-	getline(info, courseId, ','); toUpper(courseId);
-	getline(info, defaultClass, ','); toUpper(defaultClass);
-	cout << "\n";
-	while (!isCourseInCourseList(academicYear, semester, courseId, currentLecturer->myCourse)) {
-		cout << "You don't have the inputted course. Please try again:\n\t";
-		getline(cin, row);
-		info.clear();
-		info << row;
-		getline(info, ay, ',');
-		academicYear = stoi(ay);
-		getline(info, semester, ','); semester = toFormalCase(semester);
-		getline(info, courseId, ','); toUpper(courseId);
-		getline(info, defaultClass, ','); toUpper(defaultClass);
-		cout << "\n";
+	// Ask for specific course to print student list.
+	cout << "Please enter the number of the course to view attendance list: ";
+	int choice;
+	cin >> choice;
+	while (choice > currentLecturer->totalCourse) {
+		cout << "Course number not available. Please enter again: ";
+		cin >> choice;
 	}
+	cout << "\n";
+	CourseInfo* courseInfo = currentLecturer->myCourse;
+	for (int i = 0; i < choice - 1; ++i)
+		courseInfo = courseInfo->next;
 
 	// Read that course and print.
 	Course* course = new Course;
-	CourseInfo* courseInfo = new CourseInfo;
-	courseInfo->academicYear = academicYear;
-	courseInfo->semester = semester;
-	courseInfo->courseName = courseId;
-	courseInfo->defaultClass = defaultClass;
-	courseInfo->next = nullptr;
 	readCourseFromFile(courseInfo, course);
-	cout << "Student list of course " << courseId << "-" << defaultClass << ":\n";
+	cout << "STUDENT LIST OF COURSE " << courseInfo->courseName << "-" << courseInfo->defaultClass << ":\n";
 	printStudentListTable(course->students);
 	deleteCourseInfo(courseInfo);
 	deleteCourse(course);
@@ -329,41 +310,30 @@ void importScoreboardFromCsv(string lecturerUsername) {
 		return;
 	}
 
-	// Get input.
-	cout << "Please input the following information:\n";
-	int academicYear;
-	CourseInfo* courseInfo = new CourseInfo;
-	cout << "\tAcademic year: ";
-	cin >> courseInfo->academicYear;
-	cout << "\tSemester: ";
-	cin >> courseInfo->semester; courseInfo->semester = toFormalCase(courseInfo->semester);
-	cout << "\tCourese ID: ";
-	cin >> courseInfo->courseName; toUpper(courseInfo->courseName);
-	cout << "\tDefault class: ";
-	cin >> courseInfo->defaultClass; toUpper(courseInfo->defaultClass);
-	courseInfo->next = nullptr;
-	cout << "\tFilepath to csv file: ";
+	// Ask for specific course to import csv file.
+	cout << "Please enter the number of the course to import scoreboard: ";
+	int choice;
+	cin >> choice;
+	while (choice > currentLecturer->totalCourse) {
+		cout << "Course number not available. Please enter again: ";
+		cin >> choice;
+	}
+	cout << "\n";
+	CourseInfo* courseInfo = currentLecturer->myCourse;
+	for (int i = 0; i < choice - 1; ++i)
+		courseInfo = courseInfo->next;
+
+	// Ask filepath of csv file
+	cout << "Please input filepath to csv file: \n";
 	string filepath;
 	cin >> filepath;
 	cout << "\n";
-
-	// Check if course exist.
-	if (!isCourseExist(courseInfo)) {
-		cout << "Error: Course not found.\n\n";
-		return;
-	}
-
-	// Check whether given course is in lecturer's courses.
-	if (!isLecturerCourse(courseInfo, lecturerUsername)) {
-		cout << "Sorry, you do not have a right to update scoreboard of this course. \n\n";
-		return;
-	}
 
 	// Try to open file at given filepath.
 	ifstream in;
 	in.open(filepath);
 	while (!in.is_open()) {
-		cout << "\tThe file path you entered is not valid. Please input another path or ""0"" to stop: ";
+		cout << "The file path you entered is not valid. Please input another path or ""0"" to stop: ";
 		cin >> filepath;
 		cout << "\n";
 		if (filepath == "0")
@@ -444,7 +414,7 @@ void importScoreboardFromCsv(string lecturerUsername) {
 	writeCourseToFile(course);
 
 	// Delete linked list.
-	deleteCourseInfo(courseInfo);
+	deleteLecturers(lecturers);
 	deleteCourse(course);
 	deleteStudent(studentCsv);
 	deleteStudentCourseInfo(studentScore);
@@ -466,39 +436,29 @@ void editGradeOfStudent(string lecturerUsername) {
 		printCourseListTable(currentLecturer->myCourse);
 	}
 	else {
-		cout << "Sorry, you have no courses to view attendance list.\n\n";
+		cout << "Sorry, you have no courses to edit grade.\n\n";
 		deleteLecturers(lecturers);
 		return;
 	}
 
-	// Get input.
-	cout << "Please input the following information:\n";
-	int academicYear;
-	CourseInfo* courseInfo = new CourseInfo;
-	cout << "\tAcademic year: ";
-	cin >> courseInfo->academicYear;
-	cout << "\tSemester: ";
-	cin >> courseInfo->semester; courseInfo->semester = toFormalCase(courseInfo->semester);
-	cout << "\tCourese ID: ";
-	cin >> courseInfo->courseName; toUpper(courseInfo->courseName);
-	cout << "\tDefault class: ";
-	cin >> courseInfo->defaultClass; toUpper(courseInfo->defaultClass);
-	cout << "\tStudent ID: ";
-	string studentID;  cin >> studentID;
+	// Ask for specific course to edit grade.
+	cout << "Please enter the number of the course to edit grade: ";
+	int choice;
+	cin >> choice;
+	while (choice > currentLecturer->totalCourse) {
+		cout << "Course number not available. Please enter again: ";
+		cin >> choice;
+	}
 	cout << "\n";
-	courseInfo->next = nullptr;
+	CourseInfo* courseInfo = currentLecturer->myCourse;
+	for (int i = 0; i < choice - 1; ++i)
+		courseInfo = courseInfo->next;
 
-	// Check if course exist.
-	if (!isCourseExist(courseInfo)) {
-		cout << "Error: Course not found.\n\n";
-		return;
-	}
-
-	// Check whether given course is in lecturer's courses.
-	if (!isLecturerCourse(courseInfo, lecturerUsername)) {
-		cout << "Sorry, you do not have a right to update scoreboard of this course. \n\n";
-		return;
-	}
+	// Ask for student ID to edit grade.
+	cout << "Please input student ID: ";
+	string studentID;  
+	cin >> studentID;
+	cout << "\n";
 
 	// Find student in course file.
 	Course* course = new Course;
@@ -535,10 +495,10 @@ void editGradeOfStudent(string lecturerUsername) {
 	
 	cout << "\n";
 	stringstream in(row);
-	int choice = 0;
+	int choiceScore;
 	double score;
-	while (in >> choice) {
-		if (choice == 1) {
+	while (in >> choiceScore) {
+		if (choiceScore == 1) {
 			cout << "New midterm score: ";
 			cin >> score;
 			cout << "You want to change midterm score from " << curStudentCourseInfo->midterm << " to " << setprecision(2)<< score << "? Y/N \n\t";
@@ -548,7 +508,7 @@ void editGradeOfStudent(string lecturerUsername) {
 				cout << "The midterm score has been changed successfully.\n\n";
 			}
 		}
-		else if (choice == 2) {
+		else if (choiceScore == 2) {
 			cout << "New final score: ";
 			cin >> score; 
 			cout << "You want to change final score from " << curStudentCourseInfo-> final << " to " << setprecision(2) << score << "? Y/N \n\t";
@@ -558,7 +518,7 @@ void editGradeOfStudent(string lecturerUsername) {
 				cout << "The final score has been changed successfully.\n\n";
 			}
 		}
-		else if (choice == 3) {
+		else if (choiceScore == 3) {
 			cout << "New lab score: ";
 			cin >> score;
 			cout << "You want to change lab score from " << curStudentCourseInfo->lab << " to " << setprecision(2) << score << "? Y/N \n\t";
@@ -568,7 +528,7 @@ void editGradeOfStudent(string lecturerUsername) {
 				cout << "The lab score has been changed successfully.\n\n";
 			}
 		}
-		else if (choice == 4) {
+		else if (choiceScore == 4) {
 			cout << "New bonus score: ";
 			cin >> score;
 			cout << "You want to change bonus score from " << curStudentCourseInfo->bonus << " to " << setprecision(2) << score << "? Y/N \n\t";
@@ -588,8 +548,8 @@ void editGradeOfStudent(string lecturerUsername) {
 	writeCourseToFile(course);
 
 	// Delete linked list.
+	deleteLecturers(lecturers);
 	deleteCourse(course);
-	deleteCourseInfo(courseInfo);
 }
 
 // 6.7
@@ -610,40 +570,26 @@ void viewScoreboardOfCourse(string lecturerUsername) {
 		return;
 	}
 
-	// Get input.
-	cout << "Please input the following information:\n";
-	int academicYear;
-	CourseInfo* courseInfo = new CourseInfo;
-	cout << "\tAcademic year: ";
-	cin >> courseInfo->academicYear;
-	cout << "\tSemester: ";
-	cin >> courseInfo->semester; courseInfo->semester = toFormalCase(courseInfo->semester);
-	cout << "\tCourese ID: ";
-	cin >> courseInfo->courseName; toUpper(courseInfo->courseName);
-	cout << "\tDefault class: ";
-	cin >> courseInfo->defaultClass; toUpper(courseInfo->defaultClass);
-	courseInfo->next = nullptr;
+	// Ask for specific course to import csv file.
+	cout << "Please enter the number of the course to view attendance list: ";
+	int choice;
+	cin >> choice;
+	while (choice > currentLecturer->totalCourse) {
+		cout << "Course number not available. Please enter again: ";
+		cin >> choice;
+	}
 	cout << "\n";
+	CourseInfo* courseInfo = currentLecturer->myCourse;
+	for (int i = 0; i < choice - 1; ++i)
+		courseInfo = courseInfo->next;
 
-	// Check if course exist.
-	if (!isCourseExist(courseInfo)) {
-		cout << "Error: Course not found.\n\n";
-		return;
-	}
-
-	// Check whether given course is in lecturer's courses.
-	if (!isLecturerCourse(courseInfo, lecturerUsername)) {
-		cout << "Sorry, you do not have a right to view scoreboard of this course. \n\n";
-		return;
-	}
-	// If yes print scoreboard.
-	cout << "Loading scoreboard...\n";
+	// Print scoreboard.
 	Course* course = new Course;
 	readCourseFromFile(courseInfo, course);
 	printScoreboardTable(course);
 	cout << "\n";
 
-	deleteCourseInfo(courseInfo);
+	// Delete linked list.
+	deleteLecturers(lecturers);
 	deleteCourse(course);
-	return;
 }
