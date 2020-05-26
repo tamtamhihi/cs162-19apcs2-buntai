@@ -1618,21 +1618,18 @@ void editExistingCourse() {
 // 3.5
 void removeCourse() {
 	// Ask for input.
-	cout << "Please input the academic year:\n";
-	cout << "\t(input 2018 for AY 2018-2019)\n\t";
+	cout << "Please input following infomation:\n";
 	int academicYear;
-	cin >> academicYear;
 	string semester, courseID, defaultClass;
-	cout << "Please input semester: \n";
-	cout << "\t(Summer, Spring or Fall)\n\t";
-	cin >> semester;
-	semester = toFormalCase(semester);
-	cout << "Please input course ID: \n\t";
-	cin >> courseID;
-	toUpper(courseID);
-	cout << "Please input default class: \n\t";
-	cin >> defaultClass;
-	toUpper(defaultClass);
+	cout << "\tAcademic year: ";
+	cin >> academicYear; 
+	cout << "\tSemester: ";
+	cin >> semester; semester = toFormalCase(semester);
+	cout << "\tCourse ID: ";
+	cin >> courseID; toUpper(courseID);
+	cout << "\tDefault class: ";
+	cin >> defaultClass; toUpper(defaultClass);
+	cout << "\n";
 
 	// Read courses.txt to find remove course.
 	CourseInfo* courseList = nullptr;
@@ -1774,14 +1771,21 @@ void removeStudentFromCourse() {
 	toUpper(courseID);
 	cin >> courseClass;
 	toUpper(courseClass);
+	cout << "\n";
 
-	// Remove student from file <course>-<default>.txt.
+	// Check whether course exists or not.
 	CourseInfo* courseInfo = new CourseInfo;
 	courseInfo->academicYear = academicYear;
 	courseInfo->semester = semester;
 	courseInfo->courseName = courseID;
 	courseInfo->defaultClass = courseClass;
 	courseInfo->next = nullptr;
+	if (!isCourseExist(courseInfo)){
+		cout << "Error: Given course does not exist.\n";
+		return;
+	}
+
+	// Remove student from file <course>-<default>.txt.
 	Course* course = new Course;
 	readCourseFromFile(courseInfo, course);
 	Student* currentStudent = course->students;
@@ -2363,19 +2367,18 @@ void searchAndViewScoreboard() {
 // 4.2
 void exportScoreboardToCsv() {
 	// Get course information.
-	cout << "Please input course information with the same format:\n";
-	cout << "<academic-year>,<semester>,<course-id>,<default-class>\n\t";
-	string row, academicYear, semester, courseId, defaultClass;
-	getline(cin, row);
-	cout << "\n";
-	stringstream info(row);
-	getline(info, academicYear, ',');
-	getline(info, semester, ',');
+	cout << "Please input followinng infomation:\n";
+	string row,academicYear, semester, courseId, defaultClass;
+	cout << "\tAcademic year: ";
+	cin >> academicYear;
+	cout << "\tSemester: ";
+	cin >> semester; 
 	semester = toFormalCase(semester);
-	getline(info, courseId, ',');
-	toUpper(courseId);
-	getline(info, defaultClass, ',');
-	toUpper(defaultClass);
+	cout << "\tCourse ID: ";
+	cin >> courseId; toUpper(courseId);
+	cout << "\tDefault class: ";
+	cin >> defaultClass; toUpper(defaultClass);
+	cout << "\n";
 
 	// Check whether course exists.
 	CourseInfo* courseInfo = new CourseInfo;
@@ -2394,7 +2397,7 @@ void exportScoreboardToCsv() {
 	Course* course = new Course;
 	readCourseFromFile(courseInfo, course);
 
-	// Export scoreboard to file csv
+	// Export scoreboard to file csv.
 	cout << "Please enter the path to file csv used to store scoreboard: \n\t";
 	getline(cin, row);
 	cout << "\n";
@@ -2428,7 +2431,7 @@ void exportScoreboardToCsv() {
 	deleteCourseInfo(courseInfo);
 	deleteCourse(course);
 
-	// Annoucement
+	// Annoucement.
 	cout << "Export successfully. Please check CSV file in " << row << "\n\n";
 }
 

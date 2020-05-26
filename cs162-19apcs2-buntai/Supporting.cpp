@@ -1647,8 +1647,8 @@ void showStaffCourseMenu(string& username) {
 	case 2:
 	case 3:
 	case 4:
-	case 5:
-	case 6:
+	case 5: removeCourse(); break;
+	case 6: removeStudentFromCourse(); break;
 	case 7:
 	case 8: 
 	case 9: viewListOfStudentInAClass(); break;
@@ -1671,11 +1671,12 @@ void showStaffScoreboardMenu(string& username) {
 	cout << "\t3. Return to previous menu." << endl << endl;
 	cout << "Which function do you want to perform ? Please enter a number: ";
 	cin >> chon;
+	fflush(stdin);
 	clearScreenWithoutPress();
 	switch (chon)
 	{
 	case 1:
-	case 2:
+	case 2: exportScoreboardToCsv(); break;
 	case 3: return;
 	default:
 		cout << "Wrong option number!\n";
