@@ -5,11 +5,12 @@
 
 
 // ====== ALL-ROLES ======
-void login(string& userName, int& userRole); // 1.1
-void showMenu(int& userRole); // 1.2
+void showAllRoleMenu(string& userName, int& userRole); // 1.0
+bool login(string& userName, int& userRole); // 1.1
+void showMenu(string& username, int& userRole); // 1.2
 void viewProfileInfo(string& userName, int& userRole); // 1.3
 void changePassword(string& userName); // 1.4
-void logout(string& userName, int& userRole); //1.5
+void logout(string& userName, int& userRole); // 1.5
 
 // ====== STAFF - CLASS ======
 void importStudentFromCsv(); // 2.1
@@ -100,6 +101,8 @@ bool isSessionDateExist(Date date, Attendance* attendance);
 
 void removeSemesterDirectory(int academicYear, string semester);
 
+void clearScreen();
+void clearScreenWithoutPress();
 
 // ====== APP-RELATED ======
 int getVersion(string existent, string username);
@@ -162,6 +165,10 @@ void deleteAcademicYear(int academicYear);
 void registerCourseForStudentList(Student*& students, CourseInfo*& courseInfo);
 void unregisterCourseForStudent(Student*& student, CourseInfo*& courseInfo);
 
-void showStaffMenu();
-void showLecturerMenu();
-void showStudentMenu();
+void showStaffClassMenu(string&username);
+void showStaffCourseMenu(string& username);
+void showStaffScoreboardMenu(string& username);
+void showStaffAttendanceMenu(string& username);
+void showStaffMenu(string& username);
+void showLecturerMenu(string& username);
+void showStudentMenu(string& username);

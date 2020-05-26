@@ -148,7 +148,6 @@ void checkin(string studentUsername) {
 }
 
 // 7.2
-
 void viewCheckinResult(string studentUsername) {
 	Student newTurn;
 	getInfoOfStudent(newTurn, studentUsername);
@@ -233,12 +232,11 @@ void viewCheckinResult(string studentUsername) {
 }
 
 // 7.3
-
 void viewSchedules(string studentUsername) {
 	Student newTurn;
 	getInfoOfStudent(newTurn, studentUsername);
 
-	//get all courses of a student
+	// Get all courses of a student.
 	CourseInfo* cur = newTurn.myCourse;
 	int  n = newTurn.numberOfCourse;
 	if (n == 0) return;
@@ -292,7 +290,7 @@ void viewSchedules(string studentUsername) {
 		cur = cur->next;
 	}
 
-	//build up the schedule
+	// Build up the schedule.
 	Course mon[4], tue[4], wed[4], thu[4], fri[4], sat[4];
 	for (int t = 0; t < n; t++) {
 		SessionInfo* tail = coursesOfStudent[t].sessionInfo;
@@ -455,8 +453,7 @@ void viewSchedules(string studentUsername) {
 		}
 	}
 
-	//print out schedule
-
+	// Print out schedule.
 	cout << "Session |" << setw(20) << "Time |" << setw(14) << "Monday |" << setw(14) << "Tuesday |" << setw(14) << "Wednesday |"
 		<< setw(14) << "Thursday |" << setw(14) << "Friday |" << setw(14) << "Saturday |" << endl;
 	cout << setfill('-') << setw(9) << "+" << setw(20) << "+" << setw(14) << "+" << setw(14) << "+"
@@ -497,7 +494,7 @@ void viewSchedules(string studentUsername) {
 		<< setw(12) << tue[3].room << " |" << setw(12) << wed[3].room << " |" << setw(12) << thu[3].room
 		<< " |" << setw(12) << fri[3].room << " |" << setw(12) << sat[3].room << " |" << endl;
 
-	//deallocated
+	// Deallocated.
 	for (int l = 0; l < n; l++) {
 		if (coursesOfStudent[l].sessionInfo != nullptr)
 			deleteSessionInfo(coursesOfStudent[l].sessionInfo);
@@ -507,7 +504,6 @@ void viewSchedules(string studentUsername) {
 }
 
 // 7.4
-
 void viewScoresOfACourse(string studentUsername) {
 	Student newTurn;
 	getInfoOfStudent(newTurn, studentUsername);
@@ -522,7 +518,7 @@ void viewScoresOfACourse(string studentUsername) {
 		newTurn.myCourse = newTurn.myCourse->next;
 	}
 
-	//get the student's scores of the course which be chosen
+	// Get the student's scores of the course which be chosen.
 	string checkName;
 	StudentCourseInfo scoresOfNewTurn;
 	ifstream(fin);
@@ -551,6 +547,5 @@ void viewScoresOfACourse(string studentUsername) {
 		<< setw(9) << scoresOfNewTurn.bonus << "\n";
 
 	deleteCourseInfo(newTurn.myCourse);
-
 }
 

@@ -3,8 +3,34 @@
 
 // ========= ALL-ROLES' FUNCTIONS DEFINITION =========
 
+// 1.0
+void showAllRoleMenu(string &userName, int &userRole) {
+	cout << "\t1. Show options\n"
+		 << "\t2. View profile\n"
+		 << "\t3. Change password\n"
+		 << "\t4. Log out\n\n";
+	int choice;
+	cout << "Please enter your choice: ";
+	cin >> choice;
+	clearScreenWithoutPress();
+	if (choice == 1) {
+		showMenu(userName,userRole);
+		showAllRoleMenu(userName, userRole);
+	}
+	else if (choice == 2) {
+		viewProfileInfo(userName, userRole);
+	}
+	else if (choice == 3) {
+		changePassword(userName);
+	}
+	else if (choice == 4) {
+		logout(userName, userRole);
+	}
+	if (choice != 4)clearScreen();
+}
+
 // 1.1
-void login(string& userName, int& userRole) {
+bool login(string& userName, int& userRole) {
 	string userPassword = "", checkName, checkPassword;
 	int type;
 
@@ -34,7 +60,7 @@ void login(string& userName, int& userRole) {
 	in.open("Database/User.txt");
 	if (!in) {
 		cout << "Login failed. Error: User file is missing, please try again later.\n\n";
-		return;
+		return false;
 	}
 	while (getline(in, checkName)) {
 		getline(in, checkPassword);
@@ -101,35 +127,38 @@ void login(string& userName, int& userRole) {
 			default:
 				break;
 			}
-			return;
+			return true;
 		}
 		else if (userName == checkName && userPassword != checkPassword) {
 			in.close();
 			cout << "Login failed. Error: Wrong password for " << userName << ".\n\n";
-			return;
+			return false;
 		}
 	}
 	in.close();
 	cout << "Login failed. Error: Username not found.\n\n";
+	return false;
 }
 
 // 1.2
-void showMenu(int& userRole) {
+void showMenu(string &username,int& userRole) {
 	int chon;
+	clearScreenWithoutPress();
 	if (userRole == 0) {
-		showStaffMenu();
+		showStaffMenu(username);
 	}
 	else if (userRole == 1) {
-		showLecturerMenu();
+		showLecturerMenu(username);
 	}
 	else if (userRole == 2) {
-		showStudentMenu();
+		showStudentMenu(username);
 	}
+
 }
 
 
 // 1.3
-void viewProfileInfo(string& userName, int& userRole) {
+void viewProfileInfo(string& username, int& userRole) {
 	if (userRole == 0) {
 		Staff newTurn;
 		ifstream in;
@@ -144,7 +173,7 @@ void viewProfileInfo(string& userName, int& userRole) {
 				in >> newTurn.gender;
 				in.ignore();
 				in.ignore();
-				if (userName == newTurn.username)
+				if (username == newTurn.username)
 				{
 					//print out info 
 					cout << "User profile: " << endl;
@@ -198,7 +227,7 @@ void viewProfileInfo(string& userName, int& userRole) {
 				}
 				in.ignore();
 				in.ignore();
-				if (userName == newTurn.username)
+				if (username == newTurn.username)
 				{
 					//print out info
 					cout << "User profile: " << endl;
@@ -237,7 +266,7 @@ void viewProfileInfo(string& userName, int& userRole) {
 		if (!in) cout << "Cannot open class file, please try it later" << endl;
 		else (in >> newTurn.myClass);
 		in.close();
-		while (findStudentInfoFromFile(newTurn, userName) == false) {
+		while (findStudentInfoFromFile(newTurn, username) == false) {
 			ifstream in;
 			in.open("Database/Class/Classes.txt");
 			while (in) {
@@ -278,7 +307,7 @@ void viewProfileInfo(string& userName, int& userRole) {
 }
 
 // 1.4
-void changePassword(string& userName) {
+void changePassword(string& username) {
 	string userPassword = "", checkName, checkPassword, newPassword, confirmedPassword;
 	string* userlist[1000];
 	cout << "To change password, please enter:\n";
@@ -313,7 +342,7 @@ void changePassword(string& userName) {
 		getline(in, checkPassword); count++; n++;
 		in.ignore(); count++; n++;
 		in.ignore();
-		if (userName == checkName && userPassword == checkPassword) {
+		if (username == checkName && userPassword == checkPassword) {
 			// Continue to count the number of lines of file text.
 			while (in)
 			{
@@ -387,9 +416,9 @@ void changePassword(string& userName) {
 			else cout << "Change password failed. Error: 2 entered passwords do not match.\n\n";
 			return;
 		}
-		else if (userName == checkName && userPassword != checkPassword) {
+		else if (username == checkName && userPassword != checkPassword) {
 			in.close();
-			cout << "\nChang password failed. Error: Wrong password for " << userName << ".\n\n";
+			cout << "\nChang password failed. Error: Wrong password for " << username << ".\n\n";
 			return;
 		}
 	}
@@ -401,10 +430,17 @@ void logout(string& userName, int& userRole) {
 	cout << "Do you want to return to login menu or exist the program?" << endl;
 	cout << "\t1.Login menu" << endl;
 	cout << "\t2.Exist program" << endl;
-	cout << "\tYour choice" << endl;
+	cout << "\tYour choice: ";
 	cin >> choice;
 	if (choice == 1) {
+		clearScreenWithoutPress();
+		while (!login(userName, userRole)) {
+			clearScreen();
+		}
+		clearScreen();
+		showAllRoleMenu(userName, userRole);
+	}
+	if (choice == 2) {
 		system("cls");
-		login(userName, userRole);
 	}
 }
