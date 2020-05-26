@@ -1591,7 +1591,7 @@ void findAttendanceDateOfCourse(Attendance*& attendanceDate, CourseInfo*& course
 	}
 }
 
-// Show menu of staff-class
+// Show menu of staff-class.
 void showStaffClassMenu(string& username) {
 	int chon;
 	cout << "\t1. Import students of a class from a csv file." << endl;
@@ -1616,13 +1616,14 @@ void showStaffClassMenu(string& username) {
 	case 7:
 	case 8: return;
 	default:
+		cout << "Wrong option number!\n";
 		break;
 	}
 	clearScreen();
 	showStaffClassMenu(username);
 }
 
-// Show menu of staff-course
+// Show menu of staff-course.
 void showStaffCourseMenu(string& username) {
 	int chon;
 	cout << "\t1. Create / update / delete / view academic years and semesters" << endl;
@@ -1637,7 +1638,7 @@ void showStaffCourseMenu(string& username) {
 	cout << "\t10. View attendance list of a course." << endl;
 	cout << "\t11. Create / update / delete / view all lecturers." << endl;
 	cout << "\t12. Return to previous menu." << endl << endl;
-	cout << "Which function do you want to perform ? Please enter a number:";
+	cout << "Which function do you want to perform ? Please enter a number: ";
 	cin >> chon;
 	clearScreenWithoutPress();
 	switch (chon)
@@ -1653,7 +1654,9 @@ void showStaffCourseMenu(string& username) {
 	case 9: viewListOfStudentInAClass(); break;
 	case 10:
 	case 11:
+	case 12: return;
 	default:
+		cout << "Wrong option number!\n";
 		break;
 	}
 	clearScreen();
@@ -1664,15 +1667,18 @@ void showStaffCourseMenu(string& username) {
 void showStaffScoreboardMenu(string& username) {
 	int chon;
 	cout << "\t1. Search and view the scoreboard of a course." << endl;
-	cout << "\t2. Export a scoreboard to a csv file." << endl << endl;
-	cout << "Which function do you want to perform ? Please enter a number:";
+	cout << "\t2. Export a scoreboard to a csv file." << endl;
+	cout << "\t3. Return to previous menu." << endl << endl;
+	cout << "Which function do you want to perform ? Please enter a number: ";
 	cin >> chon;
 	clearScreenWithoutPress();
 	switch (chon)
 	{
 	case 1:
 	case 2:
+	case 3: return;
 	default:
+		cout << "Wrong option number!\n";
 		break;
 	}
 	clearScreen();
@@ -1682,16 +1688,19 @@ void showStaffScoreboardMenu(string& username) {
 // Show menu of staff-attendance 
 void showStaffAttendanceMenu(string& username) {
 	int chon;
-	cout << "\t1.Search and view attendance list of a course." << endl;
+	cout << "\t1. Search and view attendance list of a course." << endl;
 	cout << "\t2. Export a attendance list to a csv file." << endl;
-	cout << "Which function do you want to perform ? (please enter a number)" << endl;
+	cout << "\t3. Return to previous menu." << endl << endl;
+	cout << "Which function do you want to perform ? Please enter a number: ";
 	cin >> chon;
 	clearScreenWithoutPress();
 	switch (chon)
 	{
 	case 1:
 	case 2:
+	case 3: return;
 	default:
+		cout << "Wrong option number!\n";
 		break;
 	}
 	clearScreen();
@@ -1739,7 +1748,7 @@ void showLecturerMenu(string& username) {
 	cout << "\t6. Edit grade of a student." << endl;
 	cout << "\t7. View a scoreboard." << endl;
 	cout << "\t8. Return to previous menu." << endl << endl;
-	cout << "Which function do you want to perform ? Please enter a number:";
+	cout << "Which function do you want to perform ? Please enter a number: ";
 	cin >> choice;
 	clearScreenWithoutPress();
 	switch (choice)
@@ -1747,12 +1756,13 @@ void showLecturerMenu(string& username) {
 	case 1: 
 	case 2: viewStudentListOfCourse(username); break;
 	case 3:
-	case 4:
-	case 5:
-	case 6:
-	case 7:
-	case 8: break;
+	case 4: 
+	case 5: importScoreboardFromCsv(username); break;
+	case 6: editGradeOfStudent(username); break;
+	case 7: viewScoreboardOfCourse(username); break;
+	case 8: return;
 	default:
+		cout << "Wrong option number!\n";
 		break;
 	}
 	clearScreen();
@@ -1778,6 +1788,7 @@ void showStudentMenu(string& username) {
 	case 4:
 	case 5: break;
 	default:
+		cout << "Wrong option number!\n";
 		break;
 	}
 	clearScreen();

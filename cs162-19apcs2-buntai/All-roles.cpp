@@ -15,7 +15,6 @@ void showAllRoleMenu(string &userName, int &userRole) {
 	clearScreenWithoutPress();
 	if (choice == 1) {
 		showMenu(userName,userRole);
-		showAllRoleMenu(userName, userRole);
 	}
 	else if (choice == 2) {
 		viewProfileInfo(userName, userRole);
@@ -26,7 +25,10 @@ void showAllRoleMenu(string &userName, int &userRole) {
 	else if (choice == 4) {
 		logout(userName, userRole);
 	}
-	if (choice != 4)clearScreen();
+	if (choice != 4) {
+		clearScreen();
+		showAllRoleMenu(userName, userRole);
+	}
 }
 
 // 1.1
