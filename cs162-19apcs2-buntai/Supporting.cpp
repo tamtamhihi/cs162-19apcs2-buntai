@@ -1787,7 +1787,7 @@ void showStudentMenu(string& username) {
 	case 2: 
 	case 3:
 	case 4:
-	case 5: break;
+	case 5: return;
 	default:
 		cout << "Wrong option number!\n";
 		break;
