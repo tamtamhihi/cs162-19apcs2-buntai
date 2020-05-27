@@ -5,7 +5,6 @@
 
 
 // 7.1
-
 void checkin(string studentUsername) {
 	Student newTurn;
 	getInfoOfStudent(newTurn, studentUsername);

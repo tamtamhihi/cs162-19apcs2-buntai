@@ -15,20 +15,25 @@ void showAllRoleMenu(string &userName, int &userRole) {
 	clearScreenWithoutPress();
 	if (choice == 1) {
 		showMenu(userName,userRole);
+		clearScreenWithoutPress();	
 	}
 	else if (choice == 2) {
 		viewProfileInfo(userName, userRole);
+		clearScreen();
 	}
 	else if (choice == 3) {
 		changePassword(userName);
+		clearScreen();
 	}
 	else if (choice == 4) {
 		logout(userName, userRole);
+		if (userName != "\0") {
+			clearScreenWithoutPress();
+			showAllRoleMenu(userName, userRole);
+		}
 	}
-	if (choice != 4) {
-		clearScreen();
+	if (choice != 4)
 		showAllRoleMenu(userName, userRole);
-	}
 }
 
 // 1.1
@@ -155,7 +160,6 @@ void showMenu(string &username,int& userRole) {
 	else if (userRole == 2) {
 		showStudentMenu(username);
 	}
-
 }
 
 
@@ -429,9 +433,16 @@ void changePassword(string& username) {
 // 1.5 
 void logout(string& userName, int& userRole) {
 	int choice;
-	cout << "Do you want to return to login menu or exist the program?" << endl;
-	cout << "\t1.Login menu" << endl;
-	cout << "\t2.Exist program" << endl;
+	cout << "Are you sure to log out? Y/N\t";
+	string confirm;
+	cin >> confirm; toUpper(confirm);
+	if (confirm == "N")
+		return;
+	userName = "\0";
+	clearScreenWithoutPress();
+	cout << "Do you want to login into another account or exit the program?" << endl;
+	cout << "\t1. Login again" << endl;
+	cout << "\t2. Exit program" << endl;
 	cout << "\tYour choice: ";
 	cin >> choice;
 	if (choice == 1) {
@@ -442,7 +453,9 @@ void logout(string& userName, int& userRole) {
 		clearScreen();
 		showAllRoleMenu(userName, userRole);
 	}
-	if (choice == 2) {
-		system("cls");
+	else if (choice == 2) {
+		clearScreenWithoutPress();
+		cout << "\t\t\t\tThank you for using our program.\n\n";
+		system("exit");
 	}
 }

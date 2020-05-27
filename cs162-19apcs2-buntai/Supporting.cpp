@@ -374,7 +374,7 @@ void removeSemesterDirectory(int academicYear, string semester) {
 
 // Clear screen and restart.
 void clearScreen() {
-	fflush(stdin);
+	cin.clear();
 	cout << "Press any key to continue.\n";
 	getch();
 	system("cls");
@@ -1735,7 +1735,7 @@ void showStaffMenu(string& username) {
 	}
 	else if (choice == 5) return;
 	else cout << "Your input is not valid" << endl;
-	clearScreen();
+	clearScreenWithoutPress();
 	showStaffMenu(username);
 }
 
@@ -1755,10 +1755,10 @@ void showLecturerMenu(string& username) {
 	clearScreenWithoutPress();
 	switch (choice)
 	{
-	case 1: 
+	case 1: viewCoursesInSemester(username); break;
 	case 2: viewStudentListOfCourse(username); break;
-	case 3:
-	case 4: 
+	case 3: viewAttendanceListOfCourseByLecturer(username); break;
+	case 4: editAnAttendanceByLecturer(username); break;
 	case 5: importScoreboardFromCsv(username); break;
 	case 6: editGradeOfStudent(username); break;
 	case 7: viewScoreboardOfCourse(username); break;
@@ -1779,15 +1779,15 @@ void showStudentMenu(string& username) {
 	cout << "\t3. View schedules." << endl;
 	cout << "\t4. View my scores of a course." << endl;
 	cout << "\t5. Return to previous menu." << endl << endl;
-	cout << "Which function do you want to perform ? Please enter a number:";
+	cout << "Which function do you want to perform ? Please enter a number: ";
 	cin >> choice;
 	clearScreenWithoutPress();
 	switch (choice)
 	{
 	case 1: checkin(username); break;
-	case 2: 
-	case 3:
-	case 4:
+	case 2: viewCheckinResult(username); break;
+	case 3: viewSchedules(username); break;
+	case 4: viewScoresOfACourse(username); break;
 	case 5: return;
 	default:
 		cout << "Wrong option number!\n";
