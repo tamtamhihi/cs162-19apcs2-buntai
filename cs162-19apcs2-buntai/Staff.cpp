@@ -460,16 +460,15 @@ void editExistingStudent() {
 // 2.4
 void removeStudent() {
 	// Ask for class and student ID.
-	cout << "Please input student class and student ID with the same format:\n";
-	cout << "<class-name>,<studentId>\n\t";
-	string row, className, id;
-	getline(cin, row);
-	cout << "\n";
-	stringstream info(row);
-	getline(info, className, ',');
+	cout << "Please input student class and student ID: \n";
+	string className, id;
+	cout << "\tClass name: ";
+	cin >> className;
 	toUpper(className);
-	getline(info, id);
-
+	cout << "\tStudent ID: ";
+	cin >> id;
+	cout << "\n";
+	
 	// Check if class exists.
 	if (!isClassExist(className)) {
 		cout << "Edit failed. Error: Can't find class.\n\n";
@@ -531,15 +530,17 @@ void removeStudent() {
 // 2.5 
 void changeStudentClass() {
 	// Ask for the input.
-	cout << "Please input student's ID, old class and new class of that student with the same format:\n";
-	cout << "<studentID>,<oldClass>,<newClass>\n\t";
+	cout << "Please input following infomation: \n";
 	string row, id, oldClass, newClass;
-	getline(cin, row);
+	cout << "\t Student ID: ";
+	cin >> id;
+	cout << "\t Old Class: ";
+	cin >> oldClass; 
+	toUpper(oldClass);
+	cout << "\t New Class: ";
+	cin >> newClass;
+	toUpper(newClass);
 	cout << "\n";
-	stringstream info(row);
-	getline(info, id, ',');
-	getline(info, oldClass, ','); toUpper(oldClass);
-	getline(info, newClass); toUpper(newClass);
 
 	// Check if old class exists.
 	if (!isClassExist(oldClass)) {
@@ -679,7 +680,8 @@ void viewListOfStudentInAClass() {
 	// Ask for class name.
 	cout << "Please enter class name: ";
 	string className;
-	getline(cin, className); toUpper(className);
+	cin >> className;
+	toUpper(className);
 	cout << "\n";
 
 	// Check if class exists.
@@ -693,7 +695,7 @@ void viewListOfStudentInAClass() {
 	readClassFromFile(className, studentList);
 
 	// Print all students' name in class.
-	cout << "The list of students in class " << className << ":\n";
+	cout << "The list of students in class " << className << ":\n\n";
 	printStudentListTable(studentList);
 	cout << "The list has been loaded successfully.\n\n";
 
@@ -1873,12 +1875,35 @@ void addAStudentToCourse() {
 	cin >> courseClass;
 	toUpper(courseClass);
 
+	// Check if course exist.
+	CourseInfo* courseInfo = new CourseInfo;
+	courseInfo->academicYear = academicYear;
+	courseInfo->semester = semester;
+	courseInfo->courseName = courseID;
+	courseInfo->defaultClass = courseClass;
+	courseInfo->next = nullptr;
+	if (!isCourseExist(courseInfo)) {
+		cout << "Error: Course does not exist.\n";
+		deleteCourseInfo(courseInfo);
+		return;
+	}
+
+	// Check if student already in course.
+	Course* course = new Course;
+	readCourseFromFile(courseInfo, course);
+	if (isStudentExistInCourse(studentID, course)) {
+		cout << "Student has already been in course!\n";
+		deleteCourseInfo(courseInfo);
+		deleteCourse(course);
+		return;
+	}
+
 	// Read class file to read the information of added student and add course in student's courses.
 	Student* studentList = nullptr;
 	readClassFromFile(studentClass, studentList);
 	Student* currentStudent = studentList;
 	while (currentStudent!= nullptr) {
-		if (currentStudent->studentId == studentID) {
+		if (currentStudent->studentId == studentID && currentStudent->status == 1) {
 			// add course
 			if (currentStudent->myCourse == nullptr) {
 				currentStudent->myCourse = new CourseInfo;
@@ -1907,20 +1932,15 @@ void addAStudentToCourse() {
 	}
 	if (currentStudent == nullptr) {
 		cout << "Error: Cannot find student in given class. \n";
+		deleteCourseInfo(courseInfo);
+		deleteCourse(course);
+		deleteStudentList(studentList);
 		return;
 	}
 	writeClassToFile(studentList, studentClass);
 	Student* addedStudent = currentStudent;
 
 	// Add student to course file.
-	CourseInfo* courseInfo = new CourseInfo;
-	courseInfo->academicYear = academicYear;
-	courseInfo->semester = semester;
-	courseInfo->courseName = courseID;
-	courseInfo->defaultClass = courseClass;
-	courseInfo->next = nullptr;
-	Course* course = new Course;
-	readCourseFromFile(courseInfo, course);
 	Student* curStudent = course->students;
 	StudentCourseInfo* curStudentCourseInfo = course->studentCourseInfo;
 	while (curStudent->next != nullptr) {

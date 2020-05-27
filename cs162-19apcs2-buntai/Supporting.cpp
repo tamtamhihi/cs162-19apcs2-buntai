@@ -1605,15 +1605,16 @@ void showStaffClassMenu(string& username) {
 	cout << "Which function do you want to perform ? Please enter a number: ";
 	cin >> chon;
 	clearScreenWithoutPress();
+	fflush(stdin);
 	switch (chon)
 	{
 	case 1:
 	case 2:
 	case 3:
-	case 4:
-	case 5:
+	case 4: removeStudent(); break;
+	case 5: changeStudentClass(); break;
 	case 6: viewListOfClasses(); break;
-	case 7:
+	case 7: viewListOfStudentInAClass(); break;
 	case 8: return;
 	default:
 		cout << "Wrong option number!\n";
@@ -1649,7 +1650,7 @@ void showStaffCourseMenu(string& username) {
 	case 4:
 	case 5: removeCourse(); break;
 	case 6: removeStudentFromCourse(); break;
-	case 7:
+	case 7: addAStudentToCourse(); break;
 	case 8: 
 	case 9: viewListOfStudentInAClass(); break;
 	case 10:
