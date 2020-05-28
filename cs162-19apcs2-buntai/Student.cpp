@@ -1,6 +1,5 @@
-#include "Function.h"
+﻿#include "Function.h"
 #include<ctime>
-
 // ========= STUDENTS' FUNCTIONS DEFINITION =========
 
 
@@ -12,12 +11,17 @@ void checkin(string studentUsername) {
 	//get all courses of a student
 	CourseInfo* cur = newTurn.myCourse;
 	int  n = newTurn.numberOfCourse;
-	if (n == 0) return;
+	if (n == 0) {
+		cout << "You are currently not taking any course." << endl;
+		cout << endl;
+		return;
+	}
 	Attendance* attendanceDate = nullptr;
 	printCourseListTable(newTurn.myCourse);
-	cout << "Which course you want to checkin (please enter the no. of course)" << endl;
+	cout << "Which course you want to checkin (please enter the no. of course):" ;
 	int choice;
 	cin >> choice;
+	cout << endl;
 	CourseInfo* current = newTurn.myCourse;
 	for (int j = 0; j < choice; j++) {
 		current = current->next;
@@ -54,7 +58,7 @@ void checkin(string studentUsername) {
 
 	time_t t = time(0); // get time now 
 	struct tm* now = localtime(&t);
-	cout << now->tm_mday << ";" << now->tm_mon << ";" << now->tm_year + 1900 << "," << now->tm_hour << now->tm_min;
+	cout << "Time now is:" << now->tm_mday << "/" << now->tm_mon + 1 << "/" << now->tm_year + 1900 << " " << now->tm_hour << ":" << now->tm_min << endl;
 	Attendance* temp = attendanceDate;
 	int count = 0, x = 0, o = 0;
 	while (temp != nullptr) {
@@ -64,7 +68,7 @@ void checkin(string studentUsername) {
 			if ((now->tm_hour < temp->startTime.hour) ||
 				(now->tm_hour == temp->startTime.hour &&
 					now->tm_min < temp->startTime.minute)) {
-				cout << "There is no session taked place now " << endl;
+				cout << "There is no session taked place now. \n " << endl;
 				deleteAttendance(attendanceDate);
 				deleteCourseInfo(newTurn.myCourse);
 				return;
@@ -73,7 +77,7 @@ void checkin(string studentUsername) {
 				(now->tm_hour == temp->endTime.hour &&
 					now->tm_min > temp->endTime.minute))
 			{
-				cout << "There is no session taked place now " << endl;
+				cout << "There is no session taked place now. \n " << endl;
 				deleteAttendance(attendanceDate);
 				deleteCourseInfo(newTurn.myCourse);
 				return;
@@ -83,7 +87,7 @@ void checkin(string studentUsername) {
 		}
 		else if (temp->next == nullptr)
 		{
-			cout << "There is no session today." << endl;
+			cout << "There is no session today. \n " << endl;
 			deleteAttendance(attendanceDate);
 			deleteCourseInfo(newTurn.myCourse);
 			return;
@@ -138,7 +142,7 @@ void checkin(string studentUsername) {
 		else out << userFile[l] << endl;
 	}
 	out.close();
-	cout << "Checkin successfully." << endl;
+	cout << "Checkin successfully.\n" << endl;
 
 	//deallocated
 	deleteAttendance(attendanceDate);
@@ -154,7 +158,11 @@ void viewCheckinResult(string studentUsername) {
 	//get all courses of a student
 	CourseInfo* cur = newTurn.myCourse;
 	int  n = newTurn.numberOfCourse;
-	if (n == 0) return;
+	if (n == 0) {
+		cout << "You are currently not taking any course." << endl;
+		cout << endl;
+		return;
+	}
 	// Read attendance list.
 	Attendance* attendance = nullptr;
 	printCourseListTable(newTurn.myCourse);
@@ -203,7 +211,7 @@ void viewCheckinResult(string studentUsername) {
 	}
 	in.close();
 	// print out result
-	cout << "Your checkin result\n";
+	cout << "Your checkin result:\n";
 	cout << "\t" << setw(20) << "Date |" << setw(20) << "Study time |" << " Check-in time\n";
 	cout << "\t" << setfill('-') << setw(20) << "+" << setw(20) << "+" << setw(20) << "\n";
 	Attendance* curAttendance = attendance;
@@ -238,7 +246,11 @@ void viewSchedules(string studentUsername) {
 	// Get all courses of a student.
 	CourseInfo* cur = newTurn.myCourse;
 	int  n = newTurn.numberOfCourse;
-	if (n == 0) return;
+	if (n == 0) {
+		cout << "You are currently not taking any course." << endl;
+		cout << endl;
+		return;
+	}
 	Course* coursesOfStudent;
 	coursesOfStudent = new Course[n];
 	string day[4], startDay, endDay;
@@ -506,6 +518,12 @@ void viewSchedules(string studentUsername) {
 void viewScoresOfACourse(string studentUsername) {
 	Student newTurn;
 	getInfoOfStudent(newTurn, studentUsername);
+	int  n = newTurn.numberOfCourse;
+	if (n == 0) {
+		cout << "You are currently not taking any course." << endl;
+		cout << endl;
+		return;
+	}
 	int choice; 
 	CourseInfo* check = newTurn.myCourse;
 

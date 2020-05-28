@@ -183,14 +183,16 @@ void viewProfileInfo(string& username, int& userRole) {
 				{
 					//print out info 
 					cout << "User profile: " << endl;
-					cout << "\tUsername: " << newTurn.username << endl;
-					cout << "\tFullname: " << newTurn.name << endl;
-					if (newTurn.gender == 0) cout << "\tGender: Female" << endl;
-					else cout << "\tGender: Male" << endl;
+					cout << "\t" << setw(20) << "Username |" << setw(20) << "Fullname |" << setw(20) << "Gender\n";
+					cout << "\t" << setfill('-') << setw(20) << "+" << setw(20) << "+" << setw(20) << "\n";
+					cout << "\t" << setfill(' ') << setw(18) << newTurn.username << " |" << setw(18) << newTurn.name << " |";
+					if (newTurn.gender == 0) cout << setw(20) << "Female\n";
+					else cout << setw(20) << "Male\n";
+					in.close();
 					return;
 				}
+				in.close();
 			}
-			in.close();
 		}
 	}
 	else if (userRole == 1)
@@ -237,24 +239,20 @@ void viewProfileInfo(string& username, int& userRole) {
 				{
 					//print out info
 					cout << "User profile: " << endl;
-					cout << "\tUsername: " << newTurn.username << endl;
-					cout << "\tFullname: " << newTurn.name << endl;
-					cout << "\tTitle: " << newTurn.title << endl;
-					if (newTurn.gender == 0) cout << "\tGender: Female" << endl;
-					else cout << "\tGender: Male" << endl;
-					cout << "\tCourses: " << newTurn.totalCourse << endl;
+					cout << "\t" << setw(15) << "Username |" << setw(25) << "Fullname |" << setw(15) << "Title |"
+						<< setw(15) << "Gender |" << setw(25) << "Total courses\n";
+					cout << "\t" << setfill('-') << setw(15) << "+" << setw(25) << "+" << setw(15) << "+"
+						<< setw(15) << "+" << setw(25) << "\n";
+					cout << "\t" << setfill(' ') << setw(13) << newTurn.username << " |" << setw(23) << newTurn.name << " |"
+						<< setw(13) << newTurn.title << " |";
+					if (newTurn.gender == 0) cout << setw(13) << "Female" << " |" << setw(23) << newTurn.totalCourse << endl;
+					else cout << setw(13) << "Male" << " |" << setw(23) << newTurn.totalCourse << endl;
 					if (newTurn.totalCourse != 0) {
+						cout << "Your courses list:" << endl;
 						CourseInfo* courseInfo = newTurn.myCourse;
-						while (courseInfo!=nullptr) {
-							cout << "\t " << courseInfo->academicYear - 1 << "-"
-								<< courseInfo->academicYear << ", "
-								<< courseInfo->semester << " semester, "
-								<< courseInfo->courseName << endl;
-							courseInfo = courseInfo->next;
-						}
+						printCourseListTable(courseInfo);
 						deleteCourseInfo(courseInfo);
 					}
-					cout << endl;
 					in.close();
 					return;
 				}
@@ -269,7 +267,10 @@ void viewProfileInfo(string& username, int& userRole) {
 		int count = 0;
 		in.open("Database/Class/Classes.txt");
 		count++;
-		if (!in) cout << "Cannot open class file, please try it later" << endl;
+		if (!in) {
+			cout << "Cannot open class file, please try it later" << endl;
+			return;
+		}
 		else (in >> newTurn.myClass);
 		in.close();
 		while (findStudentInfoFromFile(newTurn, username) == false) {
@@ -279,38 +280,33 @@ void viewProfileInfo(string& username, int& userRole) {
 				for (int i = 0; i < count; i++) in >> newTurn.myClass;
 			}
 			in.close();
+			count++;
 		}
 		//print out info
-		cout << "Student info:\n";
-		cout << "\tUsername: " << newTurn.username << "\n";
-		cout << "\tStatus: ";
-		if (newTurn.status == 1) cout << "Available" << "\n";
-		else cout << "Dropped\n";
-		cout << "\tName: " << newTurn.name << "\n";
-		cout << "\tStudent ID: " << newTurn.studentId << "\n";
-		cout << "\tGender: ";
-		if (newTurn.gender == 0) cout << "female\n";
-		else cout << "male\n";
-		cout << "\tDate of birth: " << newTurn.dob.day << " "
-			<< newTurn.dob.month << " " << newTurn.dob.year << "\n";
-		cout << "\tClass: " << newTurn.myClass << "\n";
-		cout << "\tCourses: " << newTurn.numberOfCourse << "\n";
+		cout << "User profile: " << endl;
+		cout << "\t" << setw(10) << "ID |" << setw(15) << "Username |" << setw(10) << "Status |" << setw(20) << "Name |"
+			<< setw(15) << "Gender |" << setw(20) << "DOB |" << setw(20) << "Total courses\n";
+		cout << "\t" << setfill('-') << setw(10) << "+" << setw(15) << "+" << setw(10) << "+" << setw(20) << "+"
+			<< setw(15) << "+" << setw(20) << "+" << setw(20) << "\n";
+		cout << "\t" << setfill(' ') << setw(7) << newTurn.studentId << " |" << setw(13) << newTurn.username << " |";
+		if (newTurn.status == 0) cout << setw(8) << "Drop" << " |";
+		else if (newTurn.status == 1) cout << setw(8) << "Active" << " |";
+		cout << setw(18) << newTurn.name << " |" ;
+		if (newTurn.gender == 0) cout << setw(13) << "Female" << " |";
+		else cout << setw(13) << "Male" << " |";
+		cout << setw(11) << newTurn.dob.day << "-" << newTurn.dob.month << "-" << newTurn.dob.year << " |" << setw(19) << newTurn.numberOfCourse<<endl;
 		if (newTurn.numberOfCourse != 0) {
+			cout << "Your courses list:" << endl;
 			CourseInfo* courseInfo = newTurn.myCourse;
-			while (courseInfo != nullptr) {
-				cout << "\t " << courseInfo->academicYear - 1 << "-"
-					<< courseInfo->academicYear << ", "
-					<< courseInfo->semester << " semester, "
-					<< courseInfo->courseName << endl;
-				courseInfo = courseInfo->next;
-			}
+			printCourseListTable(courseInfo);
 			deleteCourseInfo(courseInfo);
 		}
-		cout << endl;
 		in.close();
 		return;
 	}
+	return;
 }
+
 
 // 1.4
 void changePassword(string& username) {
