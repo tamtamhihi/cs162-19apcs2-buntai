@@ -1,6 +1,5 @@
 #include "Function.h"
 
-
 // ========= STAFF'S FUNCTIONS DEFINITION =========
 
 
@@ -364,7 +363,7 @@ void editExistingStudent() {
 		return;
 	}
 
-	// Find password
+	// Find password.
 	editedStudent->password = findPasswordFromUsername(editedStudent->username);
 
 	// Confirm student info.
@@ -505,7 +504,7 @@ void removeStudent() {
 		return;
 	}
 
-	// Change status of student
+	// Change status of student.
 	cout << "\tRemoving student...\n";
 	removeStudent->status = 0;
 
@@ -586,7 +585,7 @@ void changeStudentClass() {
 		return;
 	}
 
-	// Change status of student
+	// Change status of student.
 	cout << "\tRemoving student from old class...\n";
 	changeStudent->status = 0;
 
@@ -1654,7 +1653,7 @@ void removeCourse() {
 		}
 	}
 
-	// Remove  course name in file Courses.txt.
+	// Remove course name in file Courses.txt.
 	if (currentCourseList == courseList) courseList = courseList->next;
 	else {
 		previous->next = currentCourseList->next;
@@ -1749,7 +1748,7 @@ void removeCourse() {
 	writeLecturersToFile(lecturers);
 	deleteLecturers(lecturers);
 
-	// Annoucement
+	// Announcement.
 	cout << "Remove course successfully!\n";
 }
 
@@ -1850,7 +1849,7 @@ void removeStudentFromCourse() {
 	deleteCourseInfo(courseInfo);
 	deleteStudentList(studentList);
 
-	// Annoucement.
+	// Announcement.
 	cout << "Remove student from course successfully!\n";
 }
 
@@ -1904,7 +1903,7 @@ void addAStudentToCourse() {
 	Student* currentStudent = studentList;
 	while (currentStudent!= nullptr) {
 		if (currentStudent->studentId == studentID && currentStudent->status == 1) {
-			// add course
+			// Add course.
 			if (currentStudent->myCourse == nullptr) {
 				currentStudent->myCourse = new CourseInfo;
 				currentStudent->myCourse->academicYear = academicYear;
@@ -2005,7 +2004,7 @@ void addAStudentToCourse() {
 	deleteCourse(course);
 	deleteCourseInfo(courseInfo);
 
-	// Annoucement.
+	// Announcement.
 	cout << "Add student to course successfully. \n";
 }
 
@@ -2451,7 +2450,7 @@ void exportScoreboardToCsv() {
 	deleteCourseInfo(courseInfo);
 	deleteCourse(course);
 
-	// Annoucement.
+	// Announcement.
 	cout << "Export successfully. Please check CSV file in " << row << "\n\n";
 }
 

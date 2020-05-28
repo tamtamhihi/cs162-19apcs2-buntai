@@ -1,6 +1,5 @@
 #include "Function.h"
 
-
 /*
 ========= SUPPORTING FUNCTIONS DEFINITION =========
 */
@@ -1708,6 +1707,7 @@ void showStaffAttendanceMenu(string& username) {
 	clearScreen();
 	showStaffAttendanceMenu(username);
 }
+
 // Show menu of staff
 void showStaffMenu(string& username) {
 	clearScreenWithoutPress();
@@ -2107,5 +2107,3 @@ bool isSessionDateExist(Date date, Attendance* attendance) {
 		currentAttendance = currentAttendance->next;
 	}
 }
- 
-

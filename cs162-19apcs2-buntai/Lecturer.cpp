@@ -419,7 +419,7 @@ void importScoreboardFromCsv(string lecturerUsername) {
 	deleteStudent(studentCsv);
 	deleteStudentCourseInfo(studentScore);
 
-	// Annoucement.
+	// Announcement.
 	cout << "Import scoreboard from file csv successfully!\n\n";
 }
 
