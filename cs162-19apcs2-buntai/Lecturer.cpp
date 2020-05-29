@@ -110,7 +110,6 @@ void viewStudentListOfCourse(string lecturerUsername) {
 	readCourseFromFile(courseInfo, course);
 	cout << "STUDENT LIST OF COURSE " << courseInfo->courseName << "-" << courseInfo->defaultClass << ":\n";
 	printStudentListTable(course->students);
-	deleteCourseInfo(courseInfo);
 	deleteCourse(course);
 	deleteLecturers(lecturers);
 }
