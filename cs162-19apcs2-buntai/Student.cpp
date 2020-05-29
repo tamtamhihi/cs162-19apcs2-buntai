@@ -1,14 +1,14 @@
 ﻿#include "Function.h"
-#include<ctime>
-// ========= STUDENTS' FUNCTIONS DEFINITION =========
+#include <ctime>
 
+// ========= STUDENTS' FUNCTIONS DEFINITION =========
 
 // 7.1
 void checkin(string studentUsername) {
 	Student newTurn;
 	getInfoOfStudent(newTurn, studentUsername);
 
-	//get all courses of a student
+	// Get all courses of a student.
 	CourseInfo* cur = newTurn.myCourse;
 	int  n = newTurn.numberOfCourse;
 	if (n == 0) {
@@ -56,7 +56,7 @@ void checkin(string studentUsername) {
 		in.close();
 	}
 
-	time_t t = time(0); // get time now 
+	time_t t = time(0); // get time now
 	struct tm* now = localtime(&t);
 	cout << "Time now is:" << now->tm_mday << "/" << now->tm_mon + 1 << "/" << now->tm_year + 1900 << " " << now->tm_hour << ":" << now->tm_min << endl;
 	Attendance* temp = attendanceDate;
@@ -128,7 +128,7 @@ void checkin(string studentUsername) {
 	}
 	file.close();
 
-	//rewrite file text
+	// Rewrite file text.
 	ofstream out;
 	out.open("Database/" + to_string(cur->academicYear - 1) + "-" + to_string(cur->academicYear) + "/"
 		+ cur->semester + "/" + cur->courseName + "-" + cur->defaultClass + ".txt");
@@ -144,7 +144,7 @@ void checkin(string studentUsername) {
 	out.close();
 	cout << "Checkin successfully.\n" << endl;
 
-	//deallocated
+	// Delete linked lists.
 	deleteAttendance(attendanceDate);
 	deleteCourseInfo(newTurn.myCourse);
 	delete[]userFile;
@@ -155,7 +155,7 @@ void viewCheckinResult(string studentUsername) {
 	Student newTurn;
 	getInfoOfStudent(newTurn, studentUsername);
 
-	//get all courses of a student
+	// Get all courses of a student.
 	CourseInfo* cur = newTurn.myCourse;
 	int  n = newTurn.numberOfCourse;
 	if (n == 0) {
@@ -210,7 +210,8 @@ void viewCheckinResult(string studentUsername) {
 		}
 	}
 	in.close();
-	// print out result
+
+	// Print out result.
 	cout << "Your checkin result:\n";
 	cout << "\t" << setw(20) << "Date |" << setw(20) << "Study time |" << " Check-in time\n";
 	cout << "\t" << setfill('-') << setw(20) << "+" << setw(20) << "+" << setw(20) << "\n";
@@ -505,7 +506,7 @@ void viewSchedules(string studentUsername) {
 		<< setw(12) << tue[3].room << " |" << setw(12) << wed[3].room << " |" << setw(12) << thu[3].room
 		<< " |" << setw(12) << fri[3].room << " |" << setw(12) << sat[3].room << " |" << endl;
 
-	// Deallocated.
+	// Delete linked lists.
 	for (int l = 0; l < n; l++) {
 		if (coursesOfStudent[l].sessionInfo != nullptr)
 			deleteSessionInfo(coursesOfStudent[l].sessionInfo);
@@ -527,7 +528,7 @@ void viewScoresOfACourse(string studentUsername) {
 	int choice; 
 	CourseInfo* check = newTurn.myCourse;
 
-	//print out courses for student to choose
+	// Print out courses for student to choose.
 	printCourseListTable(newTurn.myCourse);
 	cout << "\tWhich course you want to view scores:";
 	cin >> choice;
@@ -565,4 +566,3 @@ void viewScoresOfACourse(string studentUsername) {
 
 	deleteCourseInfo(newTurn.myCourse);
 }
-

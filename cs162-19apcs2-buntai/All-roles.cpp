@@ -97,18 +97,18 @@ bool login(string& userName, int& userRole) {
 					}
 					in.close();
 					if (newTurn.gender == 0)
-						cout << "Welcome Ms." << newTurn.name << "!\n";
+						cout << "Welcome Ms. " << newTurn.name << "!\n";
 					if (newTurn.gender == 1)
-						cout << "Welcome Mr." << newTurn.name << "!\n";
+						cout << "Welcome Mr. " << newTurn.name << "!\n";
 				}
 			}
 			case 1: {
 				Lecturer lecturer;
 				findLecturerFromUsername(userName, lecturer);
 				if (lecturer.gender == 0)
-					cout << "Welcome Ms." << lecturer.name << "!\n";
+					cout << "Welcome Ms. " << lecturer.name << "!\n";
 				if (lecturer.gender == 1)
-					cout << "Welcome Mr." << lecturer.name << "!\n";
+					cout << "Welcome Mr. " << lecturer.name << "!\n";
 				break;
 			}
 			case 2: {
@@ -162,7 +162,6 @@ void showMenu(string &username,int& userRole) {
 	}
 }
 
-
 // 1.3
 void viewProfileInfo(string& username, int& userRole) {
 	if (userRole == 0) {
@@ -173,7 +172,7 @@ void viewProfileInfo(string& username, int& userRole) {
 		else
 		{
 			while (in) {
-				//read data of each user in file 
+				// Read data of each user in file.
 				getline(in, newTurn.username);
 				getline(in, newTurn.name);
 				in >> newTurn.gender;
@@ -181,13 +180,12 @@ void viewProfileInfo(string& username, int& userRole) {
 				in.ignore();
 				if (username == newTurn.username)
 				{
-					//print out info 
+					// Print out info.
 					cout << "User profile: " << endl;
-					cout << "\t" << setw(20) << "Username |" << setw(20) << "Fullname |" << setw(20) << "Gender\n";
-					cout << "\t" << setfill('-') << setw(20) << "+" << setw(20) << "+" << setw(20) << "\n";
-					cout << "\t" << setfill(' ') << setw(18) << newTurn.username << " |" << setw(18) << newTurn.name << " |";
-					if (newTurn.gender == 0) cout << setw(20) << "Female\n";
-					else cout << setw(20) << "Male\n";
+					cout << "\tUsername: " << newTurn.username << endl;
+					cout << "\tFullname: " << newTurn.name << endl;
+					if (newTurn.gender == 0) cout << "\tGender: Female" << endl;
+					else cout << "\tGender: Male" << endl;
 					in.close();
 					return;
 				}
@@ -204,7 +202,7 @@ void viewProfileInfo(string& username, int& userRole) {
 		else
 		{
 			while (in) {
-				//read data of each user in file 
+				// Read data of each user in file.
 				getline(in, newTurn.username);
 				getline(in, newTurn.name);
 				getline(in, newTurn.title);
@@ -237,18 +235,16 @@ void viewProfileInfo(string& username, int& userRole) {
 				in.ignore();
 				if (username == newTurn.username)
 				{
-					//print out info
+					// Print out info.
 					cout << "User profile: " << endl;
-					cout << "\t" << setw(15) << "Username |" << setw(25) << "Fullname |" << setw(15) << "Title |"
-						<< setw(15) << "Gender |" << setw(25) << "Total courses\n";
-					cout << "\t" << setfill('-') << setw(15) << "+" << setw(25) << "+" << setw(15) << "+"
-						<< setw(15) << "+" << setw(25) << "\n";
-					cout << "\t" << setfill(' ') << setw(13) << newTurn.username << " |" << setw(23) << newTurn.name << " |"
-						<< setw(13) << newTurn.title << " |";
-					if (newTurn.gender == 0) cout << setw(13) << "Female" << " |" << setw(23) << newTurn.totalCourse << endl;
-					else cout << setw(13) << "Male" << " |" << setw(23) << newTurn.totalCourse << endl;
+					cout << "\tUsername: " << newTurn.username << endl;
+					cout << "\tFullname: " << newTurn.name << endl;
+					cout << "\tTitle: " << newTurn.title << endl;
+					if (newTurn.gender == 0) cout << "\tGender: Female" << endl;
+					else cout << "\tGender: Male" << endl;
+					cout << "\tCourses: " << newTurn.totalCourse << endl;
 					if (newTurn.totalCourse != 0) {
-						cout << "Your courses list:" << endl;
+						cout << "\tYour courses list:" << endl;
 						CourseInfo* courseInfo = newTurn.myCourse;
 						printCourseListTable(courseInfo);
 						deleteCourseInfo(courseInfo);
@@ -282,21 +278,21 @@ void viewProfileInfo(string& username, int& userRole) {
 			in.close();
 			count++;
 		}
-		//print out info
-		cout << "User profile: " << endl;
-		cout << "\t" << setw(10) << "ID |" << setw(15) << "Username |" << setw(10) << "Status |" << setw(20) << "Name |"
-			<< setw(15) << "Gender |" << setw(20) << "DOB |" << setw(20) << "Total courses\n";
-		cout << "\t" << setfill('-') << setw(10) << "+" << setw(15) << "+" << setw(10) << "+" << setw(20) << "+"
-			<< setw(15) << "+" << setw(20) << "+" << setw(20) << "\n";
-		cout << "\t" << setfill(' ') << setw(7) << newTurn.studentId << " |" << setw(13) << newTurn.username << " |";
-		if (newTurn.status == 0) cout << setw(8) << "Drop" << " |";
-		else if (newTurn.status == 1) cout << setw(8) << "Active" << " |";
-		cout << setw(18) << newTurn.name << " |" ;
-		if (newTurn.gender == 0) cout << setw(13) << "Female" << " |";
-		else cout << setw(13) << "Male" << " |";
-		cout << setw(11) << newTurn.dob.day << "-" << newTurn.dob.month << "-" << newTurn.dob.year << " |" << setw(19) << newTurn.numberOfCourse<<endl;
-		if (newTurn.numberOfCourse != 0) {
-			cout << "Your courses list:" << endl;
+		cout << "Student info:\n";
+		cout << "\tUsername: " << newTurn.username << "\n";
+		cout << "\tStatus: ";
+		if (newTurn.status == 1) cout << "Available" << "\n";
+		else cout << "Dropped\n";
+		cout << "\tName: " << newTurn.name << "\n";
+		cout << "\tStudent ID: " << newTurn.studentId << "\n";
+		cout << "\tGender: ";
+		if (newTurn.gender == 0) cout << "female\n";
+		else cout << "male\n";
+		cout << "\tDate of birth: " << dateToString(newTurn.dob) << "\n";
+		cout << "\tClass: " << newTurn.myClass << "\n";
+		cout << "\tCourses: " << newTurn.numberOfCourse << "\n";
+				if (newTurn.numberOfCourse != 0) {
+			cout << "\tYour courses list:" << endl;
 			CourseInfo* courseInfo = newTurn.myCourse;
 			printCourseListTable(courseInfo);
 			deleteCourseInfo(courseInfo);
@@ -306,7 +302,6 @@ void viewProfileInfo(string& username, int& userRole) {
 	}
 	return;
 }
-
 
 // 1.4
 void changePassword(string& username) {
@@ -390,7 +385,7 @@ void changePassword(string& username) {
 
 			if (newPassword == confirmedPassword) {
 				// In file text, replace old password by new password.
-				// Create a array to store each line of file text, replace the line store old password by new password
+				// Create a array to store each line of file text, replace the line store old password by new password.
 				string* userFile;
 				userFile = new string[n];
 				ifstream in;
