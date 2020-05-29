@@ -2417,6 +2417,7 @@ void exportScoreboardToCsv() {
 	readCourseFromFile(courseInfo, course);
 
 	// Export scoreboard to file csv.
+	cin.ignore();
 	cout << "Please enter the path to file csv used to store scoreboard: \n\t";
 	getline(cin, row);
 	cout << "\n";
