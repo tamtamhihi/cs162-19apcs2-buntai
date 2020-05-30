@@ -1800,6 +1800,7 @@ void showStudentMenu(string& username) {
 
 // Read "<class>.txt, find whether Student is in this class, if yes store the info.
 bool findStudentInfoFromFile(Student& newTurn, string userName) {
+	string waste;
 	ifstream in;
 	in.open("Database/Class/" + newTurn.myClass + ".txt");
 	while (in >> newTurn.username) {
@@ -1815,7 +1816,7 @@ bool findStudentInfoFromFile(Student& newTurn, string userName) {
 				if (newTurn.myCourse == nullptr) {
 					newTurn.myCourse = new CourseInfo;
 					in >> newTurn.myCourse->academicYear;
-					in >> newTurn.myCourse->academicYear;
+					in >> waste;
 					in >> newTurn.myCourse->semester >> newTurn.myCourse->courseName >> newTurn.myCourse->defaultClass;
 					newTurn.myCourse->next = nullptr;
 					currentCourse = newTurn.myCourse;
@@ -1824,7 +1825,7 @@ bool findStudentInfoFromFile(Student& newTurn, string userName) {
 					currentCourse->next = new CourseInfo;
 					currentCourse = currentCourse->next;
 					in >> currentCourse->academicYear;
-					in >> currentCourse->academicYear;
+					in >> waste;
 					in >> currentCourse->semester >> currentCourse->courseName >> currentCourse->defaultClass;
 					currentCourse->next = nullptr;
 				}

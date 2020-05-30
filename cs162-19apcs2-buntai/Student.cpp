@@ -27,7 +27,7 @@ void checkin(string studentUsername) {
 		current = current->next;
 	}
 	ifstream(in);
-	in.open("Database/" + to_string(cur->academicYear - 1) + "-" + to_string(cur->academicYear) + "/"
+	in.open("Database/" + to_string(cur->academicYear) + "-" + to_string(cur->academicYear +1 ) + "/"
 		+ cur->semester + "/" + cur->courseName + "-" + cur->defaultClass + ".txt");
 	if (in.is_open()) {
 		string waste;
@@ -101,7 +101,7 @@ void checkin(string studentUsername) {
 	string check;
 
 	ifstream filein;
-	filein.open("Database/" + to_string(cur->academicYear - 1) + "-" + to_string(cur->academicYear) + "/"
+	filein.open("Database/" + to_string(cur->academicYear) + "-" + to_string(cur->academicYear + 1) + "/"
 		+ cur->semester + "/" + cur->courseName + "-" + cur->defaultClass + ".txt");
 	while (filein) {
 		getline(filein, check);
@@ -110,7 +110,7 @@ void checkin(string studentUsername) {
 	filein.close();
 
 	ifstream filin;
-	filin.open("Database/" + to_string(cur->academicYear - 1) + "-" + to_string(cur->academicYear) + "/"
+	filin.open("Database/" + to_string(cur->academicYear) + "-" + to_string(cur->academicYear + 1) + "/"
 		+ cur->semester + "/" + cur->courseName + "-" + cur->defaultClass + ".txt");
 	while (filin) {
 		getline(filin, check);
@@ -121,7 +121,7 @@ void checkin(string studentUsername) {
 
 	userFile = new string[x];
 	ifstream file;
-	file.open("Database/" + to_string(cur->academicYear - 1) + "-" + to_string(cur->academicYear) + "/"
+	file.open("Database/" + to_string(cur->academicYear) + "-" + to_string(cur->academicYear + 1) + "/"
 		+ cur->semester + "/" + cur->courseName + "-" + cur->defaultClass + ".txt");
 	for (int i = 0; i < x; i++) {
 		getline(file, userFile[i]);
@@ -130,7 +130,7 @@ void checkin(string studentUsername) {
 
 	//rewrite file text
 	ofstream out;
-	out.open("Database/" + to_string(cur->academicYear - 1) + "-" + to_string(cur->academicYear) + "/"
+	out.open("Database/" + to_string(cur->academicYear) + "-" + to_string(cur->academicYear + 1) + "/"
 		+ cur->semester + "/" + cur->courseName + "-" + cur->defaultClass + ".txt");
 	for (int l = 0; l < x; l++) {
 		if (l == o + count + 6) {
@@ -175,7 +175,7 @@ void viewCheckinResult(string studentUsername) {
 	}
 
 	ifstream(in);
-	in.open("Database/" + to_string(cur->academicYear - 1) + "-" + to_string(cur->academicYear) + "/"
+	in.open("Database/" + to_string(cur->academicYear) + "-" + to_string(cur->academicYear + 1) + "/"
 		+ cur->semester + "/" + cur->courseName + "-" + cur->defaultClass + ".txt");
 	int totalSessions;
 	Attendance* currentAttendance = nullptr;
@@ -215,24 +215,25 @@ void viewCheckinResult(string studentUsername) {
 	cout << "\t" << setw(20) << "Date |" << setw(20) << "Study time |" << " Check-in time\n";
 	cout << "\t" << setfill('-') << setw(20) << "+" << setw(20) << "+" << setw(20) << "\n";
 	Attendance* curAttendance = attendance;
-	while (curAttendance!=nullptr)
+	while (curAttendance != nullptr)
 	{
 		cout << "\t" << setfill(' ') << setw(11) << curAttendance->date.day << " " << curAttendance->date.month << " "
 			<< curAttendance->date.year << " |";
-		if (curAttendance->startTime.hour < 10) {
+
+		if (curAttendance->startTime.hour < 10 && curAttendance->endTime.hour < 10) {
 			cout << setw(10)
-				<< curAttendance->startTime.hour << ":" << curAttendance->startTime.minute << "-"
-				<< curAttendance->endTime.hour << ":" << curAttendance->endTime.minute
-				<< " |"<< setw(10) << curAttendance->time.hour << ":" << curAttendance->time.minute << "\n";
-			curAttendance = curAttendance->next;
-		}
-		else {
-			cout << setw(9)
 				<< curAttendance->startTime.hour << ":" << curAttendance->startTime.minute << "-"
 				<< curAttendance->endTime.hour << ":" << curAttendance->endTime.minute
 				<< " |" << setw(10) << curAttendance->time.hour << ":" << curAttendance->time.minute << "\n";
 			curAttendance = curAttendance->next;
 		}
+		 else {
+			 cout << setw(9)
+				 << curAttendance->startTime.hour << ":" << curAttendance->startTime.minute << "-"
+				 << curAttendance->endTime.hour << ":" << curAttendance->endTime.minute
+				 << " |" << setw(10) << curAttendance->time.hour << ":" << curAttendance->time.minute << "\n";
+			 curAttendance = curAttendance->next;
+		 }
 	}
 	deleteCourseInfo(newTurn.myCourse);
 	deleteAttendance(attendance);
@@ -257,7 +258,7 @@ void viewSchedules(string studentUsername) {
 	for (int i = 0; i < n; i++)
 	{
 		ifstream(fin);
-		fin.open("Database/" + to_string(cur->academicYear - 1) + "-" + to_string(cur->academicYear) + "/" 
+		fin.open("Database/" + to_string(cur->academicYear) + "-" + to_string(cur->academicYear + 1) + "/"
 			+ cur->semester + "/" + cur->courseName + "-" + cur->defaultClass + ".txt");
 		while (fin) {
 			getline(fin, coursesOfStudent[i].courseId);
@@ -539,7 +540,7 @@ void viewScoresOfACourse(string studentUsername) {
 	string checkName;
 	StudentCourseInfo scoresOfNewTurn;
 	ifstream(fin);
-	fin.open("Database/" + to_string(newTurn.myCourse->academicYear - 1) + "-" + to_string(newTurn.myCourse->academicYear) + "/" 
+	fin.open("Database/" + to_string(newTurn.myCourse->academicYear) + "-" + to_string(newTurn.myCourse->academicYear + 1) + "/"
 		+ newTurn.myCourse->semester + "/" + newTurn.myCourse->courseName + "-" + newTurn.myCourse->defaultClass + ".txt");
 	if (!fin) cout << "Cannot open the course file now, please try later" << endl;
 	while (fin) {
