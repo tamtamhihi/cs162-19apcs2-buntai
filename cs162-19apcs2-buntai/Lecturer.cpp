@@ -34,7 +34,7 @@ void viewCoursesInSemester(string lecturerUsername) {
 			while (currentCourse != nullptr) {
 				if (currentCourse->academicYear == academicYear && currentCourse->semester == semester) {
 					if (!semesterCourse) {
-						cout << "\tYOUR COURSES\n";
+						cout << "\t\t     YOUR COURSES\n\n";
 						cout << "\t" << setw(20) << "Course ID |" << " Default class\n";
 						cout << "\t" << setfill('-') << setw(20) << "+" << setw(20) << " " << "\n";
 					}
@@ -57,7 +57,7 @@ void viewCoursesInSemester(string lecturerUsername) {
 		readCourseListFromFile(courseList, academicYear, semester);
 		CourseInfo* currentCourse = courseList;
 		if (currentCourse != nullptr) {
-			cout << "\tALL COURSES\n";
+			cout << "\t\t      ALL COURSES\n\n";
 			cout << "\t" << setw(20) << "Course ID |" << " Default class\n";
 			cout << "\t" << setfill('-') << setw(20) << "+" << setw(20) << " " << "\n";
 			while (currentCourse != nullptr) {
@@ -83,7 +83,7 @@ void viewStudentListOfCourse(string lecturerUsername) {
 	while (currentLecturer->username != lecturerUsername)
 		currentLecturer = currentLecturer->next;
 	if (currentLecturer->totalCourse) {
-		cout << "LIST OF YOUR COURSES:\n";
+		cout << "\t\t\t\t\tLIST OF YOUR COURSES\n\n";
 		printCourseListTable(currentLecturer->myCourse);
 	}
 	else {
@@ -93,7 +93,7 @@ void viewStudentListOfCourse(string lecturerUsername) {
 	}
 
 	// Ask for specific course to print student list.
-	cout << "Please enter the number of the course to view attendance list: ";
+	cout << "\tPlease enter the number of the course to view student list: ";
 	int choice;
 	cin >> choice;
 	while (choice > currentLecturer->totalCourse) {
@@ -108,9 +108,8 @@ void viewStudentListOfCourse(string lecturerUsername) {
 	// Read that course and print.
 	Course* course = new Course;
 	readCourseFromFile(courseInfo, course);
-	cout << "STUDENT LIST OF COURSE " << courseInfo->courseName << "-" << courseInfo->defaultClass << ":\n";
+	cout << "\t\t\t\tSTUDENT LIST OF COURSE " << courseInfo->courseName << "-" << courseInfo->defaultClass << "\n\n";
 	printStudentListTable(course->students);
-	deleteCourseInfo(courseInfo);
 	deleteCourse(course);
 	deleteLecturers(lecturers);
 }
@@ -124,7 +123,7 @@ void viewAttendanceListOfCourseByLecturer(string lecturerUsername) {
 	while (currentLecturer->username != lecturerUsername)
 		currentLecturer = currentLecturer->next;
 	if (currentLecturer->totalCourse) {
-		cout << "LIST OF YOUR COURSES:\n";
+		cout << "\t\t\t\t\tLIST OF YOUR COURSES\n\n";
 		printCourseListTable(currentLecturer->myCourse);
 	}
 	else {
@@ -134,7 +133,7 @@ void viewAttendanceListOfCourseByLecturer(string lecturerUsername) {
 	}
 
 	// Ask for specific course to print attendance list.
-	cout << "Please enter the number of the course to view attendance list: ";
+	cout << "\tPlease enter the number of the course to view attendance list: ";
 	int choice;
 	cin >> choice;
 	while (choice > currentLecturer->totalCourse) {
@@ -147,16 +146,17 @@ void viewAttendanceListOfCourseByLecturer(string lecturerUsername) {
 		courseInfo = courseInfo->next;
 
 	// Read that course and print.
-	toUpper(courseInfo->semester);
-	cout << "\t\tATTENDANCE LIST OF COURSE " << courseInfo->courseName << " OF "
-		<< courseInfo->semester << " SEMESTER, "
-		<< courseInfo->academicYear << "-" << courseInfo->academicYear + 1 << ":\n";
-	courseInfo->semester = toFormalCase(courseInfo->semester);
 	Course* course = new Course;
 	readCourseFromFile(courseInfo, course);
 	Attendance* attendanceDate = new Attendance;
 	findAttendanceDateOfCourse(attendanceDate, courseInfo);
+	cout << "\t\t\tALL SESSIONS\n\n";
 	printAllSessionsTable(attendanceDate);
+	toUpper(courseInfo->semester);
+	cout << "\t\t\tATTENDANCE LIST OF COURSE " << courseInfo->courseName << " OF "
+		<< courseInfo->semester << " SEMESTER, "
+		<< courseInfo->academicYear << "-" << courseInfo->academicYear + 1 << "\n\n";
+	courseInfo->semester = toFormalCase(courseInfo->semester);
 	printAttendanceListOfCourse(course);
 	deleteAttendance(attendanceDate);
 	deleteCourse(course);
@@ -172,7 +172,7 @@ void editAnAttendanceByLecturer(string lecturerUsername) {
 	while (currentLecturer->username != lecturerUsername)
 		currentLecturer = currentLecturer->next;
 	if (currentLecturer->totalCourse) {
-		cout << "LIST OF YOUR COURSES:\n";
+		cout << "\t\t\t\t\tLIST OF YOUR COURSES\n\n";
 		printCourseListTable(currentLecturer->myCourse);
 	}
 	else {
@@ -182,7 +182,7 @@ void editAnAttendanceByLecturer(string lecturerUsername) {
 	}
 
 	// Ask for specific course to print attendance list.
-	cout << "Please enter the number of the course to view attendance list: ";
+	cout << "\tPlease enter the number of the course to view attendance list: ";
 	int choice;
 	cin >> choice;
 	while (choice > currentLecturer->totalCourse) {
@@ -195,16 +195,17 @@ void editAnAttendanceByLecturer(string lecturerUsername) {
 		courseInfo = courseInfo->next;
 
 	// Read that course and print.
-	toUpper(courseInfo->semester);
-	cout << "\t\tATTENDANCE LIST OF COURSE " << courseInfo->courseName << " OF "
-		<< courseInfo->semester << " SEMESTER, "
-		<< courseInfo->academicYear << "-" << courseInfo->academicYear + 1 << ":\n";
-	courseInfo->semester = toFormalCase(courseInfo->semester);
 	Course* course = new Course;
 	readCourseFromFile(courseInfo, course);
 	Attendance* attendanceDate = new Attendance;
 	findAttendanceDateOfCourse(attendanceDate, courseInfo);
+	cout << "\t\t\tALL SESSIONS\n\n";
 	printAllSessionsTable(attendanceDate);
+	toUpper(courseInfo->semester);
+	cout << "\t\t\tATTENDANCE LIST OF COURSE " << courseInfo->courseName << " OF "
+		<< courseInfo->semester << " SEMESTER, "
+		<< courseInfo->academicYear << "-" << courseInfo->academicYear + 1 << "\n\n";
+	courseInfo->semester = toFormalCase(courseInfo->semester);
 	printAttendanceListWithId(course);
 
 	// Ask for student ID and date to edit.
@@ -419,7 +420,7 @@ void importScoreboardFromCsv(string lecturerUsername) {
 	deleteStudent(studentCsv);
 	deleteStudentCourseInfo(studentScore);
 
-	// Annoucement.
+	// Announcement.
 	cout << "Import scoreboard from file csv successfully!\n\n";
 }
 
@@ -432,7 +433,7 @@ void editGradeOfStudent(string lecturerUsername) {
 	while (currentLecturer->username != lecturerUsername)
 		currentLecturer = currentLecturer->next;
 	if (currentLecturer->totalCourse) {
-		cout << "LIST OF YOUR COURSES:\n";
+		cout << "\t\t\t\t\tLIST OF YOUR COURSES\n\n";
 		printCourseListTable(currentLecturer->myCourse);
 	}
 	else {
@@ -442,7 +443,7 @@ void editGradeOfStudent(string lecturerUsername) {
 	}
 
 	// Ask for specific course to edit grade.
-	cout << "Please enter the number of the course to edit grade: ";
+	cout << "\tPlease enter the number of the course to edit grade: ";
 	int choice;
 	cin >> choice;
 	while (choice > currentLecturer->totalCourse) {
@@ -561,7 +562,7 @@ void viewScoreboardOfCourse(string lecturerUsername) {
 	while (currentLecturer->username != lecturerUsername)
 		currentLecturer = currentLecturer->next;
 	if (currentLecturer->totalCourse) {
-		cout << "LIST OF YOUR COURSES:\n";
+		cout << "\t\t\t\t\tLIST OF YOUR COURSES\n\n";
 		printCourseListTable(currentLecturer->myCourse);
 	}
 	else {
@@ -571,7 +572,7 @@ void viewScoreboardOfCourse(string lecturerUsername) {
 	}
 
 	// Ask for specific course to import csv file.
-	cout << "Please enter the number of the course to view attendance list: ";
+	cout << "\tPlease enter the number of the course to view scoreboard: ";
 	int choice;
 	cin >> choice;
 	while (choice > currentLecturer->totalCourse) {
@@ -587,7 +588,6 @@ void viewScoreboardOfCourse(string lecturerUsername) {
 	Course* course = new Course;
 	readCourseFromFile(courseInfo, course);
 	printScoreboardTable(course);
-	cout << "\n";
 
 	// Delete linked list.
 	deleteLecturers(lecturers);

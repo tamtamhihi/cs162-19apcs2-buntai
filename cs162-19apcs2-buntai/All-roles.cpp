@@ -97,18 +97,18 @@ bool login(string& userName, int& userRole) {
 					}
 					in.close();
 					if (newTurn.gender == 0)
-						cout << "Welcome Ms." << newTurn.name << "!\n";
+						cout << "Welcome Ms. " << newTurn.name << "!\n";
 					if (newTurn.gender == 1)
-						cout << "Welcome Mr." << newTurn.name << "!\n";
+						cout << "Welcome Mr. " << newTurn.name << "!\n";
 				}
 			}
 			case 1: {
 				Lecturer lecturer;
 				findLecturerFromUsername(userName, lecturer);
 				if (lecturer.gender == 0)
-					cout << "Welcome Ms." << lecturer.name << "!\n";
+					cout << "Welcome Ms. " << lecturer.name << "!\n";
 				if (lecturer.gender == 1)
-					cout << "Welcome Mr." << lecturer.name << "!\n";
+					cout << "Welcome Mr. " << lecturer.name << "!\n";
 				break;
 			}
 			case 2: {
@@ -162,7 +162,6 @@ void showMenu(string &username,int& userRole) {
 	}
 }
 
-
 // 1.3
 void viewProfileInfo(string& username, int& userRole) {
 	if (userRole == 0) {
@@ -173,7 +172,7 @@ void viewProfileInfo(string& username, int& userRole) {
 		else
 		{
 			while (in) {
-				//read data of each user in file 
+				// Read data of each user in file.
 				getline(in, newTurn.username);
 				getline(in, newTurn.name);
 				in >> newTurn.gender;
@@ -181,7 +180,7 @@ void viewProfileInfo(string& username, int& userRole) {
 				in.ignore();
 				if (username == newTurn.username)
 				{
-					//print out info 
+					// Print out info.
 					cout << "User profile: " << endl;
 					cout << "\tUsername: " << newTurn.username << endl;
 					cout << "\tFullname: " << newTurn.name << endl;
@@ -203,7 +202,7 @@ void viewProfileInfo(string& username, int& userRole) {
 		else
 		{
 			while (in) {
-				//read data of each user in file 
+				// Read data of each user in file.
 				getline(in, newTurn.username);
 				getline(in, newTurn.name);
 				getline(in, newTurn.title);
@@ -236,7 +235,7 @@ void viewProfileInfo(string& username, int& userRole) {
 				in.ignore();
 				if (username == newTurn.username)
 				{
-					//print out info
+					// Print out info.
 					cout << "User profile: " << endl;
 					cout << "\tUsername: " << newTurn.username << endl;
 					cout << "\tFullname: " << newTurn.name << endl;
@@ -303,7 +302,6 @@ void viewProfileInfo(string& username, int& userRole) {
 	}
 	return;
 }
-
 
 // 1.4
 void changePassword(string& username) {
@@ -387,7 +385,7 @@ void changePassword(string& username) {
 
 			if (newPassword == confirmedPassword) {
 				// In file text, replace old password by new password.
-				// Create a array to store each line of file text, replace the line store old password by new password
+				// Create a array to store each line of file text, replace the line store old password by new password.
 				string* userFile;
 				userFile = new string[n];
 				ifstream in;

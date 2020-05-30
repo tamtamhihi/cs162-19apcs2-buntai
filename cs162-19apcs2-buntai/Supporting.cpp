@@ -1,6 +1,5 @@
 #include "Function.h"
 
-
 /*
 ========= SUPPORTING FUNCTIONS DEFINITION =========
 */
@@ -820,6 +819,7 @@ void printAttendanceListOfCourse(Course* course) {
 			cout << "+" << setw(6);
 		cout << "\n";
 		currentStudent = currentStudent->next;
+		currentStudentInfo = currentStudentInfo->next;
 	}
 	cout << "\t" << setfill(' ') << setw(20) << "Total |";
 	for (int i = 0; i < course->totalSessions - 1; ++i) {
@@ -1605,12 +1605,12 @@ void showStaffClassMenu(string& username) {
 	cout << "Which function do you want to perform ? Please enter a number: ";
 	cin >> chon;
 	clearScreenWithoutPress();
-	fflush(stdin);
+	cin.ignore();
 	switch (chon)
 	{
-	case 1:
-	case 2:
-	case 3:
+	case 1: importStudentFromCsv(); break;
+	case 2: manuallyAddStudent(); break;
+	case 3: editExistingStudent(); break;
 	case 4: removeStudent(); break;
 	case 5: changeStudentClass(); break;
 	case 6: viewListOfClasses(); break;
@@ -1644,14 +1644,14 @@ void showStaffCourseMenu(string& username) {
 	clearScreenWithoutPress();
 	switch (chon)
 	{
-	case 1:
-	case 2:
-	case 3:
-	case 4:
+	case 1: manipulateAcademicYearsAndSemester(); break;
+	case 2: importCourseFromCsv(); break;
+	case 3: manuallyAddCourse(); break;
+	case 4: editExistingCourse(); break;
 	case 5: removeCourse(); break;
 	case 6: removeStudentFromCourse(); break;
 	case 7: addAStudentToCourse(); break;
-	case 8: 
+	case 8: viewListOfCourses(); break;
 	case 9: viewListOfStudentInAClass(); break;
 	case 10:
 	case 11:
@@ -1708,6 +1708,7 @@ void showStaffAttendanceMenu(string& username) {
 	clearScreen();
 	showStaffAttendanceMenu(username);
 }
+
 // Show menu of staff
 void showStaffMenu(string& username) {
 	clearScreenWithoutPress();
@@ -2107,5 +2108,3 @@ bool isSessionDateExist(Date date, Attendance* attendance) {
 		currentAttendance = currentAttendance->next;
 	}
 }
- 
-

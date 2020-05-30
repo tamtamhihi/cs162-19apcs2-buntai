@@ -166,7 +166,7 @@ void viewCheckinResult(string studentUsername) {
 	// Read attendance list.
 	Attendance* attendance = nullptr;
 	printCourseListTable(newTurn.myCourse);
-	cout << "Which course you want to view checkin result (please enter the no. of course)" << endl;
+	cout << "Which course you want to checkin (please enter the no. of course)" << endl;
 	int choice;
 	cin >> choice;
 	CourseInfo* current = newTurn.myCourse;
