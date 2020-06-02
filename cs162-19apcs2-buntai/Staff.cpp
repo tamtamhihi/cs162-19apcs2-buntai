@@ -798,14 +798,15 @@ void manipulateAcademicYearsAndSemester() {
 				currentYear = currentYear->next;
 			}
 			cout << "Academic Year " << academicYear << "-" << academicYear + 1 << ":\n";
-			cout << setw(25) << "Number of semester | " << currentYear->numberOfSemester << "\n";
+			cout << "\t" << setw(26) << "Number of semester |" << " " << currentYear->numberOfSemester << "\n";
+			cout << "\t" << setfill('-') << setw(26) << "+" << setw(25) << "\n" << setfill(' ');
 			if (currentYear->numberOfSemester) {
 				stringstream sem(currentYear->semester);
 				string semesterName;
 				getline(sem, semesterName, ',');
-				cout << setw(25) << "Semester names | " << semesterName << "\n";
+				cout << "\t" << setw(26) << "Semester names |" << " " << semesterName << "\n";
 				while (getline(sem, semesterName, ','))
-					cout << setw(25) << "| " << semesterName << "\n";
+					cout << "\t" << setw(26) << "|" << " " << semesterName << "\n";
 			}
 			cout << "To view the courses of each semester, please view the specific semester.\n\n";
 			deleteAcademicYears(academicYears);
@@ -818,7 +819,7 @@ void manipulateAcademicYearsAndSemester() {
 			CourseInfo* courseList = nullptr;
 			readCourseListFromFile(courseList, academicYear, semester);
 			cout << "Semester " << semester << " AY " << academicYear << "-" << academicYear + 1 << ":\n";
-			cout << "\t" << setw(15) << "Course ID |" << " Default class\n";
+			cout << "\t" << setfill(' ') << setw(15) << "Course ID |" << " Default class\n";
 			cout << "\t" << setfill('-') << setw(15) << "+" << setw(15) << " " << "\n";
 			CourseInfo* currentCourse = courseList;
 			while (currentCourse != nullptr) {
@@ -846,6 +847,19 @@ void importCourseFromCsv() {
 	cin >> filepath;
 	cout << "\n";
 
+
+	// Check if academic year exists.
+	if (!isAcademicYearExist(academicYear)) {
+		cout << "Import failed. Error: Academic year does not exist. Please create the corrensponding year first.\n\n";
+		return;
+	}
+
+	// Check if semester exists.
+	if (!isSemesterExist(academicYear, semester)) {
+		cout << "Import failed. Error: Semester does not exist. Please create the corresponding semester first.\n\n";
+		return;
+	}
+
 	// Try to open file at given filepath.
 	ifstream in;
 	in.open(filepath);
@@ -857,6 +871,7 @@ void importCourseFromCsv() {
 			return;
 		in.open(filepath);
 	}
+	cin.ignore();
 
 	// Read all information from csv.
 	Course* currentCourse = nullptr;
@@ -874,6 +889,8 @@ void importCourseFromCsv() {
 		in.close();
 		return;
 	}
+
+	// Each row is a course.
 	while (getline(in, row)) {
 		stringstream thisRow(row);
 
@@ -895,30 +912,16 @@ void importCourseFromCsv() {
 		courseInfo->defaultClass = defautClass;
 		courseInfo->next = nullptr;
 		if (isCourseExist(courseInfo)) {
-			cout << "Import failed. Error: Course already exists.\n\n";
+			cout << "Import failed course " << courseName << "-" << defautClass << ". Error: Course already exists.\n\n";
 			deleteCourseInfo(courseInfo);
-			return;
+			continue;
 		}
 
 		// Check if class exists.
 		if (!isClassExist(defautClass)) {
-			cout << "Import failed. Error: Can't find default class.\n\n";
+			cout << "Import failed course " << courseName << "-" << defautClass << ". Error: Can't find default class.\n\n";
 			deleteCourseInfo(courseInfo);
-			return;
-		} 
-
-		// Check if academic year exists.
-		if (!isAcademicYearExist(academicYear)) {
-			cout << "Import failed. Error: Academic year does not exist. Please create the corrensponding year first.\n\n";
-			deleteCourseInfo(courseInfo);
-			return;
-		}
-
-		// Check if semester exists.
-		if (!isSemesterExist(academicYear, semester)) {
-			cout << "Import failed. Error: Semester does not exist. Please create the corresponding semester first.\n\n";
-			deleteCourseInfo(courseInfo);
-			return;
+			continue;
 		}
 
 		currentCourse = new Course;
@@ -963,24 +966,34 @@ void importCourseFromCsv() {
 		}
 		if (currentLecturer == nullptr) {
 			string title, gender, password;
-			cout << "The lecturer does not exist. Please input his/her additional information with the same format:\n";
+			cin.clear();
+			cout << "Lecturer " << lecturerName << " does not exist. Please input his/her additional information with the same format:\n";
 			cout << "<title>,<male/female>\n\t";
 			string temp;
-			cin.ignore();
 			getline(cin, temp);
+			cout << "\n";
 			stringstream TEMP(temp);
-			getline(TEMP, title, ',');
-			getline(TEMP, gender, ',');
-			toLower(gender);
+			getline(TEMP, title, ','); title = toFormalCase(title);
+			getline(TEMP, gender, ','); toLower(gender);
 			password = toPasswordGeneral(lecturerName);
 			addUser(lecturerUsername, password, 1);
+			currentCourse->lecturer.username = lecturerUsername;
+			currentCourse->lecturer.name = lecturerName;
+			currentCourse->lecturer.title = title;
+			currentCourse->lecturer.gender = gender == "male" ? MALE : FEMALE;
 			addLecturerFromNewCourse(currentCourse->lecturer, courseInfo);
-			previousLecturer->next = new Lecturer;
-			currentLecturer = previousLecturer->next;
+			if (previousLecturer == nullptr) {
+				lecturers = new Lecturer;
+				currentLecturer = lecturers;
+			}
+			else {
+				previousLecturer->next = new Lecturer;
+				currentLecturer = previousLecturer->next;
+			}
 			currentLecturer->username = lecturerUsername;
 			currentLecturer->name = lecturerName;
 			currentLecturer->title = title;
-			currentLecturer->gender = (gender == "male") ? 1 : 0;
+			currentLecturer->gender = (gender == "male") ? MALE : FEMALE;
 			currentLecturer->totalCourse = 1;
 			currentLecturer->myCourse = new CourseInfo;
 			currentLecturer->myCourse->academicYear = courseInfo->academicYear;

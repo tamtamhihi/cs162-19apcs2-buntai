@@ -1397,6 +1397,10 @@ void readLecturersFromFile(Lecturer*& lecturers) {
 					currentLecturer->myCourse = new CourseInfo;
 					currentCourse = currentLecturer->myCourse;
 				}
+				else {
+					currentCourse->next = new CourseInfo;
+					currentCourse = currentCourse->next;
+				}
 				currentCourse->academicYear = year - 1;
 				currentCourse->semester = semester;
 				currentCourse->courseName = courseId;
