@@ -18,7 +18,7 @@ void checkin(string studentUsername) {
 	}
 	Attendance* attendanceDate = nullptr;
 	printCourseListTable(newTurn.myCourse);
-	cout << "Which course you want to checkin (please enter the no. of course):" ;
+	cout << "\tEnter the no. of course to check-in: ";
 	int choice;
 	cin >> choice;
 	cout << endl;
@@ -58,7 +58,9 @@ void checkin(string studentUsername) {
 
 	time_t t = time(0); // get time now 
 	struct tm* now = localtime(&t);
-	cout << "Time now is:" << now->tm_mday << "/" << now->tm_mon + 1 << "/" << now->tm_year + 1900 << " " << now->tm_hour << ":" << now->tm_min << endl;
+	Date currentDate = { now->tm_mday, now->tm_mon + 1, now->tm_year + 1900 };
+	Time currentTime = { now->tm_hour, now->tm_min };
+	cout << "\tCurrent time: " << timeToString(currentTime) << "\n\tCurrent date: " << dateToString(currentDate) << endl;
 	Attendance* temp = attendanceDate;
 	int count = 0, x = 0, o = 0;
 	while (temp != nullptr) {
@@ -68,7 +70,7 @@ void checkin(string studentUsername) {
 			if ((now->tm_hour < temp->startTime.hour) ||
 				(now->tm_hour == temp->startTime.hour &&
 					now->tm_min < temp->startTime.minute)) {
-				cout << "There is no session taked place now. \n " << endl;
+				cout << "\tThere is no session to check-in now.\n" << endl;
 				deleteAttendance(attendanceDate);
 				deleteCourseInfo(newTurn.myCourse);
 				return;
@@ -77,7 +79,7 @@ void checkin(string studentUsername) {
 				(now->tm_hour == temp->endTime.hour &&
 					now->tm_min > temp->endTime.minute))
 			{
-				cout << "There is no session taked place now. \n " << endl;
+				cout << "\tThere is no session to check-in now.\n" << endl;
 				deleteAttendance(attendanceDate);
 				deleteCourseInfo(newTurn.myCourse);
 				return;
@@ -87,7 +89,7 @@ void checkin(string studentUsername) {
 		}
 		else if (temp->next == nullptr)
 		{
-			cout << "There is no session today. \n " << endl;
+			cout << "\tThere is no session today.\n" << endl;
 			deleteAttendance(attendanceDate);
 			deleteCourseInfo(newTurn.myCourse);
 			return;
@@ -142,7 +144,7 @@ void checkin(string studentUsername) {
 		else out << userFile[l] << endl;
 	}
 	out.close();
-	cout << "Checkin successfully.\n" << endl;
+	cout << "\tCheckin successfully.\n" << endl;
 
 	//deallocated
 	deleteAttendance(attendanceDate);
@@ -166,7 +168,7 @@ void viewCheckinResult(string studentUsername) {
 	// Read attendance list.
 	Attendance* attendance = nullptr;
 	printCourseListTable(newTurn.myCourse);
-	cout << "Enter the no. of course to view checkin results: ";
+	cout << "\tEnter the no. of course to view checkin results: ";
 	int choice;
 	cin >> choice;
 	CourseInfo* current = newTurn.myCourse;
@@ -211,30 +213,19 @@ void viewCheckinResult(string studentUsername) {
 	}
 	in.close();
 	// print out result
-	cout << "Your checkin result:\n";
+	cout << "\n\t\t\t\tCHECKIN RESULTS\n";
 	cout << "\t" << setw(20) << "Date |" << setw(20) << "Study time |" << " Check-in time\n";
 	cout << "\t" << setfill('-') << setw(20) << "+" << setw(20) << "+" << setw(20) << "\n";
 	Attendance* curAttendance = attendance;
 	while (curAttendance != nullptr)
 	{
-		cout << "\t" << setfill(' ') << setw(11) << curAttendance->date.day << " " << curAttendance->date.month << " "
-			<< curAttendance->date.year << " |";
-
-		if (curAttendance->startTime.hour < 10 && curAttendance->endTime.hour < 10) {
-			cout << setw(10)
-				<< curAttendance->startTime.hour << ":" << curAttendance->startTime.minute << "-"
-				<< curAttendance->endTime.hour << ":" << curAttendance->endTime.minute
-				<< " |" << setw(10) << curAttendance->time.hour << ":" << curAttendance->time.minute << "\n";
-			curAttendance = curAttendance->next;
-		}
-		 else {
-			 cout << setw(9)
-				 << curAttendance->startTime.hour << ":" << curAttendance->startTime.minute << "-"
-				 << curAttendance->endTime.hour << ":" << curAttendance->endTime.minute
-				 << " |" << setw(10) << curAttendance->time.hour << ":" << curAttendance->time.minute << "\n";
-			 curAttendance = curAttendance->next;
-		 }
+		Date date = { curAttendance->date.day, curAttendance->date.month, curAttendance->date.year };
+		cout << "\t" << setfill(' ') << setw(19) << dateToString(date) << "|";
+		string sessionTime = timeToString(curAttendance->startTime) + "-" + timeToString(curAttendance->endTime);
+		cout << setw(19) << sessionTime << "| " << timeToString(curAttendance->time) << "\n";
+		curAttendance = curAttendance->next;
 	}
+	cout << "\n";
 	deleteCourseInfo(newTurn.myCourse);
 	deleteAttendance(attendance);
 }
@@ -466,45 +457,48 @@ void viewSchedules(string studentUsername) {
 	}
 
 	// Print out schedule.
-	cout << "Session |" << setw(20) << "Time |" << setw(14) << "Monday |" << setw(14) << "Tuesday |" << setw(14) << "Wednesday |"
+	cout << "\t\t\t\t\t\t\tMY SCHEDULE\n\n";
+	cout << "   " << "Session |" << setw(20) << "Time |" << setw(14) << "Monday |" << setw(14) << "Tuesday |" << setw(14) << "Wednesday |"
 		<< setw(14) << "Thursday |" << setw(14) << "Friday |" << setw(14) << "Saturday |" << endl;
-	cout << setfill('-') << setw(9) << "+" << setw(20) << "+" << setw(14) << "+" << setw(14) << "+"
+	cout << "   " << setfill('-') << setw(9) << "+" << setw(20) << "+" << setw(14) << "+" << setw(14) << "+"
 		<< setw(14) << "+" << setw(14) << "+" << setw(14) << "+" << setw(14) << "+" << endl;
 	cout << tue[1].courseId;
 
-	cout << setfill(' ') << setw(9) << "1 |" << setw(20) << "7h30-9h10 |" << setw(12) << mon[0].courseId << " |"
+	cout << "   " << setfill(' ') << setw(9) << "1 |" << setw(20) << "7h30-9h10 |" << setw(12) << mon[0].courseId << " |"
 		<< setw(12) << tue[0].courseId << " |" << setw(12) << wed[0].courseId << " |" << setw(12) << thu[0].courseId
 		<< " |" << setw(12) << fri[0].courseId << " |" << setw(12) << sat[0].courseId << " |" << endl;
-	cout << setfill(' ') << setw(9) << " |" << setw(20) << "LAB: 7h30-9h30 |" << setw(12) << mon[0].room << " |"
+	cout << "   " << setfill(' ') << setw(9) << " |" << setw(20) << "LAB: 7h30-9h30 |" << setw(12) << mon[0].room << " |"
 		<< setw(12) << tue[0].room << " |" << setw(12) << wed[0].room << " |" << setw(12) << thu[0].room
 		<< " |" << setw(12) << fri[0].room << " |" << setw(12) << sat[0].room << " |" << endl;
-	cout << setfill('-') << setw(9) << "+" << setw(20) << "+" << setw(14) << "+" << setw(14) << "+"
+	cout << "   " << setfill('-') << setw(9) << "+" << setw(20) << "+" << setw(14) << "+" << setw(14) << "+"
 		<< setw(14) << "+" << setw(14) << "+" << setw(14) << "+" << setw(14) << "+" << endl;
 
-	cout << setfill(' ') << setw(9) << "2 |" << setw(20) << "9h30-11h10 |" << setw(12) << mon[1].courseId << " |"
+	cout << "   " << setfill(' ') << setw(9) << "2 |" << setw(20) << "9h30-11h10 |" << setw(12) << mon[1].courseId << " |"
 		<< setw(12) << tue[1].courseId << " |" << setw(12) << wed[1].courseId << " |" << setw(12) << thu[1].courseId
 		<< " |" << setw(12) << fri[1].courseId << " |" << setw(12) << sat[1].courseId << " |" << endl;
-	cout << setfill(' ') << setw(9) << " |" << setw(20) << "LAB: 9h30-11h30 |" << setw(12) << mon[1].room << " |"
+	cout << "   " << setfill(' ') << setw(9) << " |" << setw(20) << "LAB: 9h30-11h30 |" << setw(12) << mon[1].room << " |"
 		<< setw(12) << tue[1].room << " |" << setw(12) << wed[1].room << " |" << setw(12) << thu[1].room
 		<< " |" << setw(12) << fri[1].room << " |" << setw(12) << sat[1].room << " |" << endl;
-	cout << setfill('-') << setw(9) << "+" << setw(20) << "+" << setw(14) << "+" << setw(14) << "+"
+	cout << "   " << setfill('-') << setw(9) << "+" << setw(20) << "+" << setw(14) << "+" << setw(14) << "+"
 		<< setw(14) << "+" << setw(14) << "+" << setw(14) << "+" << setw(14) << "+" << endl;
 
-	cout << setfill(' ') << setw(9) << "3 |" << setw(20) << "13h30-15h10 |" << setw(12) << mon[2].courseId << " |"
+	cout << "   " << setfill(' ') << setw(9) << "3 |" << setw(20) << "13h30-15h10 |" << setw(12) << mon[2].courseId << " |"
 		<< setw(12) << tue[2].courseId << " |" << setw(12) << wed[2].courseId << " |" << setw(12) << thu[2].courseId
 		<< " |" << setw(12) << fri[2].courseId << " |" << setw(12) << sat[2].courseId << " |" << endl;
-	cout << setfill(' ') << setw(9) << " |" << setw(20) << "LAB: 13h30-15h30 |" << setw(12) << mon[2].room << " |"
+	cout << "   " << setfill(' ') << setw(9) << " |" << setw(20) << "LAB: 13h30-15h30 |" << setw(12) << mon[2].room << " |"
 		<< setw(12) << tue[2].room << " |" << setw(12) << wed[2].room << " |" << setw(12) << thu[2].room
 		<< " |" << setw(12) << fri[2].room << " |" << setw(12) << sat[2].room << " |" << endl;
-	cout << setfill('-') << setw(9) << "+" << setw(20) << "+" << setw(14) << "+" << setw(14) << "+"
+	cout << "   " << setfill('-') << setw(9) << "+" << setw(20) << "+" << setw(14) << "+" << setw(14) << "+"
 		<< setw(14) << "+" << setw(14) << "+" << setw(14) << "+" << setw(14) << "+" << endl;
 
-	cout << setfill(' ') << setw(9) << "4 |" << setw(20) << "7h30-9h10 |" << setw(12) << mon[3].courseId << " |"
+	cout << "   " << setfill(' ') << setw(9) << "4 |" << setw(20) << "7h30-9h10 |" << setw(12) << mon[3].courseId << " |"
 		<< setw(12) << tue[3].courseId << " |" << setw(12) << wed[3].courseId << " |" << setw(12) << thu[3].courseId
 		<< " |" << setw(12) << fri[3].courseId << " |" << setw(12) << sat[3].courseId << " |" << endl;
-    cout << setfill(' ') << setw(9) << " |" << setw(20) << "LAB: 7h30-9h30 |" << setw(12) << mon[3].room << " |"
+    cout << "   " << setfill(' ') << setw(9) << " |" << setw(20) << "LAB: 7h30-9h30 |" << setw(12) << mon[3].room << " |"
 		<< setw(12) << tue[3].room << " |" << setw(12) << wed[3].room << " |" << setw(12) << thu[3].room
 		<< " |" << setw(12) << fri[3].room << " |" << setw(12) << sat[3].room << " |" << endl;
+
+	cout << "\n";
 
 	// Deallocated.
 	for (int l = 0; l < n; l++) {
@@ -530,7 +524,7 @@ void viewScoresOfACourse(string studentUsername) {
 
 	//print out courses for student to choose
 	printCourseListTable(newTurn.myCourse);
-	cout << "\tWhich course you want to view scores:";
+	cout << "\tEnter no. of course to view scores: ";
 	cin >> choice;
 	for (int m = 0; m < choice-1; m++) {
 		newTurn.myCourse = newTurn.myCourse->next;
@@ -542,7 +536,7 @@ void viewScoresOfACourse(string studentUsername) {
 	ifstream(fin);
 	fin.open("Database/" + to_string(newTurn.myCourse->academicYear) + "-" + to_string(newTurn.myCourse->academicYear + 1) + "/"
 		+ newTurn.myCourse->semester + "/" + newTurn.myCourse->courseName + "-" + newTurn.myCourse->defaultClass + ".txt");
-	if (!fin) cout << "Cannot open the course file now, please try later" << endl;
+	if (!fin) cout << "Cannot open the course file now, please try later." << endl;
 	while (fin) {
 		getline(fin, checkName);
 		if (checkName == studentUsername) {
@@ -552,17 +546,12 @@ void viewScoresOfACourse(string studentUsername) {
 		}
 	}
 
-	cout << "\t" << setw(5) << "Student ID |" << setw(30) << "Full name |"
-		<< setw(10) << "Midterm |" << setw(10) << "Final |" << setw(10) << "Lab |" << setw(10) << "Bonus\n";
-	cout << "\t" << setfill('-')  << setw(12) << "+" << setw(30) << "+"
-		<< setw(10) << "+" << setw(10) << "+" << setw(10) << "+" << setw(10) << " " << "\n";
-	cout << "\t" << setfill(' ') 
-		<< setw(11) << newTurn.studentId << "|"
-		<< setw(29) << newTurn.name << "|"
-		<< setw(9) << scoresOfNewTurn.midterm << "|"
-		<< setw(9) << scoresOfNewTurn.final << "|"
-		<< setw(9) << scoresOfNewTurn.lab << "|"
-		<< setw(9) << scoresOfNewTurn.bonus << "\n";
+	cout << "\n\t" << setw(5) << "No.|" << setw(15) << "Score type |" << setw(10) << "Score\n";
+	cout << "\t" << setfill('-') << setw(5) << "+" << setw(15) << "+" << setw(10) << "\n";
+	cout << "\t" << setfill(' ') << setw(4) << 1 << "|" << setw(15) << "Midterm |" << setw(9) << scoresOfNewTurn.midterm << "\n";
+	cout << "\t" << setfill(' ') << setw(4) << 2 << "|" << setw(15) << "  Final |" << setw(9) << scoresOfNewTurn.final << "\n";
+	cout << "\t" << setfill(' ') << setw(4) << 3 << "|" << setw(15) << "    Lab |" << setw(9) << scoresOfNewTurn.lab << "\n";
+	cout << "\t" << setfill(' ') << setw(4) << 4 << "|" << setw(15) << "  Bonus |" << setw(9) << scoresOfNewTurn.bonus << "\n\n";
 
 	deleteCourseInfo(newTurn.myCourse);
 }

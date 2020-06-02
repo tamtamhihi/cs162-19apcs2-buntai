@@ -11,8 +11,8 @@ void importStudentFromCsv() {
 	string filepath, className; // store the path to CSV file
 	cout << "\tClass: ";
 	cin >> className; toUpper(className);
-	cout << "\tPlease make sure the CSV file has 6 columns:\n";
-	cout << "\tNo., Student ID, Last name, Full name, DOB(yyyy - mm - dd), Gender(male / female)\n";
+	cout << "\tPlease make sure the CSV file has 5 columns:\n";
+	cout << "\t\tNo., Student ID, Full name, DOB(yyyy - mm - dd), Gender(male / female)\n";
 	cout << "\tPath to CSV file: ";
 	cin >> filepath;
 	cout << "\n";
@@ -31,7 +31,7 @@ void importStudentFromCsv() {
 
 	// Read all information from csv.
 	Student* studentList = nullptr; // Student list
-	string row, no, studentId, lastName, firstName, gender, dob, confirm;
+	string row, no, studentId, fullName, gender, dob, confirm;
 
 	// Count the columns to make sure the csv is in the right format.
 	getline(in, row);
@@ -39,7 +39,7 @@ void importStudentFromCsv() {
 	int columnCount = 0;
 	while (getline(columnNames, no, ','))
 		columnCount++;
-	if (columnCount != 6) {
+	if (columnCount != 5) {
 		cout << "Import unsuccessful. Error: The number of columns is not compatible.\n\n";
 		in.close();
 		return;
@@ -51,8 +51,7 @@ void importStudentFromCsv() {
 		stringstream thisRow(row);
 		getline(thisRow, no, ',');
 		getline(thisRow, studentId, ',');
-		getline(thisRow, lastName, ',');
-		getline(thisRow, firstName, ',');
+		getline(thisRow, fullName, ',');
 		getline(thisRow, dob, ',');
 		if (!isDateStringSuitable(dob)) {
 			cout << "Import unsuccessful. Error: The date of birth column is not in format of yyyy-mm-dd.\n\n";
@@ -73,10 +72,10 @@ void importStudentFromCsv() {
 			currentStudent->next = new Student;
 			currentStudent = currentStudent->next;
 		}
-		currentStudent->username = getValidUsername(lastName + " " + firstName);
+		currentStudent->username = getValidUsername(fullName);
 		currentStudent->password = toPassword(getDate(dob));
 		currentStudent->status = 1;
-		currentStudent->name = lastName + " " + firstName;
+		currentStudent->name = fullName;
 		currentStudent->studentId = studentId;
 		currentStudent->gender = (gender == "male") ? MALE : FEMALE;
 		currentStudent->dob = getDate(dob);
@@ -203,34 +202,27 @@ void importStudentFromCsv() {
 void manuallyAddStudent() {
 	// Ask for information in one line.
 	cout << "Please input the following information with the same format:\n";
-	cout << "<studentId>,<full-name>,<class-name>,<birthday yyyy-mm-dd>,<female/male>\n\t";
 	string row, studentId, name, className, dob, gender;
-	getline(cin, row);
+	cout << "\tStudent ID: ";
+	cin >> studentId;
+	cout << "\tFull name: ";
+	cin.ignore(); getline(cin, name); name = toFormalCase(name);
+	cout << "\tClass: ";
+	cin >> className; toUpper(className);
+	cout << "\tD.O.B (yyyy-mm-dd): ";
+	cin.ignore(); getline(cin, dob);
+	cout << "\tGender (female/male): ";
+	cin >> gender; toLower(gender);
 	cout << "\n";
 
-	// Retrieve each information.
-	stringstream info(row);
-	getline(info, studentId, ',');
-	getline(info, name, ','); name = toFormalCase(name);
-	getline(info, className, ','); toUpper(className);
-	getline(info, dob, ',');
-	while (!isDateStringSuitable(dob)) {
-		cout << "The date of birth is not in format of yyyy-mm-dd. Please input again or ""0"" to stop: ";
-		getline(cin, dob);
-		if (dob == "0") {
-			cout << "\nAdding student cancelled.\n\n";
-			return;
-		}
+	if (!isDateStringSuitable(dob)) {
+		cout << "Add student failed. Error: The date of birth is not in format of yyyy-mm-dd.";
+		return;
 	}
 	Date Dob = getDate(dob);
-	getline(info, gender, ','); toLower(gender);
-	while (gender != "male" && gender != "female") {
-		cout << "The gender is not male/female. Please input again or ""0"" to stop: ";
-		getline(cin, gender); toLower(gender);
-		if (gender == "0") {
-			cout << "\nAdding student cancelled.\n\n";
-			return;
-		}
+	if (gender != "male" && gender != "female") {
+		cout << "Add student failed. Error: The gender is not male/female.";
+		return;
 	}
 	string username = getValidUsername(name), password = toPassword(Dob);
 	int genderNum = (gender == "male") ? MALE : FEMALE;
@@ -308,9 +300,13 @@ void manuallyAddStudent() {
 		Student* existentClass = nullptr;
 		readClassFromFile(className, existentClass);
 		Student* currentStudent = existentClass;
-		while (currentStudent->next != nullptr)
-			currentStudent = currentStudent->next;
-		currentStudent->next = students;
+		if (existentClass == nullptr)
+			existentClass = students;
+		else {
+			while (currentStudent->next != nullptr)
+				currentStudent = currentStudent->next;
+			currentStudent->next = students;
+		}
 		students = existentClass;
 		cout << "\tWriting to class file...\n";
 		writeClassToFile(students, className);
@@ -324,7 +320,7 @@ void manuallyAddStudent() {
 		// Save to new file.
 		cout << "\tSaving to class file...\n";
 		ofstream out("Database/Class/" + className + ".txt");
-		out << username << "\n" << password << "\n" << 1 << "\n";
+		out << username << "\n" << 1 << "\n";
 		out << name << "\n" << studentId << "\n" << genderNum << "\n";
 		out << Dob.day << " " << Dob.month << " " << Dob.year << "\n";
 		out << 0 << "\n\n";
@@ -459,20 +455,17 @@ void editExistingStudent() {
 // 2.4
 void removeStudent() {
 	// Ask for class and student ID.
-	cout << "Please input student class and student ID: \n";
+	cout << "Please input student ID: \n";
 	string className, id;
-	cout << "\tClass name: ";
-	cin >> className;
-	toUpper(className);
 	cout << "\tStudent ID: ";
 	cin >> id;
 	cout << "\n";
-	
-	// Check if class exists.
-	if (!isClassExist(className)) {
-		cout << "Edit failed. Error: Can't find class.\n\n";
+
+	if (!isStudentIdExist(id)) {
+		cout << "Edit failed. Error: Student ID not available.\n\n";
 		return;
 	}
+	className = findClassFromStudentId(id);
 
 	// Read all students' information in class.
 	Student* studentList = nullptr;
@@ -529,29 +522,17 @@ void removeStudent() {
 // 2.5 
 void changeStudentClass() {
 	// Ask for the input.
-	cout << "Please input following infomation: \n";
+	cout << "Please input student ID: \n";
 	string row, id, oldClass, newClass;
 	cout << "\t Student ID: ";
 	cin >> id;
-	cout << "\t Old Class: ";
-	cin >> oldClass; 
-	toUpper(oldClass);
-	cout << "\t New Class: ";
-	cin >> newClass;
-	toUpper(newClass);
 	cout << "\n";
 
-	// Check if old class exists.
-	if (!isClassExist(oldClass)) {
-		cout << "Edit failed. Error: Can't find old class.\n\n";
+	if (!isStudentIdExist(id)) {
+		cout << "Change student class failed. Error: Student ID not available.\n\n";
 		return;
 	}
-
-	// Check if new class exists.
-	if (!isClassExist(newClass)) {
-		cout << "Edit failed. Error: Can't find new class.\n\n";
-		return;
-	}
+	oldClass = findClassFromStudentId(id);
 
 	// Find student in old class.
 	Student* studentList = nullptr;
@@ -572,6 +553,16 @@ void changeStudentClass() {
 	changeStudent->password = findPasswordFromUsername(changeStudent->username);
 	// Confirm student info.
 	printStudentInfo(changeStudent);
+	cout << "\tOld class: " << oldClass << "\n";
+	cout << "\tNew class: ";
+	cin >> newClass; toUpper(newClass);
+	cout << "\n";
+
+	// Check if new class exists.
+	if (!isClassExist(newClass)) {
+		cout << "Edit failed. Error: Can't find new class.\n\n";
+		return;
+	}
 	cout << "Are you sure to move this student from class " 
 		<< oldClass << " to " << newClass << "?\n";
 	cout << "It will remove him from enrolled courses and enroll in default courses of new class.\n";
@@ -581,7 +572,7 @@ void changeStudentClass() {
 	cout << "\n";
 	if (confirm == "N") {
 		deleteStudentList(studentList);
-		cout << "Removing student cancelled.\n\n";
+		cout << "Change student class cancelled.\n\n";
 		return;
 	}
 
@@ -676,6 +667,7 @@ void viewListOfClasses() {
 
 // 2.7 
 void viewListOfStudentInAClass() {
+	viewListOfClasses();
 	// Ask for class name.
 	cout << "Please enter class name: ";
 	string className;
@@ -1168,7 +1160,8 @@ void manuallyAddCourse() {
 	string row, academicYear, semester, courseId, courseName, defaultClass, lecturerName,
 		startDate, endDate, sessionsPerWeek, dayOfWeek, startHour, endHour, room;
 	stringstream info;
-	cout << "Please input the following information with the same format:\n\n";
+	cin.ignore();
+	cout << "Please input the following information with the same format:\n";
 	cout << "<academic-year>,<semester>,<course-id>,<course-name>,<default-class>\n\t";
 	getline(cin, row);
 	cout << "\n";

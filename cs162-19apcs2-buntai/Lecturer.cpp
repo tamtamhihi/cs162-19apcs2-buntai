@@ -455,15 +455,22 @@ void editGradeOfStudent(string lecturerUsername) {
 	for (int i = 0; i < choice - 1; ++i)
 		courseInfo = courseInfo->next;
 
-	// Ask for student ID to edit grade.
-	cout << "Please input student ID: ";
-	string studentID;  
-	cin >> studentID;
-	cout << "\n";
-
 	// Find student in course file.
 	Course* course = new Course;
 	readCourseFromFile(courseInfo, course);
+	toUpper(courseInfo->semester);
+	cout << "\t\t   STUDENT LIST OF COURSE " << courseInfo->courseName << " OF "
+		<< courseInfo->semester << " SEMESTER, "
+		<< courseInfo->academicYear << "-" << courseInfo->academicYear + 1 << "\n\n";
+	courseInfo->semester = toFormalCase(courseInfo->semester);
+	printStudentListTable(course->students);
+
+	// Ask for student ID to edit grade.
+	cout << "Please input student ID: ";
+	string studentID;
+	cin >> studentID;
+	cout << "\n";
+
 	Student* curStudent = course->students;
 	StudentCourseInfo* curStudentCourseInfo = course->studentCourseInfo;
 	while (curStudent != nullptr) {

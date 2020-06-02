@@ -295,7 +295,7 @@ bool isStudentIdExist(string studentId) {
 		readClassFromFile(className, studentList);
 		Student* currentStudent = studentList;
 		while (currentStudent != nullptr) {
-			if (currentStudent->studentId == studentId) {
+			if (currentStudent->studentId == studentId && currentStudent->status) {
 				deleteStudentList(studentList);
 				in.close();
 				return true;
@@ -377,13 +377,13 @@ void clearScreen() {
 	cout << "Press any key to continue.\n";
 	getch();
 	system("cls");
-	cout << "\t\t\t===============BUNTAI SCHOOL MANAGEMENT=============\n\n";
+	cout << "\t\t\t=============== BUNTAI SCHOOL MANAGEMENT =============\n\n";
 }
 
 // Clear screen without press any key.
 void clearScreenWithoutPress() {
 	system("cls");
-	cout << "\t\t\t===============BUNTAI SCHOOL MANAGEMENT=============\n\n";
+	cout << "\t\t\t=============== BUNTAI SCHOOL MANAGEMENT =============\n\n";
 }
 
 
@@ -834,13 +834,20 @@ void printAttendanceListOfCourse(Course* course) {
 void readClassFromFile(string className, Student*& studentList) {
 	ifstream in("Database/Class/" + className + ".txt");
 	Student* current = studentList;
-	string username, name, id, semester, courseName, defaultClass;
+	string username, name, id, semester, courseName, defaultClass, waste;
 	int status, gender, day, month, year, numOfCourse, academicYear;
 	while (in >> username) {
 		in >> status;
 		in.ignore();
 		getline(in, name);
 		in >> id >> gender >> day >> month >> year >> numOfCourse;
+		// If status of student is 0 then ignore this student.
+		if (!status) {
+			in.ignore();
+			for (int i = 0; i < numOfCourse; ++i)
+				getline(in, waste);
+			continue;
+		}
 		if (studentList == nullptr) {
 			studentList = new Student;
 			current = studentList;
@@ -933,7 +940,7 @@ void readCourseFromFile(CourseInfo* courseInfo, Course*& course) {
 		course->studentCourseInfo = nullptr;
 		Student* currentStudent = nullptr;
 		StudentCourseInfo* currentStudentInfo = nullptr;
-		string username, name, id;
+		string username, name, id, waste;
 		int gender, status;
 		double midterm, final, lab, bonus;
 		while (in >> username) {
@@ -941,6 +948,13 @@ void readCourseFromFile(CourseInfo* courseInfo, Course*& course) {
 			getline(in, name);
 			in >> id >> gender >> day >> month >> year >> status
 				>> midterm >> final >> lab >> bonus;
+			// If the status is 0 then ignore this student.
+			if (!status) {
+				in.ignore();
+				for (int i = 0; i < course->totalSessions; ++i)
+					getline(in, waste);
+				continue;
+			}
 			if (course->students == nullptr) {
 				course->students = new Student;
 				currentStudent = course->students;
@@ -1851,7 +1865,8 @@ string findClassFromStudentId(string& studentId) {
 			Student* students = nullptr;
 			readClassFromFile(className, students);
 			Student* currentStudent = students;
-			while (currentStudent != nullptr && currentStudent->studentId != studentId)
+			while (currentStudent != nullptr && (currentStudent->studentId != studentId 
+				|| !currentStudent->status))
 				currentStudent = currentStudent->next;
 			if (currentStudent != nullptr) {
 				deleteStudentList(students);
