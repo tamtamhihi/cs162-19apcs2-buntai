@@ -80,6 +80,7 @@ int dayToNumber(string dayOfWeek);
 int getDayOfWeek(Date date);
 bool isLeap(int year);
 int daysInMonth(int month, int year);
+int calculateDaysFrom(Date date);
 int calculateDaysBetDates(Date startDate, Date endDate);
 int calculateTotalSessions(Course* course);
 Date dateAfterDays(Date startDate, int days);

@@ -160,8 +160,20 @@ int daysInMonth(int month, int year) {
 	}
 }
 
+// Calculate number of days between date and 01/01/2010.
+int calculateDaysFrom(Date date) {
+	int count = 0;
+	for (int i = 2010; i < date.year; ++i)
+		count += isLeap(i) ? 366 : 365;
+	for (int i = 1; i < date.month; ++i)
+		count += daysInMonth(i, date.year);
+	count += date.day - 1;
+	return count;
+}
+
 // Calculate days between two dates.
 int calculateDaysBetDates(Date startDate, Date endDate) {
+	/*
 	int daysBetween = 0;
 	for (int i = startDate.year; i < endDate.year; ++i)
 		daysBetween += (isLeap(i)) ? 366 : 365;
@@ -173,6 +185,8 @@ int calculateDaysBetDates(Date startDate, Date endDate) {
 			daysBetween -= daysInMonth(i, endDate.year - 1);
 	daysBetween += endDate.day - startDate.day;
 	return daysBetween;
+	*/
+	return calculateDaysFrom(endDate) - calculateDaysFrom(startDate);
 }
 
 // Calculate total sessions based on start date, end date and day of week.
@@ -210,10 +224,13 @@ int calculateTotalSessions(Course* course) {
 Date dateAfterDays(Date startDate, int days) {
 	int day = startDate.day, month = startDate.month, year = startDate.year;
 	day += days;
-	if (day > daysInMonth(startDate.month, startDate.year)) {
-		day -= daysInMonth(startDate.month, startDate.year);
-		if (startDate.month == 12)
+	while (day > daysInMonth(month, year)) {
+		day -= daysInMonth(month, year);
+		month++;
+		if (month == 13) {
+			month = 1;
 			year++;
+		}
 	}
 	return { day, month, year };
 }
@@ -786,7 +803,7 @@ void printAllSessionsTable(Attendance*& attendanceDate) {
 void printAttendanceListOfCourse(Course* course) {
 	StudentCourseInfo* currentStudentInfo = course->studentCourseInfo;
 	Attendance* currentAttendance;
-	cout << "\t" << setw(20) << "STUDENT NAME |";
+	cout << "   " << setw(23) << "STUDENT NAME |";
 	int* studentCount = new int[course->totalSessions];
 	for (int i = 0; i < course->totalSessions - 1; ++i) {
 		studentCount[i] = 0;
@@ -795,14 +812,14 @@ void printAttendanceListOfCourse(Course* course) {
 	}
 	studentCount[course->totalSessions - 1] = 0;
 	cout << " S" + to_string(course->totalSessions) + "\n";
-	cout << "\t" << setfill('-') << setw(20);
+	cout << "   " << setfill('-') << setw(23);
 	for (int i = 0; i < course->totalSessions; ++i)
 		cout << "+" << setw(6);
 	cout << "\n";
 	Student* currentStudent = course->students;
 	while (currentStudent != nullptr) {
 		string name = currentStudent->name + " |";
-		cout << "\t" << setfill(' ') << setw(20) << name;
+		cout << "   " << setfill(' ') << setw(23) << name;
 		currentAttendance = currentStudentInfo->attendance;
 		for (int i = 0; i < course->totalSessions - 1; ++i) {
 			string time = timeToString(currentAttendance->time) + "|";
@@ -814,14 +831,14 @@ void printAttendanceListOfCourse(Course* course) {
 		cout << timeToString(currentAttendance->time) << "\n";
 		if (isPresent(currentAttendance))
 			studentCount[course->totalSessions - 1]++;
-		cout << "\t" << setfill('-') << setw(20);
+		cout << "   " << setfill('-') << setw(23);
 		for (int i = 0; i < course->totalSessions; ++i)
 			cout << "+" << setw(6);
 		cout << "\n";
 		currentStudent = currentStudent->next;
 		currentStudentInfo = currentStudentInfo->next;
 	}
-	cout << "\t" << setfill(' ') << setw(20) << "Total |";
+	cout << "   " << setfill(' ') << setw(23) << "Total |";
 	for (int i = 0; i < course->totalSessions - 1; ++i) {
 		string total = to_string(studentCount[i]) + " |";
 		cout << setw(6) << total;
@@ -1670,9 +1687,9 @@ void showStaffCourseMenu(string& username) {
 	case 6: removeStudentFromCourse(); break;
 	case 7: addAStudentToCourse(); break;
 	case 8: viewListOfCourses(); break;
-	case 9: viewListOfStudentInAClass(); break;
-	case 10:
-	case 11:
+	case 9: viewListOfStudentsOfCourse(); break;
+	case 10: viewAttendanceListOfCourse(); break;
+	case 11: manipulateAllLecturers(); break;
 	case 12: return;
 	default:
 		cout << "Wrong option number!\n";
@@ -2043,18 +2060,12 @@ void readAttendanceList(Attendance*& attendance, CourseInfo* courseInfo, Student
 // Get info of student from file.
 void getInfoOfStudent(Student& newTurn, string studentUsername) {
 	ifstream in;
-	int count = 0;
 	in.open("Database/Class/Classes.txt");
-	count++;
 	if (!in) cout << "Cannot open class file, please try it later" << endl;
-	else (in >> newTurn.myClass);
-	in.close();
-	while (findStudentInfoFromFile(newTurn, studentUsername) == false) {
-		ifstream in;
-		in.open("Database/Class/Classes.txt");
-		while (in) {
-			for (int i = 0; i < count; i++) in >> newTurn.myClass;
-		}
+	else {
+		while (in >> newTurn.myClass)
+			if (findStudentInfoFromFile(newTurn, studentUsername))
+				break;
 		in.close();
 	}
 }

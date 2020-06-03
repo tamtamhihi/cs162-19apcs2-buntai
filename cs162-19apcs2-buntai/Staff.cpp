@@ -1123,7 +1123,8 @@ void importCourseFromCsv() {
 				currentAttendance->time = Time{ 0,0 };
 				currentAttendance->next = nullptr;
 				daysToNext = currentSession->next->day - currentSession->day;
-				daysToNext += (daysToNext > 0) ? 0 : 7;
+				if (currentSession->next == currentCourse->sessionInfo)
+					daysToNext += (daysToNext > 0) ? 0 : 7;
 				nextSession = dateAfterDays(nextSession, daysToNext);
 				currentSession = currentSession->next;
 			}
@@ -1471,6 +1472,7 @@ void manuallyAddCourse() {
 // 3.4
 void editExistingCourse() {
 	// Ask for academic year, semester, course ID and default class.
+	cin.ignore();
 	cout << "Please input course information with the same format:\n";
 	cout << "<academic-year>,<semester>,<course-id>,<default-class>\n\t";
 	string row, academicYear, semester, courseId, defaultClass;

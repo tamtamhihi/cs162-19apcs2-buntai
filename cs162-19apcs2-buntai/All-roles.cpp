@@ -118,17 +118,13 @@ bool login(string& userName, int& userRole) {
 				in.open("Database/Class/Classes.txt");
 				count++;
 				if (!in) cout << "Cannot open class file, please try it later" << endl;
-				else (in >> newTurn.myClass);
-				in.close();
-				while (findStudentInfoFromFile(newTurn, userName) == false) {
-					ifstream in;
-					in.open("Database/Class/Classes.txt");
-					while (in) {
-						for (int i = 0; i < count; i++) in >> newTurn.myClass;
-					}
+				else {
+					while (in >> newTurn.myClass)
+						if (findStudentInfoFromFile(newTurn, userName))
+							break;
 					in.close();
+					cout << "Hello " << newTurn.name << "!\n";
 				}
-				cout << "Hello " << newTurn.name << "!\n";
 				break;
 			}
 			default:
@@ -260,23 +256,16 @@ void viewProfileInfo(string& username, int& userRole) {
 	{
 		Student newTurn;
 		ifstream in;
-		int count = 0;
 		in.open("Database/Class/Classes.txt");
-		count++;
 		if (!in) {
 			cout << "Cannot open class file, please try it later" << endl;
 			return;
 		}
-		else (in >> newTurn.myClass);
-		in.close();
-		while (findStudentInfoFromFile(newTurn, username) == false) {
-			ifstream in;
-			in.open("Database/Class/Classes.txt");
-			while (in) {
-				for (int i = 0; i < count; i++) in >> newTurn.myClass;
-			}
+		else {
+			while (in >> newTurn.myClass)
+				if (findStudentInfoFromFile(newTurn, username))
+					break;
 			in.close();
-			count++;
 		}
 		cout << "Student info:\n";
 		cout << "\tUsername: " << newTurn.username << "\n";
