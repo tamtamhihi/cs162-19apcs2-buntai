@@ -1640,18 +1640,18 @@ void removeCourse() {
 	cin >> defaultClass; toUpper(defaultClass);
 	cout << "\n";
 
-	// Read courses.txt to find remove course.
+	// Read courses.txt to find removed course.
 	CourseInfo* courseList = nullptr;
 	readCourseListFromFile(courseList, academicYear, semester);
 
-	// Find remove course.
+	// Find removed course.
 	if (courseList == nullptr) {
 		cout << "Error: Cannot find the course.\n\n";
 		return;
 	}
 	CourseInfo* currentCourseList = courseList;
 	CourseInfo* previous = currentCourseList;
-	while (currentCourseList->courseName != courseID && currentCourseList->defaultClass!= defaultClass) {
+	while (currentCourseList->courseName != courseID || currentCourseList->defaultClass!= defaultClass) {
 		previous = currentCourseList;
 		currentCourseList = currentCourseList->next;
 		if (currentCourseList == nullptr) {
@@ -1662,10 +1662,15 @@ void removeCourse() {
 	}
 
 	// Remove course name in file Courses.txt.
-	if (currentCourseList == courseList) courseList = courseList->next;
+	if (currentCourseList == courseList) {
+		CourseInfo* tem;
+		tem = courseList;
+		courseList = courseList->next;
+		delete tem;
+	}
 	else {
 		previous->next = currentCourseList->next;
-		deleteCourseInfo(currentCourseList);
+		delete currentCourseList;
 	}
 	writeCourseListToFile(courseList, academicYear, semester);
 	deleteCourseInfo(courseList);
@@ -1722,11 +1727,13 @@ void removeCourse() {
 			deleteStudent(studentList);
 		}
 	}
+	in.close();
 
 	// Remove course in lecterer course.
 	Lecturer* lecturers = nullptr;
 	readLecturersFromFile(lecturers);
-	while (lecturers != nullptr && lecturers->myCourse!=nullptr) {
+	Lecturer* currentlecturer = lecturers;
+	while (currentlecturer != nullptr && currentlecturer->myCourse != nullptr) {
 		if (lecturers->myCourse->academicYear == academicYear
 			&& lecturers->myCourse->semester == semester
 			&& lecturers->myCourse->courseName == courseID
@@ -1752,6 +1759,7 @@ void removeCourse() {
 				if (currentCourse == nullptr) break;
 			}
 		}
+		currentlecturer = currentlecturer->next;
 	}
 	writeLecturersToFile(lecturers);
 	deleteLecturers(lecturers);
