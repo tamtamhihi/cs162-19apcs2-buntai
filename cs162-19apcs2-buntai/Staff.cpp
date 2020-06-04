@@ -1471,34 +1471,52 @@ void manuallyAddCourse() {
 
 // 3.4
 void editExistingCourse() {
-	// Ask for academic year, semester, course ID and default class.
+	// Ask for academic year and semester.
 	cin.ignore();
 	cout << "Please input course information with the same format:\n";
-	cout << "<academic-year>,<semester>,<course-id>,<default-class>\n\t";
+	cout << "<academic-year>,<semester>\n\t";
 	string row, academicYear, semester, courseId, defaultClass;
 	getline(cin, row);
 	cout << "\n";
 	stringstream info(row);
 	getline(info, academicYear, ',');
+	int AY = stoi(academicYear);
 	getline(info, semester, ',');
 	semester = toFormalCase(semester);
-	getline(info, courseId, ',');
-	toUpper(courseId);
-	getline(info, defaultClass, ',');
-	toUpper(defaultClass);
 
-	// Check if course exists.
-	CourseInfo* editedInfo = new CourseInfo;
-	editedInfo->academicYear = stoi(academicYear);
-	editedInfo->semester = semester;
-	editedInfo->courseName = courseId;
-	editedInfo->defaultClass = defaultClass;
-	editedInfo->next = nullptr;
-	if (!isCourseExist(editedInfo)) {
-		cout << "Edit failed. Error: Can't find course.\n\n";
-		deleteCourseInfo(editedInfo);
+	// Check if academic year exists.
+	if (!isAcademicYearExist(AY)) {
+		cout << "Edit failed. Error: Academic year does not exist.\n\n";
 		return;
 	}
+
+	// Check if semester exists.
+	if (!isSemesterExist(AY, semester)) {
+		cout << "Edit failed. Error: Semester does not exist.\n\n";
+		return;
+	}
+
+	// Print course list table.
+	CourseInfo* courseList = nullptr;
+	readCourseListFromFile(courseList, AY, semester);
+	toUpper(semester);
+	cout << "\t\t\t\t\tLIST OF COURSES IN " << semester 
+		<< " AY " << AY%100 << "-" << AY%100 + 1 << "\n\n";
+	semester = toFormalCase(semester);
+	int totalCourse = printCourseListTable(courseList);
+
+	// Ask for specific course to edit.
+	cout << "\tPlease enter the number of the course to edit: ";
+	int choice;
+	cin >> choice;
+	while (choice > totalCourse) {
+		cout << "Course number not available. Please enter again: ";
+		cin >> choice;
+	}
+	cout << "\n";
+	CourseInfo* editedInfo = courseList;
+	for (int i = 0; i < choice - 1; ++i)
+		editedInfo = editedInfo->next;
 
 	// Confirm course info.
 	Course* editedCourse = new Course;
@@ -1510,17 +1528,16 @@ void editExistingCourse() {
 	cout << "What field do you want to edit?\n";
 	cout << "\t1-Course name\n\t2-Lecturer\n";
 	cout << "Input in increasing order with a space between.\n\t";
+	cin.ignore();
 	getline(cin, row);
 	cout << "\n";
 	info = stringstream(row);
-	int choice = 0;
 	bool isNameChanged = false, isLecChanged = false;
 	while (info >> choice) {
 		if (choice == 1) {
 			string name;
 			cout << "New name: ";
 			getline(cin, name);
-			name = toFormalCase(name);
 			cout << "Do you want to change name from "
 				<< editedCourse->courseName << " to " << name << "? Y/N\n\t";
 			cin >> row;
@@ -1530,26 +1547,26 @@ void editExistingCourse() {
 				editedCourse->courseName = name;
 				isNameChanged = true;
 			}
+			cin.ignore();
 		}
 		else {
 			string username;
 			cout << "New lecturer username: ";
-			cin.ignore();
 			getline(cin, username);
 			toLower(username);
 			Lecturer newLecturer;
 			if (!findLecturerFromUsername(username, newLecturer)) {
 				cout << "Edit failed. Error: Can't find new lecturer.\n\n";
 
-				// Edit "<course-id>-<default-class>.txt" file.
-				writeCourseToFile(editedCourse);
-				deleteCourse(editedCourse);
+				if (isNameChanged) {
+					// Edit "<course-id>-<default-class>.txt" file.
+					writeCourseToFile(editedCourse);
+					cout << "Edit course name successfully.\n\n";
+				}
 
 				// Delete linked list.
-				deleteCourseInfo(editedInfo);
-
-				if (!isNameChanged)
-					cout << "Edit course name successfully.\n\n";
+				deleteCourseInfo(courseList);
+				deleteCourse(editedCourse);
 				return;
 			}
 			else {
@@ -1592,8 +1609,12 @@ void editExistingCourse() {
 							}
 							if (currentLecturer->username == newLecturer.username) {
 								currentLecturer->totalCourse++;
-								CourseInfo* temp = editedInfo;
-								editedInfo->next = currentLecturer->myCourse;
+								CourseInfo* temp = new CourseInfo;
+								temp->academicYear = editedInfo->academicYear;
+								temp->semester = editedInfo->semester;
+								temp->courseName = editedInfo->courseName;
+								temp->defaultClass = editedInfo->defaultClass;
+								temp->next = currentLecturer->myCourse;
 								currentLecturer->myCourse = temp;
 								currentLecturer = currentLecturer->next;
 								break;
@@ -1612,16 +1633,20 @@ void editExistingCourse() {
 
 	// Edit "<course-id>-<default-class>.txt" file.
 	writeCourseToFile(editedCourse);
-	deleteCourse(editedCourse);
 
 	// Delete linked lists.
-	if (!isLecChanged)
-		deleteCourseInfo(editedInfo);
+	deleteCourseInfo(editedInfo);
+	deleteCourse(editedCourse);
 
+	// Announcement.
 	if (!isNameChanged && !isLecChanged)
 		cout << "No change was made.\n\n";
-	else
+	else if (isNameChanged && isLecChanged)
 		cout << "Edit course successfully.\n\n";
+	else if (isNameChanged && !isLecChanged)
+		cout << "Edit course name successfully.\n\n";
+	else
+		cout << "Edit lecturer successfully.\n\n";
 }
 
 // 3.5
