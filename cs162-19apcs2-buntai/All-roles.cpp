@@ -9,30 +9,35 @@ void showAllRoleMenu(string &userName, int &userRole) {
 		 << "\t2. View profile\n"
 		 << "\t3. Change password\n"
 		 << "\t4. Log out\n\n";
-	int choice;
+	string choice;
 	cout << "Please enter your choice: ";
 	cin >> choice;
 	clearScreenWithoutPress();
-	if (choice == 1) {
+	if (choice == "1") {
 		showMenu(userName,userRole);
 		clearScreenWithoutPress();	
 	}
-	else if (choice == 2) {
+	else if (choice == "2") {
 		viewProfileInfo(userName, userRole);
 		clearScreen();
 	}
-	else if (choice == 3) {
+	else if (choice == "3") {
 		changePassword(userName);
 		clearScreen();
 	}
-	else if (choice == 4) {
+	else if (choice == "4") {
 		logout(userName, userRole);
 		if (userName != "\0") {
 			clearScreenWithoutPress();
 			showAllRoleMenu(userName, userRole);
 		}
 	}
-	if (choice != 4)
+	else {
+		cout << "Wrong option number.\n\n";
+		cin.ignore();
+		clearScreen();
+	}
+	if (choice != "4")
 		showAllRoleMenu(userName, userRole);
 }
 

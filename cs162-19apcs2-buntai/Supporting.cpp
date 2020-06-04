@@ -88,9 +88,9 @@ Date getDate(string date) {
 string dateToString(Date date) {
 	string dateString = "";
 	if (date.day < 10) dateString += "0";
-	dateString += to_string(date.day) + "-";
+	dateString += to_string(date.day) + "/";
 	if (date.month < 10) dateString += "0";
-	dateString += to_string(date.month) + "-" + to_string(date.year);
+	dateString += to_string(date.month) + "/" + to_string(date.year);
 	return dateString;
 }
 
@@ -736,16 +736,16 @@ void printLecturerInfo(Lecturer*& lecturer) {
 int printAllLecturersTable(Lecturer*& lecturers) {
 	cout << "\t\t\t\t\t  ALL LECTURERS\n\n";
 	cout << "\t" << setw(5) << "No |" << setw(25) << "Full name |" << setw(15) << "Account |"
-		<< setw(10) << "Title |" << " Number of courses\n";
+		<< setw(15) << "Title |" << " Number of courses\n";
 	cout << "\t" << setfill('-') << setw(5) << "+" << setw(25) << "+" << setw(15) << "+"
-		<< setw(10) << "+" << setw(20) << " " << "\n";
+		<< setw(15) << "+" << setw(20) << " " << "\n";
 	Lecturer* currentLecturer = lecturers;
 	int count = 0;
 	while (currentLecturer != nullptr) {
 		cout << "\t" << setfill(' ') << setw(4) << ++count << "|"
 			<< setw(24) << currentLecturer->name << "|"
 			<< setw(14) << currentLecturer->username << "|"
-			<< setw(9) << currentLecturer->title << "| "
+			<< setw(14) << currentLecturer->title << "| "
 			<< "\t" << currentLecturer->totalCourse << "\n";
 		currentLecturer = currentLecturer->next;
 	}
@@ -1628,7 +1628,7 @@ void findAttendanceDateOfCourse(Attendance*& attendanceDate, CourseInfo*& course
 
 // Show menu of staff-class.
 void showStaffClassMenu(string& username) {
-	int chon;
+	string chon;
 	cout << "\t1. Import students of a class from a csv file." << endl;
 	cout << "\t2. Manually add a new student to a class." << endl;
 	cout << "\t3. Edit an existing student." << endl;
@@ -1641,27 +1641,31 @@ void showStaffClassMenu(string& username) {
 	cin >> chon;
 	clearScreenWithoutPress();
 	cin.ignore();
-	switch (chon)
-	{
-	case 1: importStudentFromCsv(); break;
-	case 2: manuallyAddStudent(); break;
-	case 3: editExistingStudent(); break;
-	case 4: removeStudent(); break;
-	case 5: changeStudentClass(); break;
-	case 6: viewListOfClasses(); break;
-	case 7: viewListOfStudentInAClass(); break;
-	case 8: return;
-	default:
+	if (chon == "1")
+		importStudentFromCsv();
+	else if (chon == "2")
+		manuallyAddStudent();
+	else if (chon == "3")
+		editExistingStudent();
+	else if (chon == "4")
+		removeStudent();
+	else if (chon == "5")
+		changeStudentClass();
+	else if (chon == "6")
+		viewListOfClasses();
+	else if (chon == "7")
+		viewListOfStudentInAClass();
+	else if (chon == "8")
+		return;
+	else
 		cout << "Wrong option number!\n";
-		break;
-	}
 	clearScreen();
 	showStaffClassMenu(username);
 }
 
 // Show menu of staff-course.
 void showStaffCourseMenu(string& username) {
-	int chon;
+	string chon;
 	cout << "\t1. Create / update / delete / view academic years and semesters" << endl;
 	cout << "\t2. From a semester, import courses from a csv file." << endl;
 	cout << "\t3. Manually add a new course." << endl;
@@ -1677,31 +1681,39 @@ void showStaffCourseMenu(string& username) {
 	cout << "Which function do you want to perform ? Please enter a number: ";
 	cin >> chon;
 	clearScreenWithoutPress();
-	switch (chon)
-	{
-	case 1: manipulateAcademicYearsAndSemester(); break;
-	case 2: importCourseFromCsv(); break;
-	case 3: manuallyAddCourse(); break;
-	case 4: editExistingCourse(); break;
-	case 5: removeCourse(); break;
-	case 6: removeStudentFromCourse(); break;
-	case 7: addAStudentToCourse(); break;
-	case 8: viewListOfCourses(); break;
-	case 9: viewListOfStudentsOfCourse(); break;
-	case 10: viewAttendanceListOfCourse(); break;
-	case 11: manipulateAllLecturers(); break;
-	case 12: return;
-	default:
+	if (chon == "1")
+		manipulateAcademicYearsAndSemester();
+	else if (chon == "2")
+		importCourseFromCsv();
+	else if (chon == "3")
+		manuallyAddCourse();
+	else if (chon == "4")
+		editExistingCourse();
+	else if (chon == "5")
+		removeCourse();
+	else if (chon == "6")
+		removeStudentFromCourse();
+	else if (chon == "7")
+		addAStudentToCourse();
+	else if (chon == "8")
+		viewListOfCourses();
+	else if (chon == "9")
+		viewListOfStudentsOfCourse();
+	else if (chon == "10")
+		viewAttendanceListOfCourse();
+	else if (chon == "11")
+		manipulateAllLecturers();
+	else if (chon == "12")
+		return;
+	else
 		cout << "Wrong option number!\n";
-		break;
-	}
 	clearScreen();
 	showStaffCourseMenu(username);
 }
 
 // Show menu of staff-scoreboard
 void showStaffScoreboardMenu(string& username) {
-	int chon;
+	string chon;
 	cout << "\t1. Search and view the scoreboard of a course." << endl;
 	cout << "\t2. Export a scoreboard to a csv file." << endl;
 	cout << "\t3. Return to previous menu." << endl << endl;
@@ -1709,37 +1721,35 @@ void showStaffScoreboardMenu(string& username) {
 	cin >> chon;
 	fflush(stdin);
 	clearScreenWithoutPress();
-	switch (chon)
-	{
-	case 1:
-	case 2: exportScoreboardToCsv(); break;
-	case 3: return;
-	default:
+	if (chon == "1")
+		searchAndViewScoreboard();
+	else if (chon == "2")
+		exportScoreboardToCsv();
+	else if (chon == "3")
+		return;
+	else
 		cout << "Wrong option number!\n";
-		break;
-	}
 	clearScreen();
 	showStaffScoreboardMenu(username);
 }
 
 // Show menu of staff-attendance 
 void showStaffAttendanceMenu(string& username) {
-	int chon;
+	string chon;
 	cout << "\t1. Search and view attendance list of a course." << endl;
 	cout << "\t2. Export a attendance list to a csv file." << endl;
 	cout << "\t3. Return to previous menu." << endl << endl;
 	cout << "Which function do you want to perform ? Please enter a number: ";
 	cin >> chon;
 	clearScreenWithoutPress();
-	switch (chon)
-	{
-	case 1:
-	case 2:
-	case 3: return;
-	default:
+	if (chon == "1")
+		searchAndViewAttendance();
+	else if (chon == "2")
+		exportAttendanceListToCsv();
+	else if (chon == "3")
+		return;
+	else
 		cout << "Wrong option number!\n";
-		break;
-	}
 	clearScreen();
 	showStaffAttendanceMenu(username);
 }
@@ -1747,8 +1757,7 @@ void showStaffAttendanceMenu(string& username) {
 // Show menu of staff
 void showStaffMenu(string& username) {
 	clearScreenWithoutPress();
-	int choice;
-	int chon;
+	string choice;
 	cout << "\t1. Class" << endl;
 	cout << "\t2. Course" << endl;
 	cout << "\t3. Scoreboard" << endl;
@@ -1757,27 +1766,30 @@ void showStaffMenu(string& username) {
 	cout << "Which object do you want to work with ? Please enter a number: ";
 	cin >> choice;
 	clearScreenWithoutPress();
-	if (choice == 1) {
+	if (choice == "1") {
 		showStaffClassMenu(username);
 	}
-	else if (choice == 2) {
+	else if (choice == "2") {
 		showStaffCourseMenu(username);
 	}
-	else if (choice == 3) {
+	else if (choice == "3") {
 		showStaffScoreboardMenu(username);
 	}
-	else if (choice == 4) {
+	else if (choice == "4") {
 		showStaffAttendanceMenu(username);
 	}
-	else if (choice == 5) return;
-	else cout << "Your input is not valid" << endl;
+	else if (choice == "5") return;
+	else {
+		cout << "Your input is not valid." << endl;
+		clearScreen();
+	}
 	clearScreenWithoutPress();
 	showStaffMenu(username);
 }
 
 // Show lecturer menu.
 void showLecturerMenu(string& username) {
-	int choice;
+	string choice;
 	cout << "\t1. View list of courses in the current semester." << endl;
 	cout << "\t2. View list of students of a course." << endl;
 	cout << "\t3. View attendance list of a course." << endl;
@@ -1789,27 +1801,31 @@ void showLecturerMenu(string& username) {
 	cout << "Which function do you want to perform ? Please enter a number: ";
 	cin >> choice;
 	clearScreenWithoutPress();
-	switch (choice)
-	{
-	case 1: viewCoursesInSemester(username); break;
-	case 2: viewStudentListOfCourse(username); break;
-	case 3: viewAttendanceListOfCourseByLecturer(username); break;
-	case 4: editAnAttendanceByLecturer(username); break;
-	case 5: importScoreboardFromCsv(username); break;
-	case 6: editGradeOfStudent(username); break;
-	case 7: viewScoreboardOfCourse(username); break;
-	case 8: return;
-	default:
+	if (choice == "1")
+		viewCoursesInSemester(username);
+	else if (choice == "2")
+		viewStudentListOfCourse(username);
+	else if (choice == "3")
+		viewAttendanceListOfCourseByLecturer(username);
+	else if (choice == "4")
+		editAnAttendanceByLecturer(username);
+	else if (choice == "5")
+		importScoreboardFromCsv(username);
+	else if (choice == "6")
+		editGradeOfStudent(username);
+	else if (choice == "7")
+		viewScoreboardOfCourse(username);
+	else if (choice == "8")
+		return;
+	else
 		cout << "Wrong option number!\n";
-		break;
-	}
 	clearScreen();
 	showLecturerMenu(username);
 }
 
 // Show student menu.
 void showStudentMenu(string& username) {
-	int choice;
+	string choice;
 	cout << "\t1. Check-in." << endl;
 	cout << "\t2. View check-in result." << endl;
 	cout << "\t3. View schedules." << endl;
@@ -1818,17 +1834,18 @@ void showStudentMenu(string& username) {
 	cout << "Which function do you want to perform ? Please enter a number: ";
 	cin >> choice;
 	clearScreenWithoutPress();
-	switch (choice)
-	{
-	case 1: checkin(username); break;
-	case 2: viewCheckinResult(username); break;
-	case 3: viewSchedules(username); break;
-	case 4: viewScoresOfACourse(username); break;
-	case 5: return;
-	default:
+	if (choice == "1")
+		checkin(username);
+	else if (choice == "2")
+		viewCheckinResult(username);
+	else if (choice == "3")
+		viewSchedules(username);
+	else if (choice == "4")
+		viewScoresOfACourse(username);
+	else if (choice == "5")
+		return;
+	else
 		cout << "Wrong option number!\n";
-		break;
-	}
 	clearScreen();
 	showStudentMenu(username);
 }

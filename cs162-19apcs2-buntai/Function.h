@@ -99,7 +99,6 @@ bool isPresent(Attendance* attendance);
 bool isStudentExistInCourse(string studentId, Course* course);
 bool isSessionDateExist(Date date, Attendance* attendance);
 
-
 void removeSemesterDirectory(int academicYear, string semester);
 
 void clearScreen();

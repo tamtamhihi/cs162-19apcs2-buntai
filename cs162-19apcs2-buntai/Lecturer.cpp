@@ -34,15 +34,35 @@ void viewCoursesInSemester(string lecturerUsername) {
 			while (currentCourse != nullptr) {
 				if (currentCourse->academicYear == academicYear && currentCourse->semester == semester) {
 					if (!semesterCourse) {
-						cout << "\t\t     YOUR COURSES\n\n";
-						cout << "\t" << setw(20) << "Course ID |" << " Default class\n";
-						cout << "\t" << setfill('-') << setw(20) << "+" << setw(20) << " " << "\n";
+						cout << "\t\t\t\t\t\tYOUR COURSES\n\n";
+						cout << "\t" << setw(15) << " Course ID |" << setw(16) << " Default class |"
+							<< setw(25) << " Duration |" << setw(25) << " Session |" << setw(8) << " Room |" << "\n";
+						cout << "\t" << setfill('-') << setw(15) << "+" << setw(16) << "+"
+							<< setw(25) << "+" << setw(25) << "+" << setw(8) << "+" << "\n";
 					}
-					string year = to_string(currentCourse->academicYear) + "-"
-						+ to_string(currentCourse->academicYear + 1);
-					cout << "\t" << setfill(' ') << setw(19) << currentCourse->courseName << "| "
-						<< currentCourse->defaultClass << "\n";
+					else
+						cout << "\t" << setfill('-') << setw(15) << "+" << setw(16) << "+"
+						<< setw(25) << "+" << setw(25) << "+" << setw(8) << "+" << "\n" << setfill(' ');
+					Course* course = new Course;
+					readCourseFromFile(currentCourse, course);
+					string duration = dateToString(course->startDate) + " - " + dateToString(course->endDate);
+					SessionInfo* session = course->sessionInfo;
+					string sessionInfo = numToDay(session->day) + ", " + timeToString(session->startTime) 
+						+ " - " + timeToString(session->endTime);
+					cout << "\t" << setfill(' ') << setw(14) << currentCourse->courseName << "|" << setw(15)
+						<< currentCourse->defaultClass << "|" << setw(24) << duration << "|" << setw(24) 
+						<< sessionInfo << "|" << setw(7) << course->room << "|\n";
+					session = session->next;
+					while (session != nullptr) {
+						sessionInfo = numToDay(session->day) + ", " + timeToString(session->startTime)
+							+ " - " + timeToString(session->endTime);
+						cout << "\t" << setw(14) << " " << "|" << setw(15)
+							<< " " << "|" << setw(24) << " " << "|" << setw(24)
+							<< sessionInfo << "|" << setw(7) << " " << "|\n";
+						session = session->next;
+					}
 					semesterCourse++;
+					deleteCourse(course);
 				}
 				currentCourse = currentCourse->next;
 			}
@@ -57,14 +77,19 @@ void viewCoursesInSemester(string lecturerUsername) {
 		readCourseListFromFile(courseList, academicYear, semester);
 		CourseInfo* currentCourse = courseList;
 		if (currentCourse != nullptr) {
-			cout << "\t\t      ALL COURSES\n\n";
-			cout << "\t" << setw(20) << "Course ID |" << " Default class\n";
-			cout << "\t" << setfill('-') << setw(20) << "+" << setw(20) << " " << "\n";
+			cout << "\t\t\t\t\t\tALL COURSES\n\n";
+			cout << "\t" << setw(15) << " Course ID |" << setw(16) << " Default class |" << setw(15) << " Lecturer |"
+				<< setw(25) << " Duration |" << setw(8) << " Room |" << "\n";
+			cout << "\t" << setfill('-') << setw(15) << "+" << setw(16) << "+"
+				<< setw(15) << "+" << setw(25) << "+" << setw(8) << "+" << "\n";
 			while (currentCourse != nullptr) {
-				string year = to_string(currentCourse->academicYear) + "-"
-					+ to_string(currentCourse->academicYear + 1);
-				cout << "\t" << setfill(' ') << setw(19) << currentCourse->courseName << "| "
-					<< currentCourse->defaultClass << "\n";
+				Course* course = new Course;
+				readCourseFromFile(currentCourse, course);
+				string duration = dateToString(course->startDate) + " - " + dateToString(course->endDate);
+				cout << "\t" << setfill(' ') << setw(14) << currentCourse->courseName << "|" << setw(15)
+					<< currentCourse->defaultClass << "|" << setw(14) << course->lecturer.username << "|" << setw(24)
+					<< duration << "|" << setw(7) << course->room << "|\n";
+				deleteCourse(course);
 				currentCourse = currentCourse->next;
 			}
 		}

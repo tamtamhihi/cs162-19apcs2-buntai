@@ -205,6 +205,11 @@ void manuallyAddStudent() {
 	string row, studentId, name, className, dob, gender;
 	cout << "\tStudent ID: ";
 	cin >> studentId;
+
+	if (isStudentIdExist(studentId)) {
+		cout << "\nAdd student failed. Student ID already exists.\n\n";
+		return;
+	}
 	cout << "\tFull name: ";
 	cin.ignore(); getline(cin, name); name = toFormalCase(name);
 	cout << "\tClass: ";
@@ -215,14 +220,14 @@ void manuallyAddStudent() {
 	cin >> gender; toLower(gender);
 	cout << "\n";
 
-	if (!isDateStringSuitable(dob)) {
-		cout << "Add student failed. Error: The date of birth is not in format of yyyy-mm-dd.";
-		return;
+	while (!isDateStringSuitable(dob)) {
+		cout << "The date of birth is not in format of yyyy-mm-dd.\nPlease input again: ";
+		cin.ignore(); getline(cin, dob);
 	}
 	Date Dob = getDate(dob);
-	if (gender != "male" && gender != "female") {
-		cout << "Add student failed. Error: The gender is not male/female.";
-		return;
+	while (gender != "male" && gender != "female") {
+		cout << "The gender is not male/female.\nPlease input again: ";
+		cin >> gender;
 	}
 	string username = getValidUsername(name), password = toPassword(Dob);
 	int genderNum = (gender == "male") ? MALE : FEMALE;
@@ -701,12 +706,10 @@ void viewListOfStudentInAClass() {
 void manipulateAcademicYearsAndSemester() {
 	int academicYear;
 	string semester, action;
-	cout << "Please input the academic year:\n";
-	cout << "\t(input 2018 for AY 2018-2019)\n\t";
+	cout << "Please input the academic year and semester:\n" 
+		<< "\t(2018 for AY 2018-2019 and semester Summer/Fall/Spring/None to view AY only)\n" 
+		<< "\t<academic-year> <semester>\n\t";
 	cin >> academicYear;
-	cout << "\n";
-	cout << "Input the semester name:\n";
-	cout << "\t(Summer/Fall/Spring or None to view AY only)\n\t";
 	cin >> semester; 
 	semester = toFormalCase(semester);
 	if (semester != "Summer" && semester != "Fall" && semester != "Spring" && semester != "None") {
@@ -797,7 +800,7 @@ void manipulateAcademicYearsAndSemester() {
 					break;
 				currentYear = currentYear->next;
 			}
-			cout << "Academic Year " << academicYear << "-" << academicYear + 1 << ":\n";
+			cout << "\t\t    ACADEMIC YEAR " << academicYear << "-" << academicYear + 1 << "\n\n";
 			cout << "\t" << setw(26) << "Number of semester |" << " " << currentYear->numberOfSemester << "\n";
 			cout << "\t" << setfill('-') << setw(26) << "+" << setw(25) << "\n" << setfill(' ');
 			if (currentYear->numberOfSemester) {
@@ -808,7 +811,7 @@ void manipulateAcademicYearsAndSemester() {
 				while (getline(sem, semesterName, ','))
 					cout << "\t" << setw(26) << "|" << " " << semesterName << "\n";
 			}
-			cout << "To view the courses of each semester, please view the specific semester.\n\n";
+			cout << "\nTo view the courses of each semester, please view the specific semester.\n\n";
 			deleteAcademicYears(academicYears);
 		}
 		else {
@@ -818,12 +821,21 @@ void manipulateAcademicYearsAndSemester() {
 			}
 			CourseInfo* courseList = nullptr;
 			readCourseListFromFile(courseList, academicYear, semester);
-			cout << "Semester " << semester << " AY " << academicYear << "-" << academicYear + 1 << ":\n";
-			cout << "\t" << setfill(' ') << setw(15) << "Course ID |" << " Default class\n";
-			cout << "\t" << setfill('-') << setw(15) << "+" << setw(15) << " " << "\n";
+			toUpper(semester);
+			cout << "\t\t\t\t\tSEMESTER " << semester << " AY " << academicYear << "-" << academicYear + 1 << "\n\n";
+			cout << "\t" << setw(15) << " Course ID |" << setw(16) << " Default class |" << setw(15) << " Lecturer |"
+				<< setw(25) << " Duration |" << setw(8) << " Room |" << "\n";
+			cout << "\t" << setfill('-') << setw(15) << "+" << setw(16) << "+"
+				<< setw(15) << "+" << setw(25) << "+" << setw(8) << "+" << "\n";
 			CourseInfo* currentCourse = courseList;
 			while (currentCourse != nullptr) {
-				cout << "\t" << setfill(' ') << setw(14) << currentCourse->courseName << "| " << currentCourse->defaultClass << "\n";
+				Course* course = new Course;
+				readCourseFromFile(currentCourse, course);
+				string duration = dateToString(course->startDate) + " - " + dateToString(course->endDate);
+				cout << "\t" << setfill(' ') << setw(14) << currentCourse->courseName << "|" << setw(15)
+					<< currentCourse->defaultClass << "|" << setw(14) << course->lecturer.username << "|" << setw(24) 
+					<< duration << "|" << setw(7) << course->room << "|\n";
+				deleteCourse(course);
 				currentCourse = currentCourse->next;
 			}
 			cout << "\n";
@@ -2177,16 +2189,19 @@ void manipulateAllLecturers() {
 	// Create lecturer.
 	if (action == "C") {
 		// Ask for lecturer's information.
-		cout << "Please input the following information of lecturer in the same format:\n";
-		cout << "<full-name>,<title>,<male-female>\n\t";
-		cin.ignore();
-		getline(cin, row);
-		cout << "\n";
-		stringstream info(row);
-		getline(info, lecturerName, ','); lecturerName = toFormalCase(lecturerName);
-		getline(info, title, ',');
-		getline(info, gender, ','); toLower(gender);
+		cout << "Please input the following information of lecturer:\n";
+		cout << "\tFull name: ";
+		cin.ignore(); getline(cin, lecturerName); lecturerName = toFormalCase(lecturerName);
+		cout << "\tTitle: ";
+		getline(cin, title); title = toFormalCase(title);
+		cout << "\tGender (male/female): ";
+		getline(cin, gender); toLower(gender);
+		while (gender != "male" && gender != "female") {
+			cout << "\n\tGender is not correct. Input again: ";
+			getline(cin, gender); toLower(gender);
+		}
 		lecturerUsername = toUsername(lecturerName);
+		cout << "\n";
 
 		// Exit if lecturer already exists.
 		if (isLecturerExist(lecturerUsername)) {
@@ -2224,6 +2239,9 @@ void manipulateAllLecturers() {
 	}
 	// Updating a lecturer.
 	else if (action == "U") {
+		Lecturer* lecturers = nullptr;
+		readLecturersFromFile(lecturers);
+		printAllLecturersTable(lecturers);
 		cout << "Input the lecturer's username:\n\t";
 		cin >> lecturerUsername;
 		cout << "\n";
@@ -2231,8 +2249,6 @@ void manipulateAllLecturers() {
 			cout << "Updating lecturer failed. Error: Lecturer does not exist.\n\n";
 			return;
 		}
-		Lecturer* lecturers = nullptr;
-		readLecturersFromFile(lecturers);
 		Lecturer* currentLecturer = lecturers;
 		while (currentLecturer->username != lecturerUsername)
 			currentLecturer = currentLecturer->next;
@@ -2256,6 +2272,7 @@ void manipulateAllLecturers() {
 				cout << "Do you want to change name from "
 					<< currentLecturer->name << " to " << lecturerName << "? Y/N\n\t";
 				cin >> row; toUpper(row);
+				cin.ignore();
 				cout << "\n";
 				if (row == "Y")
 					currentLecturer->name = lecturerName;
@@ -2264,6 +2281,7 @@ void manipulateAllLecturers() {
 				cout << "Do you want to change gender of this lecturer? Y/N\n\t";
 				cin >> row; toUpper(row);
 				cout << "\n";
+				cin.ignore();
 				if (row == "Y") {
 					if (currentLecturer->gender == FEMALE)
 						currentLecturer->gender = MALE;
@@ -2278,6 +2296,7 @@ void manipulateAllLecturers() {
 				cout << "Do you want to change title from "
 					<< currentLecturer->title << " to " << title << "? Y/N\n\t";
 				cin >> row; toUpper(row);
+				cin.ignore();
 				cout << "\n";
 				if (row == "Y")
 					currentLecturer->title = title;
@@ -2289,6 +2308,9 @@ void manipulateAllLecturers() {
 	}
 	// Delete a lecturer.
 	else if (action == "D") {
+		Lecturer* lecturers = nullptr;
+		readLecturersFromFile(lecturers);
+		printAllLecturersTable(lecturers);
 		cout << "Input the lecturer's username:\n\t";
 		cin >> lecturerUsername;
 		cout << "\n";
@@ -2296,11 +2318,11 @@ void manipulateAllLecturers() {
 			cout << "Deleting lecturer failed. Error: Lecturer does not exist.\n\n";
 			return;
 		}
-		Lecturer* lecturers = nullptr;
-		readLecturersFromFile(lecturers);
-		Lecturer* currentLecturer = lecturers;
-		while (currentLecturer->username != lecturerUsername)
+		Lecturer* currentLecturer = lecturers, * previousLecturer = nullptr;
+		while (currentLecturer->username != lecturerUsername) {
+			previousLecturer = currentLecturer;
 			currentLecturer = currentLecturer->next;
+		}
 		printLecturerInfo(currentLecturer);
 		cout << "Are you sure to delete this lecturer?\n\t";
 		cout << "All information about their coursesand student's scores, attendance will be lost and can't be undone.\n";
@@ -2312,12 +2334,90 @@ void manipulateAllLecturers() {
 			deleteLecturers(lecturers);
 			return;
 		}
-		// TODO: REMOVE LECTURER.
+		// For each course of that lecture
+		CourseInfo* currentCourse = currentLecturer->myCourse;
+		while (currentCourse != nullptr) {
+			// Delete this course from all enrolled students.
+			ifstream in("Database/Class/Classes.txt");
+			string className;
+			while (in >> className) {
+				Student* students = nullptr;
+				readClassFromFile(className, students);
+				Student* currentStudent = students;
+				while (currentStudent != nullptr) {
+					CourseInfo* currentStudentCourse = currentStudent->myCourse, * previousStudentCourse = nullptr;
+					while (currentStudentCourse != nullptr) {
+						if (currentStudentCourse->academicYear == currentCourse->academicYear
+							&& currentStudentCourse->semester == currentCourse->semester
+							&& currentStudentCourse->courseName == currentCourse->courseName
+							&& currentStudentCourse->defaultClass == currentCourse->defaultClass) {
+							if (previousStudentCourse == nullptr) {
+								currentStudent->myCourse = currentStudentCourse->next;
+								delete currentStudentCourse;
+							}
+							else {
+								previousStudentCourse = currentStudentCourse->next;
+								delete currentStudentCourse;
+							}
+							break;
+						}
+						previousStudentCourse = currentStudentCourse;
+						currentStudentCourse = currentStudentCourse->next;
+					}
+					currentStudent = currentStudent->next;
+				}
+				writeClassToFile(students, className);
+				deleteStudentList(students);
+			}
+			in.close();
+			// Remove this course from Courses file.
+			CourseInfo* courseList = nullptr;
+			readCourseListFromFile(courseList, currentCourse->academicYear, currentCourse->semester);
+			CourseInfo* currentCourseInList = courseList, * previousCourseInList = nullptr;
+			while (currentCourseInList != nullptr) {
+				if (currentCourseInList->courseName == currentCourse->courseName
+					&& currentCourseInList->defaultClass == currentCourse->defaultClass) {
+					if (previousCourseInList == nullptr) {
+						courseList = currentCourseInList->next;
+						delete currentCourseInList;
+					}
+					else {
+						previousCourseInList->next = currentCourseInList->next;
+						delete currentCourseInList;
+					}
+					break;
+				}
+				previousCourseInList = currentCourseInList;
+				currentCourseInList = currentCourseInList->next;
+			}
+			writeCourseListToFile(courseList, currentCourse->academicYear, currentCourse->semester);
+			deleteCourseInfo(courseList);
+			in.close();
+			// Remove course file.
+			string filepath = "Database/" + to_string(currentCourse->academicYear) + "-"
+				+ to_string(currentCourse->academicYear + 1) + "/"
+				+ currentCourse->semester + "/" + currentCourse->courseName + "-" + currentCourse->defaultClass + ".txt";
+			remove(filepath.c_str());
+			currentCourse = currentCourse->next;
+		}
+		// Remove that lecturer from linked list and write to Lecturer.txt.
+		if (previousLecturer == nullptr) {
+			lecturers = lecturers->next;
+			delete currentLecturer;
+		}
+		else {
+			previousLecturer->next = currentLecturer->next;
+			delete currentLecturer;
+		}
+		writeLecturersToFile(lecturers);
 		deleteLecturers(lecturers);
 		cout << "Deleting lecturer successful.\n\n";
 	}
 	// View a lecturer.
 	else if (action == "V") {
+		Lecturer* lecturers = nullptr;
+		readLecturersFromFile(lecturers);
+		printAllLecturersTable(lecturers);
 		cout << "Input the lecturer's username:\n\t";
 		cin >> lecturerUsername;
 		cout << "\n";
@@ -2325,8 +2425,6 @@ void manipulateAllLecturers() {
 			cout << "Viewing lecturer failed. Error: Lecturer does not exist.\n\n";
 			return;
 		}
-		Lecturer* lecturers = nullptr;
-		readLecturersFromFile(lecturers);
 		Lecturer* currentLecturer = lecturers;
 		while (currentLecturer->username != lecturerUsername)
 			currentLecturer = currentLecturer->next;
@@ -2337,19 +2435,7 @@ void manipulateAllLecturers() {
 	else {
 		Lecturer* lecturers = nullptr;
 		readLecturersFromFile(lecturers);
-		cout << "ALL LECTURES' INFORMATION:\n";
-		cout << "\t" << setw(15) << "Username |" << setw(30) 
-			<< "Full name |" << setw(15) << "Title |" << setw(15) 
-			<< "Gender |" <<  "Total courses\n";
-		cout << "\t" << setfill('-') << setw(15) << "+" << setw(30) << "+" << setw(15) << "+" << setw(15) << "+" <<  setw(15) << " " << "\n";
-		Lecturer* currentLecturer = lecturers;
-		while (currentLecturer != nullptr) {
-			string gender = (currentLecturer->gender == MALE) ? "male" : "female";
-			cout << "\t" << setfill(' ') << setw(14) << currentLecturer->username << "|" << setw(29)
-				<< currentLecturer->name << "|" << setw(14) << currentLecturer->title << "|" << setw(14)
-				<< gender << "| " << to_string(currentLecturer->totalCourse) << "\n";
-			currentLecturer = currentLecturer->next;
-		}
+		printAllLecturersTable(lecturers);
 		deleteLecturers(lecturers);
 		cout << "\n";
 	}
