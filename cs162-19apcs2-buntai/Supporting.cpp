@@ -1633,7 +1633,7 @@ void showStaffClassMenu(string& username) {
 	cout << "\t2. Manually add a new student to a class." << endl;
 	cout << "\t3. Edit an existing student." << endl;
 	cout << "\t4. Remove a student." << endl;
-	cout << "\t5. Change students from class A to class B" << endl;
+	cout << "\t5. Change students from class A to class B." << endl;
 	cout << "\t6. View list of classes." << endl;
 	cout << "\t7. View list of students in a class." << endl;
 	cout << "\t8. Return to previous menu." << endl << endl;
@@ -1662,7 +1662,7 @@ void showStaffClassMenu(string& username) {
 // Show menu of staff-course.
 void showStaffCourseMenu(string& username) {
 	int chon;
-	cout << "\t1. Create / update / delete / view academic years and semesters" << endl;
+	cout << "\t1. Create / update / delete / view academic years and semesters." << endl;
 	cout << "\t2. From a semester, import courses from a csv file." << endl;
 	cout << "\t3. Manually add a new course." << endl;
 	cout << "\t4. Edit an existing course." << endl;
@@ -2061,7 +2061,7 @@ void readAttendanceList(Attendance*& attendance, CourseInfo* courseInfo, Student
 void getInfoOfStudent(Student& newTurn, string studentUsername) {
 	ifstream in;
 	in.open("Database/Class/Classes.txt");
-	if (!in) cout << "Cannot open class file, please try it later" << endl;
+	if (!in) cout << "Cannot open class file, please try again later" << endl;
 	else {
 		while (in >> newTurn.myClass)
 			if (findStudentInfoFromFile(newTurn, studentUsername))

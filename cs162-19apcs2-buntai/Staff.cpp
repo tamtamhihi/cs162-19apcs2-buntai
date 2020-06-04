@@ -1171,67 +1171,75 @@ void importCourseFromCsv() {
 // 3.3
 void manuallyAddCourse() {
 	// Ask for information.
-	string row, academicYear, semester, courseId, courseName, defaultClass, lecturerName,
-		startDate, endDate, sessionsPerWeek, dayOfWeek, startHour, endHour, room;
+	string row, semester, courseId, courseName, defaultClass, lecturerName,
+		startDate, endDate, dayOfWeek, startHour, endHour, room;
+	int academicYear, sessionsPerWeek;
 	stringstream info;
 	cin.ignore();
-	cout << "Please input the following information with the same format:\n";
-	cout << "<academic-year>,<semester>,<course-id>,<course-name>,<default-class>\n\t";
-	getline(cin, row);
-	cout << "\n";
-	info << row;
-	getline(info, academicYear, ',');
-	getline(info, semester, ','); semester = toFormalCase(semester);
-	getline(info, courseId, ','); toUpper(courseId);
-	getline(info, courseName, ',');
-	getline(info, defaultClass, ','); toUpper(defaultClass);
-	info.clear();
+	cout << "Please input the following information:\n";
+	cout << "\tAcademic year: ";
+	cin >> academicYear;
+	cout << "\tSemester: ";
+	cin >> semester;
+	semester = toFormalCase(semester);
+	cout << "\tCourse ID: ";
+	cin >> courseId;
+	toUpper(courseId);
+	cout << "\tDefault class: ";
+	cin >> defaultClass;
+	toUpper(defaultClass);
 
-	if (!isAcademicYearExist(stoi(academicYear))) {
+	// Check if academic year exitst.
+	if (!isAcademicYearExist(academicYear)) {
 		cout << "Adding course failed. Error: Academic year does not exist. Please create the corresponding academic year first.\n\n";
 		return;
 	}
-	if (!isSemesterExist(stoi(academicYear), semester)) {
+
+	// Check if semester exists.
+	if (!isSemesterExist(academicYear, semester)) {
 		cout << "Adding course failed. Error: Semester does not exist. Please create the corresponding semester first.\n\n";
 		return;
 	}
 
 	CourseInfo* courseInfo = new CourseInfo;
-	courseInfo->academicYear = stoi(academicYear);
+	courseInfo->academicYear = academicYear;
 	courseInfo->semester = semester;
 	courseInfo->courseName = courseId;
 	courseInfo->defaultClass = defaultClass;
 	courseInfo->next = nullptr;
+
+	// Check if course already exists.
 	if (isCourseExist(courseInfo)) {
 		cout << "Adding course failed. Error: Course already exists.\n\n";
 		deleteCourseInfo(courseInfo);
 		return;
 	}
+
+	// Check if default class exists.
 	if (!isClassExist(defaultClass)) {
 		cout << "Adding course failed. Error: Default class doest not exist.\n\n";
 		deleteCourseInfo(courseInfo);
 		return;
 	}
 
-	cout << "<lecturer-name>,<start-date yyyy-mm-dd>,<end-date yyyy-mm-dd>,<sessions-per-week>,<room>\n\t";
-	getline(cin, row);
-	cout << "\n";
-	info << row;
-	getline(info, lecturerName, ',');
+	cout << "\tLecturer name: ";
+	cin.ignore();
+	getline(cin, lecturerName);
 	string lecturerUsername = toUsername(lecturerName);
 	// If lecturer hasn't existed, make sure the new lecturer account does not overlap any other roles.
-	if (!isLecturerExist(lecturerUsername))
+	if (!isLecturerExist(lecturerUsername)) {
 		lecturerUsername = getValidUsername(lecturerUsername);
-	getline(info, startDate, ',');
-	getline(info, endDate, ',');
-	getline(info, sessionsPerWeek, ',');
-	getline(info, room, ',');
-	info.clear();
+		cout << "Adding course failed. Error: Lecturer does not exist. Please create corresponding lecturer info before continue.\n\n";
+		deleteCourseInfo(courseInfo);
+		return;
+	}
 
-	cout << "<day-of-week-1>,<start-hour-1>,<end-hour-1>,(...)\n\t";
-	getline(cin, row);
-	info << row;
-	cout << "\n";
+	cout << "\tStart date: ";
+	cin >> startDate;
+	cout << "\tEnd date: ";
+	cin >> endDate;
+	cout << "\tSessions per week: ";
+	cin >> sessionsPerWeek;
 
 	// Continue retrieving.
 	Course* courseTmp = new Course;
@@ -1243,16 +1251,20 @@ void manuallyAddCourse() {
 	courseTmp->startDate = getDate(startDate);
 	courseTmp->endDate = getDate(endDate);
 	courseTmp->lecturer.username = lecturerUsername;
-	courseTmp->room = room;
 	courseTmp->students = nullptr;
 	courseTmp->studentCourseInfo = nullptr;
-	courseTmp->sessionsPerWeek = stoi(sessionsPerWeek);
+	courseTmp->sessionsPerWeek = sessionsPerWeek;
 	courseTmp->sessionInfo = nullptr;
 	SessionInfo* currentSession = nullptr;
 	for (int i = 0; i < courseTmp->sessionsPerWeek; ++i) {
-		getline(info, dayOfWeek, ',');
-		getline(info, startHour, ',');
-		getline(info, endHour, ',');
+		cout << "\tSession " << i + 1 << ":\n";
+		cout << "\t\tDay of week: ";
+		cin >> dayOfWeek;
+		cin.ignore();
+		cout << "\t\tStart hour: ";
+		getline(cin, startHour);
+		cout << "\t\tEnd hour: ";
+		getline(cin, endHour);
 		if (courseTmp->sessionInfo == nullptr) {
 			courseTmp->sessionInfo = new SessionInfo;
 			currentSession = courseTmp->sessionInfo;
@@ -1266,6 +1278,11 @@ void manuallyAddCourse() {
 		currentSession->endTime = getTime(endHour);
 		currentSession->next = nullptr;
 	}
+
+	cout << "\tRoom: ";
+	cin >> room;
+	toUpper(room);
+	courseTmp->room = room;
 
 	// Ask again for confirmation.
 	cout << "Course info:\n";
@@ -1449,8 +1466,8 @@ void manuallyAddCourse() {
 	// Edit other related files.
 	// Update "Courses.txt" file.
 	string filepath = "Database/"
-		+ academicYear + "-"
-		+ to_string(stoi(academicYear) + 1) + "/"
+		+ to_string(academicYear) + "-"
+		+ to_string(academicYear + 1) + "/"
 		+ semester + "/Courses.txt";
 	ofstream out;
 	out.open(filepath, ios::app);

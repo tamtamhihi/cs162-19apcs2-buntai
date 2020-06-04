@@ -82,7 +82,7 @@ bool login(string& userName, int& userRole) {
 				Staff newTurn;
 				ifstream in;
 				in.open("Database/Staff.txt");
-				if (!in) cout << "Cannot open staff file, please try it later" << endl;
+				if (!in) cout << "Cannot open staff file, please try again later." << endl;
 				else
 				{
 					while (in) {
@@ -117,7 +117,7 @@ bool login(string& userName, int& userRole) {
 				int count = 0;
 				in.open("Database/Class/Classes.txt");
 				count++;
-				if (!in) cout << "Cannot open class file, please try it later" << endl;
+				if (!in) cout << "Cannot open class file, please try again later." << endl;
 				else {
 					while (in >> newTurn.myClass)
 						if (findStudentInfoFromFile(newTurn, userName))
@@ -164,7 +164,7 @@ void viewProfileInfo(string& username, int& userRole) {
 		Staff newTurn;
 		ifstream in;
 		in.open("Database/Staff.txt");
-		if (!in) cout << "Cannot open staff file, please try it later" << endl;
+		if (!in) cout << "Cannot open staff file, please try again later." << endl;
 		else
 		{
 			while (in) {
@@ -194,7 +194,7 @@ void viewProfileInfo(string& username, int& userRole) {
 		Lecturer newTurn;
 		ifstream in;
 		in.open("Database/Lecturer.txt");
-		if (!in) cout << "Cannot open lecturer file, please try it later" << endl;
+		if (!in) cout << "Cannot open lecturer file, please try again later." << endl;
 		else
 		{
 			while (in) {
@@ -258,7 +258,7 @@ void viewProfileInfo(string& username, int& userRole) {
 		ifstream in;
 		in.open("Database/Class/Classes.txt");
 		if (!in) {
-			cout << "Cannot open class file, please try it later" << endl;
+			cout << "Cannot open class file, please try again later." << endl;
 			return;
 		}
 		else {
