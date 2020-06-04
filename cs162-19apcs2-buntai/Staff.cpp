@@ -2114,45 +2114,52 @@ void viewListOfCourses() {
 
 // 3.9
 void viewListOfStudentsOfCourse() {
-	// Get course information.
+	// Ask for academic year and semester.
 	cout << "Please input the following information:\n";
 	int academicYear;
-	string semester, courseId, defaultClass;
+	string semester;
 	cout << "\tAcademic year: ";
 	cin >> academicYear;
 	cout << "\tSemester: ";
-	cin >> semester; semester = toFormalCase(semester);
-	cout << "\tCourse ID: ";
-	cin >> courseId; toUpper(courseId);
-	cout << "\tDefault class: ";
-	cin >> defaultClass; toUpper(defaultClass);
+	cin >> semester; 
+	semester = toFormalCase(semester);
 	cout << "\n";
 
-	// Check if course exists.
-	CourseInfo* courseInfo = new CourseInfo;
-	courseInfo->academicYear = academicYear;
-	courseInfo->semester = semester;
-	courseInfo->courseName = courseId;
-	courseInfo->defaultClass = defaultClass;
-	courseInfo->next = nullptr;
-	if (!isCourseExist(courseInfo)) {
-		cout << "View students list failed. Error: Course not found.\n\n";
-		return;
+	// Print course list table.
+	CourseInfo* courseList = nullptr;
+	readCourseListFromFile(courseList, academicYear, semester);
+	toUpper(semester);
+	cout << "\t\t\t\t\tLIST OF COURSES IN " << semester << " "
+		<< academicYear << "-" << academicYear + 1 << "\n\n";
+	semester = toFormalCase(semester);
+	int totalCourse = printCourseListTable(courseList);
+
+	// Ask for specific course to view student list.
+	cout << "\tPlease enter the number of the course to view student list: ";
+	int choice;
+	cin >> choice;
+	while (choice > totalCourse) {
+		cout << "Course number not available. Please enter again: ";
+		cin >> choice;
 	}
+	cout << "\n";
+	CourseInfo* courseInfo = courseList;
+	for (int i = 0; i < choice - 1; ++i)
+		courseInfo = courseInfo->next;
 	
 	// Read course information into a course.
 	Course* course = new Course;
 	readCourseFromFile(courseInfo, course);
 
 	// Print students list.
-	cout << "List of students enrolled in course " << courseId
+	cout << "List of students enrolled in course " << courseInfo->courseName
 		 << " of " << semester << " semester, academic year "
 		 << academicYear << "-" << academicYear + 1 << ":\n";
 	printStudentListTable(course->students);
 	cout << "\n";
 
 	// Delete linked list.
-	deleteCourseInfo(courseInfo);
+	deleteCourseInfo(courseList);
 	deleteCourse(course);
 }
 
