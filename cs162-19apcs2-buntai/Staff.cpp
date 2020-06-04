@@ -2733,40 +2733,48 @@ void searchAndViewAttendance() {
 
 // 5.2
 void exportAttendanceListToCsv() {
-	// Get course information.
-	cout << "Please input course information with the same format:\n";
-	cout << "<academic-year>,<semester>,<course-id>,<default-class>\n\t";
-	string row, academicYear, semester, courseId, defaultClass;
-	getline(cin, row);
-	cout << "\n";
-	stringstream info(row);
-	getline(info, academicYear, ',');
-	getline(info, semester, ',');
+	cin.ignore();
+	// Ask for academic year and semester.
+	cout << "Please input the following information:\n";
+	int academicYear;
+	string semester;
+	cout << "\tAcademic year: ";
+	cin >> academicYear;
+	cout << "\tSemester: ";
+	cin >> semester;
 	semester = toFormalCase(semester);
-	getline(info, courseId, ',');
-	toUpper(courseId);
-	getline(info, defaultClass, ',');
-	toUpper(defaultClass);
+	cout << "\n";
 
-	// Check whether course exists.
-	CourseInfo* courseInfo = new CourseInfo;
-	courseInfo->academicYear = stoi(academicYear);
-	courseInfo->semester = semester;
-	courseInfo->courseName = courseId;
-	courseInfo->defaultClass = defaultClass;
-	courseInfo->next = nullptr;
-	if (!isCourseExist(courseInfo)) {
-		cout << "Export failed. Error: Can't find course.\n\n";
-		deleteCourseInfo(courseInfo);
-		return;
+	// Print course list table.
+	CourseInfo* courseList = nullptr;
+	readCourseListFromFile(courseList, academicYear, semester);
+	toUpper(semester);
+	cout << "\t\t\t\t\tLIST OF COURSES IN " << semester << " "
+		<< academicYear << "-" << academicYear + 1 << "\n\n";
+	semester = toFormalCase(semester);
+	int totalCourse = printCourseListTable(courseList);
+
+	// Ask for specific course to view student list.
+	cout << "\tPlease enter the number of the course to view student list: ";
+	int choice;
+	cin >> choice;
+	while (choice > totalCourse) {
+		cout << "Course number not available. Please enter again: ";
+		cin >> choice;
 	}
+	cout << "\n";
+	CourseInfo* courseInfo = courseList;
+	for (int i = 0; i < choice - 1; ++i)
+		courseInfo = courseInfo->next;
 
-	// Read course from file.
+	// Read course information into a course.
 	Course* course = new Course;
 	readCourseFromFile(courseInfo, course);
 
 	// Export attendance list to csv file.
 	cout << "Please enter filepath to store attendance CSV file:\n\t";
+	string row;
+	cin.ignore();
 	getline(cin, row);
 	cout << "\n";
 	ofstream out(row);
@@ -2777,7 +2785,7 @@ void exportAttendanceListToCsv() {
 		return;
 	}
 	else {
-		out << "Number,"
+		out << "No,"
 			<< "Name,"
 			<< "Status,"
 			<< "Session date,"
@@ -2808,7 +2816,7 @@ void exportAttendanceListToCsv() {
 	}
 	
 	// Delete linked list.
-	deleteCourseInfo(courseInfo);
+	deleteCourseInfo(courseList);
 	deleteCourse(course);
 
 	cout << "Export successfully. Please check CSV file in " << row << "\n\n";
