@@ -1472,20 +1472,17 @@ void manuallyAddCourse() {
 // 3.4
 void editExistingCourse() {
 	// Ask for academic year, semester, course ID and default class.
-	cin.ignore();
-	cout << "Please input course information with the same format:\n";
-	cout << "<academic-year>,<semester>,<course-id>,<default-class>\n\t";
+	cout << "Please input following infomation:\n";
 	string row, academicYear, semester, courseId, defaultClass;
-	getline(cin, row);
+	cout << "\tAcademic year: ";
+	cin >> academicYear;
+	cout << "\tSemester: ";
+	cin >> semester; semester = toFormalCase(semester);
+	cout << "\tCourse ID: ";
+	cin >> courseId; toUpper(courseId);
+	cout << "\tDefault class: ";
+	cin >> defaultClass; toUpper(defaultClass);
 	cout << "\n";
-	stringstream info(row);
-	getline(info, academicYear, ',');
-	getline(info, semester, ',');
-	semester = toFormalCase(semester);
-	getline(info, courseId, ',');
-	toUpper(courseId);
-	getline(info, defaultClass, ',');
-	toUpper(defaultClass);
 
 	// Check if course exists.
 	CourseInfo* editedInfo = new CourseInfo;
@@ -1512,7 +1509,7 @@ void editExistingCourse() {
 	cout << "Input in increasing order with a space between.\n\t";
 	getline(cin, row);
 	cout << "\n";
-	info = stringstream(row);
+	stringstream info(row);
 	int choice = 0;
 	bool isNameChanged = false, isLecChanged = false;
 	while (info >> choice) {
@@ -1874,23 +1871,23 @@ void removeStudentFromCourse() {
 // 3.7
 void addAStudentToCourse() {
 	// Get input.
-	string studentID, studentClass, semester, courseID, courseClass;
-	cout << "Please enter student ID: \n\t";
-	cin >> studentID;
-	cout << "Please enter student class: \n\t";
-	cin >> studentClass;
-	toUpper(studentClass);
-	cout << "Please enter academic year, semester, courseID and default class of that course with the same format: \n";
-	cout << "\t<academicYear> <Semester> <courseID> <defaulClass> \n";
-	cout << "\t(Note that academic year 2018-2019 enter 2018 only)\n\t";
+	string studentID, semester, courseID, courseClass;
 	int academicYear;
+	cout << "Please enter following information: \n";
+	cout << "\tStudent ID: ";
+	cin >> studentID;
+	cout << "\tAcademic year: ";
 	cin >> academicYear;
+	cout << "\tSemester: ";
 	cin >> semester;
 	semester = toFormalCase(semester);
+	cout << "\tCourse ID: ";
 	cin >> courseID;
 	toUpper(courseID);
+	cout << "\tDefault class: ";
 	cin >> courseClass;
 	toUpper(courseClass);
+	cout << "\n";
 
 	// Check if course exist.
 	CourseInfo* courseInfo = new CourseInfo;
@@ -1909,13 +1906,14 @@ void addAStudentToCourse() {
 	Course* course = new Course;
 	readCourseFromFile(courseInfo, course);
 	if (isStudentExistInCourse(studentID, course)) {
-		cout << "Student has already been in course!\n";
+		cout << "Student has already been in course!\n\n";
 		deleteCourseInfo(courseInfo);
 		deleteCourse(course);
 		return;
 	}
 
 	// Read class file to read the information of added student and add course in student's courses.
+	string studentClass = findClassFromStudentId(studentID);
 	Student* studentList = nullptr;
 	readClassFromFile(studentClass, studentList);
 	Student* currentStudent = studentList;
@@ -1948,7 +1946,7 @@ void addAStudentToCourse() {
 		currentStudent = currentStudent->next;
 	}
 	if (currentStudent == nullptr) {
-		cout << "Error: Cannot find student in given class. \n";
+		cout << "Error: Cannot find student in given class. \n\n";
 		deleteCourseInfo(courseInfo);
 		deleteCourse(course);
 		deleteStudentList(studentList);
@@ -2023,7 +2021,7 @@ void addAStudentToCourse() {
 	deleteCourseInfo(courseInfo);
 
 	// Announcement.
-	cout << "Add student to course successfully. \n";
+	cout << "Add student to course successfully.\n\n";
 }
 
 // 3.8
