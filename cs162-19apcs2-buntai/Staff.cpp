@@ -1771,22 +1771,21 @@ void removeCourse() {
 // 3.6
 void removeStudentFromCourse() {
 	// Get input.
-	string studentID, studentClass, semester, courseID, courseClass;
-	cout << "Please enter student ID: \n\t";
-	cin >> studentID;
-	cout << "Please enter student class: \n\t";
-	cin >> studentClass;
-	toUpper(studentClass);
-	cout << "Please enter academic year, semester, courseID and default class of that course with the same format: \n";
-	cout << "\t<academicYear> <Semester> <courseID> <defaulClass> \n";
-	cout << "\t(Note that academic year 2018-2019 enter 2018 only)\n\t";
+	string studentID, semester, courseID, courseClass;
 	int academicYear;
+	cout << "Please enter following information: \n";
+	cout << "\tStudent ID: ";
+	cin >> studentID;
+	cout << "\tAcademic year: ";
 	cin >> academicYear;
+	cout << "\tSemester: ";
 	cin >> semester;
 	semester = toFormalCase(semester);
-	cin >> courseID;
+	cout << "\tCourse ID: ";
+	cin >> courseID; 
 	toUpper(courseID);
-	cin >> courseClass;
+	cout << "\tDefault class: ";
+	cin >> courseClass; 
 	toUpper(courseClass);
 	cout << "\n";
 
@@ -1798,13 +1797,19 @@ void removeStudentFromCourse() {
 	courseInfo->defaultClass = courseClass;
 	courseInfo->next = nullptr;
 	if (!isCourseExist(courseInfo)){
-		cout << "Error: Given course does not exist.\n";
+		cout << "Error: Given course does not exist.\n\n";
+		deleteCourseInfo(courseInfo);
 		return;
 	}
-
+	
 	// Remove student from file <course>-<default>.txt.
 	Course* course = new Course;
 	readCourseFromFile(courseInfo, course);
+	if (!isStudentExistInCourse(studentID, course)) {
+		cout << "Error: Given student does not exist in course.\n\n";
+		deleteCourse(course);
+		return;
+	}
 	Student* currentStudent = course->students;
 	StudentCourseInfo* currentStudentCourseInfo = course->studentCourseInfo;
 	while (currentStudent != nullptr) {
@@ -1815,13 +1820,10 @@ void removeStudentFromCourse() {
 		currentStudent = currentStudent->next;
 		currentStudentCourseInfo = currentStudentCourseInfo->next;
 	}
-	if (currentStudent == nullptr) {
-		cout << "Error: Can not find student in given course.\n";
-		return;
-	}
 	writeCourseToFile(course);
 	
 	// Read class file to find student and remove in his/her courses.
+	string studentClass = findClassFromStudentId(studentID);
 	Student* studentList = nullptr;
 	readClassFromFile(studentClass, studentList);
 	Student* current = studentList;
@@ -1861,12 +1863,12 @@ void removeStudentFromCourse() {
 	writeClassToFile(studentList, studentClass);
 
 	// Delete pointer.
-	deleteCourse(course);
 	deleteCourseInfo(courseInfo);
+	deleteCourse(course);
 	deleteStudentList(studentList);
 
 	// Announcement.
-	cout << "Remove student from course successfully!\n";
+	cout << "Remove student from course successfully!\n\n";
 }
 
 // 3.7
