@@ -1994,7 +1994,7 @@ bool isPresent(Attendance* attendance) {
 }
 
 // Find whether a student ID exists, if yes store the info.
-bool findStudentInfoFromId(Student& student, string studentId) {
+bool findStudentInfoFromId(Student*& student, string studentId) {
 	ifstream in("Database/Class/Classes.txt");
 	string className;
 	while (in >> className) {
@@ -2003,15 +2003,16 @@ bool findStudentInfoFromId(Student& student, string studentId) {
 		Student* currentStudent = studentList;
 		while (currentStudent != nullptr) {
 			if (currentStudent->studentId == studentId) {
-				student.name = currentStudent->name;
-				student.studentId = studentId;
-				student.numberOfCourse = currentStudent->numberOfCourse;
-				student.myCourse = nullptr;
+				student->name = currentStudent->name;
+				student->studentId = studentId;
+				student->status = currentStudent->status;
+				student->numberOfCourse = currentStudent->numberOfCourse;
+				student->myCourse = nullptr;
 				CourseInfo* currentInfo = currentStudent->myCourse;
 				for (int i = 0; i < currentStudent->numberOfCourse; ++i) {
-					if (student.myCourse == nullptr) {
-						student.myCourse = new CourseInfo;
-						currentInfo = student.myCourse;
+					if (student->myCourse == nullptr) {
+						student->myCourse = new CourseInfo;
+						currentInfo = student->myCourse;
 					}
 					else {
 						currentInfo->next = new CourseInfo;
@@ -2037,7 +2038,7 @@ bool findStudentInfoFromId(Student& student, string studentId) {
 }
 
 // Read attendance list from a course info.
-void readAttendanceList(Attendance*& attendance, CourseInfo* courseInfo, Student student) {
+void readAttendanceList(Attendance*& attendance, CourseInfo* courseInfo, Student* student) {
 	// Read student list from file.
 	Course* course = new Course;
 	readCourseFromFile(courseInfo, course);
@@ -2046,7 +2047,7 @@ void readAttendanceList(Attendance*& attendance, CourseInfo* courseInfo, Student
 	Student* currentStudent = course->students;
 	StudentCourseInfo* currentStudentInfo = course->studentCourseInfo;
 	while (currentStudent != nullptr) {
-		if (currentStudent->studentId == student.studentId) {
+		if (currentStudent->studentId == student->studentId) {
 			Attendance* currentAttendance = currentStudentInfo->attendance, * currentList = attendance;
 			while (currentAttendance != nullptr) {
 				if (currentList == nullptr) {

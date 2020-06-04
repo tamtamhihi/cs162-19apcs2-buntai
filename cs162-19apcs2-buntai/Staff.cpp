@@ -1246,9 +1246,11 @@ void manuallyAddCourse() {
 		return;
 	}
 
-	cout << "\tStart date: ";
+	cout << "\tStart date: <yyyy>-<mm>-<dd>\n"
+		<< "\t            ";
 	cin >> startDate;
-	cout << "\tEnd date: ";
+	cout << "\tEnd date: <yyyy>-<mm>-<dd>\n"
+		<< "\t          ";
 	cin >> endDate;
 	cout << "\tSessions per week: ";
 	cin >> sessionsPerWeek;
@@ -1273,9 +1275,11 @@ void manuallyAddCourse() {
 		cout << "\t\tDay of week: ";
 		cin >> dayOfWeek;
 		cin.ignore();
-		cout << "\t\tStart hour: ";
+		cout << "\t\tStart hour: <hh> <mm>\n"
+			<< "\t\t            ";
 		getline(cin, startHour);
-		cout << "\t\tEnd hour: ";
+		cout << "\t\tEnd hour: <hh> <mm>\n"
+			<< "\t\t          ";
 		getline(cin, endHour);
 		if (courseTmp->sessionInfo == nullptr) {
 			courseTmp->sessionInfo = new SessionInfo;
@@ -2618,57 +2622,56 @@ void exportScoreboardToCsv() {
 
 // 5.1
 void searchAndViewAttendance() {
-	// Get student information.
-	cout << "Please input student information with the same format:\n";
-	cout << "<academic-year>,<semester>,<course-id>,<default-class>,<student-id>\n\t";
-	string row, academicYear, semester, courseId, defaultClass, studentId;
-	getline(cin, row);
+	cin.ignore();
+	// Ask for academic year and semester.
+	cout << "Please input the following information:\n";
+	string studentId;
+	cout << "\tStudent ID: ";
+	cin >> studentId;
 	cout << "\n";
-	stringstream info(row);
-	getline(info, academicYear, ',');
-	int AY = stoi(academicYear);
-	getline(info, semester, ',');
-	semester = toFormalCase(semester);
-	getline(info, courseId, ',');
-	toUpper(courseId);
-	getline(info, defaultClass, ',');
-	toUpper(defaultClass);
-	getline(info, studentId, ',');
 
-	// Check whether student exists, if yes store student info.
-	Student student;
+	// Check if student exists. If yes store the info.
+	Student* student = new Student;
+	student->next = nullptr;
 	if (!findStudentInfoFromId(student, studentId)) {
-		cout << "Search failed. Error: Student not found.\n\n";
+		cout << "Search attendance failed. Error: Student ID does not exist.\n\n";
+		deleteStudentList(student);
 		return;
 	}
 
-	// Check whether student studies the course.
-	bool isStudy = false;
-	CourseInfo* currentCourse = student.myCourse;
-	while (currentCourse != nullptr) {
-		if (currentCourse->academicYear == AY && currentCourse->semester == semester &&
-			currentCourse->courseName == courseId && currentCourse->defaultClass == defaultClass) {
-			isStudy = true;
-			break;
-		}
-		currentCourse = currentCourse->next;
-	}
-	if (!isStudy) {
-		cout << "Search failed. Error: Course not found in student course list.\n\n";
-		deleteCourseInfo(student.myCourse);
+	// Check if student is studying or dropped out.
+	if (!student->status) {
+		cout << "View attendance failed. Error: Student as dropped out.\n\n";
+		deleteStudentList(student);
 		return;
 	}
 
-	// Read attendance list.
+	// Print course list table.
+	cout << "\t\t\t\t\tLIST OF COURSES\n\n";
+	int totalCourse = printCourseListTable(student->myCourse);
+
+	// Ask for specific course enrolled by the student.
+	cout << "\tPlease enter the number of the course to view attendance: ";
+	int choice;
+	cin >> choice;
+	while (choice > totalCourse) {
+		cout << "Course number not available. Please enter again: ";
+		cin >> choice;
+	}
+	cout << "\n";
+	CourseInfo* courseInfo = student->myCourse;
+	for (int i = 0; i < choice - 1; ++i)
+		courseInfo = courseInfo->next;
+	
+	// Find student attendance.
 	Attendance* attendance = nullptr;
-	readAttendanceList(attendance, currentCourse, student);
+	readAttendanceList(attendance, courseInfo, student);
 
-	// Ask for way to view and prompt editing.
+	// Ask for way to view.
 	cout << "Which way do you want to view attendance of student " 
-		<< student.name << " - " << student.studentId << "?\n";
+		<< student->name << " - " << student->studentId << "?\n";
 	cout << "\t1-All attendance\n\t2-Attendance in specific date\n";
 	cout << "Please choose one.\n\t";
-	int choice;
 	cin >> choice;
 	cout << "\n";
 	if (choice == 1) {
@@ -2691,6 +2694,7 @@ void searchAndViewAttendance() {
 		cout << "\t" << setfill(' ') << setw(10) << "On time |" << " " << onTime << "\n";
 		cout << "\t" << setfill('-') << setw(10) << "+" << setw(5) << "\n";
 		cout << "\t" << setfill(' ') << setw(10) << "Absent |" << " " << totalSession - onTime << "\n";
+		cout << "\n";
 	}
 	else {
 		// Print session list.
@@ -2699,6 +2703,7 @@ void searchAndViewAttendance() {
 		// Choose date to view.
 		cout << "Please input date to view with the same format:\n";
 		cout << "<yyyy>-<mm>-<dd>\n\t";
+		string row;
 		cin.ignore();
 		getline(cin, row);
 		Date date = getDate(row);
@@ -2722,7 +2727,7 @@ void searchAndViewAttendance() {
 	}
 
 	// Delete linked list.
-	deleteCourseInfo(student.myCourse);
+	deleteStudentList(student);
 	deleteAttendance(attendance);
 }
 

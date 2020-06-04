@@ -121,7 +121,7 @@ bool findStudentInfoFromFile(Student& newTurn, string userName);
 string findClassFromStudentId(string& studentId);
 void printAttendanceListWithId(Course* course);
 void findAttendanceDateOfCourse(Attendance*& attendanceDate, CourseInfo*& courseInfo);
-bool findStudentInfoFromId(Student& student, string studentId);
+bool findStudentInfoFromId(Student*& student, string studentId);
 void getInfoOfStudent(Student& newTurn, string studentUsername);
 
 void printStudentInfo(Student*& student);
@@ -141,7 +141,7 @@ void readClassFromFile(string className, Student*& studentList);
 void readCourseFromFile(CourseInfo* courseInfo, Course*& course);
 void readAcademicYearsFromFile(AcademicYear*& academicYears);
 void readLecturersFromFile(Lecturer*& lecturers);
-void readAttendanceList(Attendance*& attendance, CourseInfo* courseInfo, Student student);
+void readAttendanceList(Attendance*& attendance, CourseInfo* courseInfo, Student* student);
 void readAllCourseInfo(CourseInfo*& courseList);
 
 void writeClassToFile(Student*& students, string className);
