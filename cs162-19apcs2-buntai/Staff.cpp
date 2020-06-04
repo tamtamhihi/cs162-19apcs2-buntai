@@ -2069,15 +2069,24 @@ void addAStudentToCourse() {
 
 // 3.8
 void viewListOfCourses() {
+	// Ask for academic year and semester.
 	cout << "Please input the following information:\n";
 	int academicYear;
 	string semester;
 	cout << "\tAcademic year: ";
 	cin >> academicYear;
 	cout << "\tSemester: ";
-	cin >> semester; semester = toFormalCase(semester);
+	cin >> semester;
+	semester = toFormalCase(semester);
 	cout << "\n";
 
+	// Check if academic year exists.
+	if (!isAcademicYearExist(academicYear)) {
+		cout << "View list of courses failed. Error: Academic year does not exist.\n\n";
+		return;
+	}
+
+	// Check if semester exists.
 	if (!isSemesterExist(academicYear, semester)) {
 		cout << "View list of courses failed. Error: Semester does not exist.\n\n";
 		return;
