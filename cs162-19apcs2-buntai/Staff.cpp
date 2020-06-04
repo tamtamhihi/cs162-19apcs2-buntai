@@ -1498,8 +1498,8 @@ void editExistingCourse() {
 	CourseInfo* courseList = nullptr;
 	readCourseListFromFile(courseList, AY, semester);
 	toUpper(semester);
-	cout << "\t\t\t\t\tLIST OF COURSES IN " << semester 
-		<< " AY " << AY%100 << "-" << AY%100 + 1 << "\n\n";
+	cout << "\t\t\t\t\tLIST OF COURSES IN " << semester << " "
+		<< AY << "-" << AY + 1 << "\n\n";
 	semester = toFormalCase(semester);
 	int totalCourse = printCourseListTable(courseList);
 
