@@ -325,7 +325,7 @@ void importScoreboardFromCsv(string lecturerUsername) {
 		courseInfo = courseInfo->next;
 
 	// Ask filepath of csv file
-	cout << "Please input filepath to csv file: \n";
+	cout << "Please input filepath to csv file: \n\t";
 	string filepath;
 	cin >> filepath;
 	cout << "\n";
@@ -412,7 +412,20 @@ void importScoreboardFromCsv(string lecturerUsername) {
 		curStudentCourseScore = curStudentCourseScore->next;
 		curStudentScore = curStudentScore->next;
 	}
-	writeCourseToFile(course);
+
+	// Print scoreboard to confirm.
+	cout << "SCOREBOARD LOADED FROM CSV FILE: \n";
+	printScoreboardTable(course);
+	cout << "Are you sure to import scoreboard to course (Y/N): ";
+	string c;
+	cin >> c; toUpper(c);
+	if (c == "Y") {
+		writeCourseToFile(course);
+		cout << "Import scoreboard from file csv successfully!\n\n";
+	}
+	else {
+		cout << "Cancel import scoreboard. \n\n";
+	}
 
 	// Delete linked list.
 	deleteLecturers(lecturers);
@@ -420,8 +433,6 @@ void importScoreboardFromCsv(string lecturerUsername) {
 	deleteStudent(studentCsv);
 	deleteStudentCourseInfo(studentScore);
 
-	// Announcement.
-	cout << "Import scoreboard from file csv successfully!\n\n";
 }
 
 // 6.6
