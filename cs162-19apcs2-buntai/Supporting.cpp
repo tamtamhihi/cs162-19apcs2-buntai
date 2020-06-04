@@ -274,8 +274,8 @@ bool isCourseExist(CourseInfo* courseInfo) {
 bool isCourseInCourseList(int academicYear, string semester, string courseId, CourseInfo*& courseList) {
 	CourseInfo* currentCourse = courseList;
 	while (currentCourse != nullptr) {
-		if (currentCourse->academicYear == academicYear 
-			&& currentCourse->semester == semester 
+		if (currentCourse->academicYear == academicYear
+			&& currentCourse->semester == semester
 			&& currentCourse->courseName == courseId)
 			return true;
 		currentCourse = currentCourse->next;
@@ -489,13 +489,13 @@ void addUser(string username, string password, int type) {
 // Add a single lecturer to "Lecturer.txt" file using lecturer information from a new Course.
 void addLecturerFromNewCourse(Lecturer lecturer, CourseInfo *courseInfo) {
 	ofstream out("Database/Lecturer.txt", ios::app);
-	out << lecturer.username << "\n" 
-		<< lecturer.name << "\n" 
-		<< lecturer.title << "\n" 
+	out << lecturer.username << "\n"
+		<< lecturer.name << "\n"
+		<< lecturer.title << "\n"
 		<< lecturer.gender << "\n"
 		<< 1 << "\n"
-		<< courseInfo->academicYear << " " << courseInfo->academicYear + 1 << " " 
-		<< courseInfo->semester << " " 
+		<< courseInfo->academicYear << " " << courseInfo->academicYear + 1 << " "
+		<< courseInfo->semester << " "
 		<< courseInfo->courseName << " "
 		<< courseInfo->defaultClass << "\n\n";
 	out.close();
@@ -656,7 +656,7 @@ void printStudentListTable(Student*& students) {
 	while (currentStudent != nullptr) {
 		++count;
 		string dob = dateToString(currentStudent->dob);
-		cout << "\t" << setfill(' ') << setw(4) << count << "|" 
+		cout << "\t" << setfill(' ') << setw(4) << count << "|"
 			<< setw(14) << currentStudent->studentId << "|"
 			<< setw(29) << currentStudent->name << "|"
 			<< setw(14) << dob << "| ";
@@ -714,17 +714,17 @@ void printLecturerInfo(Lecturer*& lecturer) {
 	else cout << "female\n";
 	cout << "\tNumber of course: " << lecturer->totalCourse << "\n";
 	if (lecturer->totalCourse) {
-		cout << "\t" << setw(20) << "Academic year |" << setw(20) << "Semester |" 
+		cout << "\t" << setw(20) << "Academic year |" << setw(20) << "Semester |"
 			<< setw(20) << "Course ID |" <<" Default class\n";
-		cout << "\t" << setfill('-') << setw(20) << "+" << setw(20) << "+" 
+		cout << "\t" << setfill('-') << setw(20) << "+" << setw(20) << "+"
 			<< setw(20) << "+" << setw(20) << " " << "\n";
 		CourseInfo* currentCourse = lecturer->myCourse;
 		while (currentCourse != nullptr) {
-			string year = to_string(currentCourse->academicYear) + "-" 
+			string year = to_string(currentCourse->academicYear) + "-"
 				+ to_string(currentCourse->academicYear + 1);
 			cout << "\t" << setfill(' ') << setw(19) << year << "|"
-				<< setw(19) << currentCourse->semester << "|" 
-				<< setw(19) << currentCourse->courseName << "| " 
+				<< setw(19) << currentCourse->semester << "|"
+				<< setw(19) << currentCourse->courseName << "| "
 				<< currentCourse->defaultClass << "\n";
 			currentCourse = currentCourse->next;
 		}
@@ -768,7 +768,7 @@ int printCourseListTable(CourseInfo* courseList) {
 	while (currentCourse != nullptr) {
 		string year = to_string(currentCourse->academicYear) + "-"
 			+ to_string(currentCourse->academicYear + 1);
-		cout << "\t" << setfill(' ') << setw(4) << ++count << "|" 
+		cout << "\t" << setfill(' ') << setw(4) << ++count << "|"
 			<< setw(19) << year << "|"
 			<< setw(19) << currentCourse->semester << "|"
 			<< setw(19) << currentCourse->courseName << "| "
@@ -789,7 +789,7 @@ void printAllSessionsTable(Attendance*& attendanceDate) {
 	Attendance* currentAttendance = attendanceDate;
 	while (currentAttendance != nullptr) {
 		string date = numToDay(getDayOfWeek(currentAttendance->date)) + ", " + dateToString(currentAttendance->date);
-		string sessionTime = "\t" + timeToString(currentAttendance->startTime) 
+		string sessionTime = "\t" + timeToString(currentAttendance->startTime)
 			+ "-" + timeToString(currentAttendance->endTime);
 		cout << "\t" << setfill(' ') << setw(4) << ++count << "|"
 			<< setw(19) << date << "|"
@@ -1633,7 +1633,7 @@ void showStaffClassMenu(string& username) {
 	cout << "\t2. Manually add a new student to a class." << endl;
 	cout << "\t3. Edit an existing student." << endl;
 	cout << "\t4. Remove a student." << endl;
-	cout << "\t5. Change students from class A to class B" << endl;
+	cout << "\t5. Change students from class A to class B." << endl;
 	cout << "\t6. View list of classes." << endl;
 	cout << "\t7. View list of students in a class." << endl;
 	cout << "\t8. Return to previous menu." << endl << endl;
@@ -1666,7 +1666,7 @@ void showStaffClassMenu(string& username) {
 // Show menu of staff-course.
 void showStaffCourseMenu(string& username) {
 	string chon;
-	cout << "\t1. Create / update / delete / view academic years and semesters" << endl;
+	cout << "\t1. Create / update / delete / view academic years and semesters." << endl;
 	cout << "\t2. From a semester, import courses from a csv file." << endl;
 	cout << "\t3. Manually add a new course." << endl;
 	cout << "\t4. Edit an existing course." << endl;
@@ -1733,7 +1733,7 @@ void showStaffScoreboardMenu(string& username) {
 	showStaffScoreboardMenu(username);
 }
 
-// Show menu of staff-attendance 
+// Show menu of staff-attendance
 void showStaffAttendanceMenu(string& username) {
 	string chon;
 	cout << "\t1. Search and view attendance list of a course." << endl;
@@ -1903,7 +1903,7 @@ string findClassFromStudentId(string& studentId) {
 			Student* students = nullptr;
 			readClassFromFile(className, students);
 			Student* currentStudent = students;
-			while (currentStudent != nullptr && (currentStudent->studentId != studentId 
+			while (currentStudent != nullptr && (currentStudent->studentId != studentId
 				|| !currentStudent->status))
 				currentStudent = currentStudent->next;
 			if (currentStudent != nullptr) {
@@ -2041,7 +2041,7 @@ void readAttendanceList(Attendance*& attendance, CourseInfo* courseInfo, Student
 	// Read student list from file.
 	Course* course = new Course;
 	readCourseFromFile(courseInfo, course);
-	
+
 	// Find student course info and read attendance list.
 	Student* currentStudent = course->students;
 	StudentCourseInfo* currentStudentInfo = course->studentCourseInfo;
@@ -2078,7 +2078,7 @@ void readAttendanceList(Attendance*& attendance, CourseInfo* courseInfo, Student
 void getInfoOfStudent(Student& newTurn, string studentUsername) {
 	ifstream in;
 	in.open("Database/Class/Classes.txt");
-	if (!in) cout << "Cannot open class file, please try it later" << endl;
+	if (!in) cout << "Cannot open class file, please try again later" << endl;
 	else {
 		while (in >> newTurn.myClass)
 			if (findStudentInfoFromFile(newTurn, studentUsername))
