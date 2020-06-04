@@ -1472,17 +1472,15 @@ void manuallyAddCourse() {
 // 3.4
 void editExistingCourse() {
 	// Ask for academic year and semester.
-	cin.ignore();
-	cout << "Please input course information with the same format:\n";
-	cout << "<academic-year>,<semester>\n\t";
-	string row, academicYear, semester, courseId, defaultClass;
-	getline(cin, row);
-	cout << "\n";
-	stringstream info(row);
-	getline(info, academicYear, ',');
+	cout << "Please input following infomation:\n";
+	string row, academicYear, semester;
+	cout << "\tAcademic year: ";
+	cin >> academicYear;
 	int AY = stoi(academicYear);
-	getline(info, semester, ',');
+	cout << "\tSemester: ";
+	cin >> semester; 
 	semester = toFormalCase(semester);
+	cout << "\n";
 
 	// Check if academic year exists.
 	if (!isAcademicYearExist(AY)) {
@@ -1531,7 +1529,7 @@ void editExistingCourse() {
 	cin.ignore();
 	getline(cin, row);
 	cout << "\n";
-	info = stringstream(row);
+	stringstream info(row);
 	bool isNameChanged = false, isLecChanged = false;
 	while (info >> choice) {
 		if (choice == 1) {
@@ -1665,18 +1663,18 @@ void removeCourse() {
 	cin >> defaultClass; toUpper(defaultClass);
 	cout << "\n";
 
-	// Read courses.txt to find remove course.
+	// Read courses.txt to find removed course.
 	CourseInfo* courseList = nullptr;
 	readCourseListFromFile(courseList, academicYear, semester);
 
-	// Find remove course.
+	// Find removed course.
 	if (courseList == nullptr) {
 		cout << "Error: Cannot find the course.\n\n";
 		return;
 	}
 	CourseInfo* currentCourseList = courseList;
 	CourseInfo* previous = currentCourseList;
-	while (currentCourseList->courseName != courseID && currentCourseList->defaultClass!= defaultClass) {
+	while (currentCourseList->courseName != courseID || currentCourseList->defaultClass!= defaultClass) {
 		previous = currentCourseList;
 		currentCourseList = currentCourseList->next;
 		if (currentCourseList == nullptr) {
@@ -1687,10 +1685,15 @@ void removeCourse() {
 	}
 
 	// Remove course name in file Courses.txt.
-	if (currentCourseList == courseList) courseList = courseList->next;
+	if (currentCourseList == courseList) {
+		CourseInfo* tem;
+		tem = courseList;
+		courseList = courseList->next;
+		delete tem;
+	}
 	else {
 		previous->next = currentCourseList->next;
-		deleteCourseInfo(currentCourseList);
+		delete currentCourseList;
 	}
 	writeCourseListToFile(courseList, academicYear, semester);
 	deleteCourseInfo(courseList);
@@ -1747,11 +1750,13 @@ void removeCourse() {
 			deleteStudent(studentList);
 		}
 	}
+	in.close();
 
 	// Remove course in lecterer course.
 	Lecturer* lecturers = nullptr;
 	readLecturersFromFile(lecturers);
-	while (lecturers != nullptr && lecturers->myCourse!=nullptr) {
+	Lecturer* currentlecturer = lecturers;
+	while (currentlecturer != nullptr && currentlecturer->myCourse != nullptr) {
 		if (lecturers->myCourse->academicYear == academicYear
 			&& lecturers->myCourse->semester == semester
 			&& lecturers->myCourse->courseName == courseID
@@ -1777,6 +1782,7 @@ void removeCourse() {
 				if (currentCourse == nullptr) break;
 			}
 		}
+		currentlecturer = currentlecturer->next;
 	}
 	writeLecturersToFile(lecturers);
 	deleteLecturers(lecturers);
@@ -1788,22 +1794,21 @@ void removeCourse() {
 // 3.6
 void removeStudentFromCourse() {
 	// Get input.
-	string studentID, studentClass, semester, courseID, courseClass;
-	cout << "Please enter student ID: \n\t";
-	cin >> studentID;
-	cout << "Please enter student class: \n\t";
-	cin >> studentClass;
-	toUpper(studentClass);
-	cout << "Please enter academic year, semester, courseID and default class of that course with the same format: \n";
-	cout << "\t<academicYear> <Semester> <courseID> <defaulClass> \n";
-	cout << "\t(Note that academic year 2018-2019 enter 2018 only)\n\t";
+	string studentID, semester, courseID, courseClass;
 	int academicYear;
+	cout << "Please enter following information: \n";
+	cout << "\tStudent ID: ";
+	cin >> studentID;
+	cout << "\tAcademic year: ";
 	cin >> academicYear;
+	cout << "\tSemester: ";
 	cin >> semester;
 	semester = toFormalCase(semester);
-	cin >> courseID;
+	cout << "\tCourse ID: ";
+	cin >> courseID; 
 	toUpper(courseID);
-	cin >> courseClass;
+	cout << "\tDefault class: ";
+	cin >> courseClass; 
 	toUpper(courseClass);
 	cout << "\n";
 
@@ -1815,13 +1820,19 @@ void removeStudentFromCourse() {
 	courseInfo->defaultClass = courseClass;
 	courseInfo->next = nullptr;
 	if (!isCourseExist(courseInfo)){
-		cout << "Error: Given course does not exist.\n";
+		cout << "Error: Given course does not exist.\n\n";
+		deleteCourseInfo(courseInfo);
 		return;
 	}
-
+	
 	// Remove student from file <course>-<default>.txt.
 	Course* course = new Course;
 	readCourseFromFile(courseInfo, course);
+	if (!isStudentExistInCourse(studentID, course)) {
+		cout << "Error: Given student does not exist in course.\n\n";
+		deleteCourse(course);
+		return;
+	}
 	Student* currentStudent = course->students;
 	StudentCourseInfo* currentStudentCourseInfo = course->studentCourseInfo;
 	while (currentStudent != nullptr) {
@@ -1832,13 +1843,10 @@ void removeStudentFromCourse() {
 		currentStudent = currentStudent->next;
 		currentStudentCourseInfo = currentStudentCourseInfo->next;
 	}
-	if (currentStudent == nullptr) {
-		cout << "Error: Can not find student in given course.\n";
-		return;
-	}
 	writeCourseToFile(course);
 	
 	// Read class file to find student and remove in his/her courses.
+	string studentClass = findClassFromStudentId(studentID);
 	Student* studentList = nullptr;
 	readClassFromFile(studentClass, studentList);
 	Student* current = studentList;
@@ -1878,34 +1886,34 @@ void removeStudentFromCourse() {
 	writeClassToFile(studentList, studentClass);
 
 	// Delete pointer.
-	deleteCourse(course);
 	deleteCourseInfo(courseInfo);
+	deleteCourse(course);
 	deleteStudentList(studentList);
 
 	// Announcement.
-	cout << "Remove student from course successfully!\n";
+	cout << "Remove student from course successfully!\n\n";
 }
 
 // 3.7
 void addAStudentToCourse() {
 	// Get input.
-	string studentID, studentClass, semester, courseID, courseClass;
-	cout << "Please enter student ID: \n\t";
-	cin >> studentID;
-	cout << "Please enter student class: \n\t";
-	cin >> studentClass;
-	toUpper(studentClass);
-	cout << "Please enter academic year, semester, courseID and default class of that course with the same format: \n";
-	cout << "\t<academicYear> <Semester> <courseID> <defaulClass> \n";
-	cout << "\t(Note that academic year 2018-2019 enter 2018 only)\n\t";
+	string studentID, semester, courseID, courseClass;
 	int academicYear;
+	cout << "Please enter following information: \n";
+	cout << "\tStudent ID: ";
+	cin >> studentID;
+	cout << "\tAcademic year: ";
 	cin >> academicYear;
+	cout << "\tSemester: ";
 	cin >> semester;
 	semester = toFormalCase(semester);
+	cout << "\tCourse ID: ";
 	cin >> courseID;
 	toUpper(courseID);
+	cout << "\tDefault class: ";
 	cin >> courseClass;
 	toUpper(courseClass);
+	cout << "\n";
 
 	// Check if course exist.
 	CourseInfo* courseInfo = new CourseInfo;
@@ -1924,13 +1932,14 @@ void addAStudentToCourse() {
 	Course* course = new Course;
 	readCourseFromFile(courseInfo, course);
 	if (isStudentExistInCourse(studentID, course)) {
-		cout << "Student has already been in course!\n";
+		cout << "Student has already been in course!\n\n";
 		deleteCourseInfo(courseInfo);
 		deleteCourse(course);
 		return;
 	}
 
 	// Read class file to read the information of added student and add course in student's courses.
+	string studentClass = findClassFromStudentId(studentID);
 	Student* studentList = nullptr;
 	readClassFromFile(studentClass, studentList);
 	Student* currentStudent = studentList;
@@ -1963,7 +1972,7 @@ void addAStudentToCourse() {
 		currentStudent = currentStudent->next;
 	}
 	if (currentStudent == nullptr) {
-		cout << "Error: Cannot find student in given class. \n";
+		cout << "Error: Cannot find student in given class. \n\n";
 		deleteCourseInfo(courseInfo);
 		deleteCourse(course);
 		deleteStudentList(studentList);
@@ -2038,7 +2047,7 @@ void addAStudentToCourse() {
 	deleteCourseInfo(courseInfo);
 
 	// Announcement.
-	cout << "Add student to course successfully. \n";
+	cout << "Add student to course successfully.\n\n";
 }
 
 // 3.8
