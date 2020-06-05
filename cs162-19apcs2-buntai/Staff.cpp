@@ -510,6 +510,9 @@ void removeStudent() {
 	cout << "\tWriting class to file...\n";
 	writeClassToFile(studentList, className);
 
+	// Remove student account.
+	removeUser(removeStudent->username);
+
 	// Change status of removed student in enrolled courses to be 0.
 	cout << "\tRemoving students from enrolled courses...\n";
 	CourseInfo* myCourse = removeStudent->myCourse,* currentCourse = myCourse;
@@ -1198,6 +1201,8 @@ void manuallyAddCourse() {
 	cout << "\tCourse ID: ";
 	cin >> courseId;
 	toUpper(courseId);
+	cout << "\tCourse name: ";
+	cin.ignore(); getline(cin, courseName); courseName = toFormalCase(courseName);
 	cout << "\tDefault class: ";
 	cin >> defaultClass;
 	toUpper(defaultClass);
@@ -1280,7 +1285,6 @@ void manuallyAddCourse() {
 		cin.ignore();
 		cout << "\t\tStart hour: <hh> <mm>\n"
 			<< "\t\t            ";
-		cin.ignore();
 		getline(cin, startHour);
 		cout << "\t\tEnd hour: <hh> <mm>\n"
 			<< "\t\t          ";
@@ -1335,6 +1339,7 @@ void manuallyAddCourse() {
 	cout << "\n";
 	toUpper(row);
 	if (row == "N") {
+		cout << "Adding course cancelled.\n\n";
 		deleteCourseInfo(courseInfo);
 		deleteCourse(courseTmp);
 		return;
@@ -1762,6 +1767,7 @@ void removeCourse() {
 						CourseInfo* temp = currentStudent->myCourse;
 						currentStudent->myCourse = currentStudent->myCourse->next;
 						delete temp;
+						currentStudent->numberOfCourse--;
 					}
 					else {
 						CourseInfo* currentCourse = currentStudent->myCourse;
@@ -1774,6 +1780,7 @@ void removeCourse() {
 								temp = currentCourse->next;
 								currentCourse->next = currentCourse->next->next;
 								delete temp;
+								currentStudent->numberOfCourse--;
 								break;
 							}
 							currentCourse = currentCourse->next;
@@ -1793,17 +1800,20 @@ void removeCourse() {
 	Lecturer* lecturers = nullptr;
 	readLecturersFromFile(lecturers);
 	Lecturer* currentlecturer = lecturers;
-	while (currentlecturer != nullptr && currentlecturer->myCourse != nullptr) {
-		if (lecturers->myCourse->academicYear == academicYear
-			&& lecturers->myCourse->semester == semester
-			&& lecturers->myCourse->courseName == courseID
-			&& lecturers->myCourse->defaultClass == defaultClass) {
-			CourseInfo* temp = lecturers->myCourse;
-			lecturers->myCourse = lecturers->myCourse->next;
+	bool foundCourse = false;
+	while (currentlecturer != nullptr && !foundCourse) {
+		if (currentlecturer->myCourse->academicYear == academicYear
+			&& currentlecturer->myCourse->semester == semester
+			&& currentlecturer->myCourse->courseName == courseID
+			&& currentlecturer->myCourse->defaultClass == defaultClass) {
+			CourseInfo* temp = currentlecturer->myCourse;
+			currentlecturer->myCourse = currentlecturer->myCourse->next;
 			delete temp;
+			currentlecturer->totalCourse--;
+			foundCourse = true;
 		}
 		else {
-			CourseInfo* currentCourse = lecturers->myCourse;
+			CourseInfo* currentCourse = currentlecturer->myCourse;
 			while (currentCourse->next != nullptr) {
 				if (currentCourse->next->academicYear == academicYear
 					&& currentCourse->next->semester == semester
@@ -1813,6 +1823,8 @@ void removeCourse() {
 					temp = currentCourse->next;
 					currentCourse->next = currentCourse->next->next;
 					delete temp;
+					currentlecturer->totalCourse--;
+					foundCourse = true;
 					break;
 				}
 				currentCourse = currentCourse->next;
@@ -1896,6 +1908,7 @@ void removeStudentFromCourse() {
 				CourseInfo* temp = current->myCourse;
 				current->myCourse = current->myCourse->next;
 				delete temp;
+				current->numberOfCourse--;
 				break;
 			}
 			else {
@@ -1908,6 +1921,7 @@ void removeStudentFromCourse() {
 						CourseInfo* temp = currentCourseInfo->next;
 						currentCourseInfo->next = currentCourseInfo->next->next;
 						delete temp;
+						current->numberOfCourse--;
 						break;
 					}
 					currentCourseInfo=currentCourseInfo->next;
@@ -1989,6 +2003,7 @@ void addAStudentToCourse() {
 				currentStudent->myCourse->semester = semester;
 				currentStudent->myCourse->courseName = courseID;
 				currentStudent->myCourse->defaultClass = courseClass;
+				currentStudent->numberOfCourse = 1;
 				currentStudent->myCourse->next = nullptr;
 				break;
 			}
@@ -2002,6 +2017,7 @@ void addAStudentToCourse() {
 				currentCourse->next->semester = semester;
 				currentCourse->next->courseName = courseID;
 				currentCourse->next->defaultClass = courseClass;
+				currentStudent->numberOfCourse++;
 				currentCourse->next->next = nullptr;
 				break;
 			}
@@ -2407,7 +2423,7 @@ void manipulateAllLecturers() {
 			deleteLecturers(lecturers);
 			return;
 		}
-		// For each course of that lecture
+		// For each course of that lecturer
 		CourseInfo* currentCourse = currentLecturer->myCourse;
 		while (currentCourse != nullptr) {
 			// Delete this course from all enrolled students.
@@ -2429,9 +2445,10 @@ void manipulateAllLecturers() {
 								delete currentStudentCourse;
 							}
 							else {
-								previousStudentCourse = currentStudentCourse->next;
+								previousStudentCourse->next = currentStudentCourse->next;
 								delete currentStudentCourse;
 							}
+							currentStudent->numberOfCourse--;
 							break;
 						}
 						previousStudentCourse = currentStudentCourse;
@@ -2473,6 +2490,8 @@ void manipulateAllLecturers() {
 			remove(filepath.c_str());
 			currentCourse = currentCourse->next;
 		}
+		// Remove that lecturer account
+		removeUser(currentLecturer->username);
 		// Remove that lecturer from linked list and write to Lecturer.txt.
 		if (previousLecturer == nullptr) {
 			lecturers = lecturers->next;
@@ -2629,10 +2648,15 @@ void searchAndViewAttendance() {
 	cin.ignore();
 	// Ask for academic year and semester.
 	cout << "Please input the following information:\n";
-	string studentId;
+	string studentId, className;
 	cout << "\tStudent ID: ";
 	cin >> studentId;
 	cout << "\n";
+
+	if (!isStudentIdExist(studentId)) {
+		cout << "Search attendance failed. Error: Student ID does not exist.\n\n";
+		return;
+	}
 
 	// Check if student exists. If yes store the info.
 	Student* student = new Student;

@@ -100,6 +100,7 @@ bool isStudentExistInCourse(string studentId, Course* course);
 bool isSessionDateExist(Date date, Attendance* attendance);
 
 void removeSemesterDirectory(int academicYear, string semester);
+void removeUser(string removedUser);
 
 void clearScreen();
 void clearScreenWithoutPress();

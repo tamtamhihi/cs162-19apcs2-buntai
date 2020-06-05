@@ -388,6 +388,29 @@ void removeSemesterDirectory(int academicYear, string semester) {
 	system(command.c_str());
 }
 
+// Remove a user from User.txt
+void removeUser(string removedUser) {
+	// Remove that user and save to file Users.txt.
+	ifstream in("Database/User.txt");
+	ofstream out("Database/Users.txt");
+	string username, password, type;
+	while (in >> username >> password >> type) {
+		if (username != removedUser)
+			out << username << "\n" << password << "\n" << type << "\n";
+	}
+	in.close();
+	out.close();
+	// Copy from Users.txt to User.txt.
+	in.open("Database/Users.txt");
+	out.open("Database/User.txt");
+	while (in >> username)
+		out << username << "\n";
+	in.close();
+	out.close();
+	// Remove Users.txt.
+	remove("Database/Users.txt");
+}
+
 // Clear screen and restart.
 void clearScreen() {
 	cin.clear();
@@ -2008,7 +2031,7 @@ bool findStudentInfoFromId(Student*& student, string studentId) {
 				student->status = currentStudent->status;
 				student->numberOfCourse = currentStudent->numberOfCourse;
 				student->myCourse = nullptr;
-				CourseInfo* currentInfo = currentStudent->myCourse;
+				CourseInfo* currentInfo = student->myCourse, *copyInfo = currentStudent->myCourse;
 				for (int i = 0; i < currentStudent->numberOfCourse; ++i) {
 					if (student->myCourse == nullptr) {
 						student->myCourse = new CourseInfo;
@@ -2018,12 +2041,12 @@ bool findStudentInfoFromId(Student*& student, string studentId) {
 						currentInfo->next = new CourseInfo;
 						currentInfo = currentInfo->next;
 					}
-					currentInfo->academicYear = currentStudent->myCourse->academicYear;
-					currentInfo->semester = currentStudent->myCourse->semester;
-					currentInfo->courseName = currentStudent->myCourse->courseName;
-					currentInfo->defaultClass = currentStudent->myCourse->defaultClass;
+					currentInfo->academicYear = copyInfo->academicYear;
+					currentInfo->semester = copyInfo->semester;
+					currentInfo->courseName = copyInfo->courseName;
+					currentInfo->defaultClass = copyInfo->defaultClass;
 					currentInfo->next = nullptr;
-					currentStudent->myCourse = currentStudent->myCourse->next;
+					copyInfo = copyInfo->next;
 				}
 				deleteStudentList(studentList);
 				in.close();
