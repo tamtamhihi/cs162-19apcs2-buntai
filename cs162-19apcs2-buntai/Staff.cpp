@@ -1238,6 +1238,7 @@ void manuallyAddCourse() {
 	cout << "\tLecturer name: ";
 	cin.ignore();
 	getline(cin, lecturerName);
+	lecturerName = toFormalCase(lecturerName);
 	string lecturerUsername = toUsername(lecturerName);
 	// If lecturer hasn't existed, make sure the new lecturer account does not overlap any other roles.
 	if (!isLecturerExist(lecturerUsername)) {
@@ -1275,9 +1276,11 @@ void manuallyAddCourse() {
 		cout << "\tSession " << i + 1 << ":\n";
 		cout << "\t\tDay of week: ";
 		cin >> dayOfWeek;
+		dayOfWeek = toFormalCase(dayOfWeek);
 		cin.ignore();
 		cout << "\t\tStart hour: <hh> <mm>\n"
 			<< "\t\t            ";
+		cin.ignore();
 		getline(cin, startHour);
 		cout << "\t\tEnd hour: <hh> <mm>\n"
 			<< "\t\t          ";
@@ -1327,7 +1330,7 @@ void manuallyAddCourse() {
 		currentSession = currentSession->next;
 	}
 	cout << "\tRoom: " << room << "\n";
-	cout << "Do you want to add this course? Y/N\n";
+	cout << "Do you want to add this course? Y/N\n\t";
 	cin >> row;
 	cout << "\n";
 	toUpper(row);
