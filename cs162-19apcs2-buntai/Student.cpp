@@ -491,10 +491,10 @@ void viewSchedules(string studentUsername) {
 	cout << "   " << setfill('-') << setw(9) << "+" << setw(20) << "+" << setw(14) << "+" << setw(14) << "+"
 		<< setw(14) << "+" << setw(14) << "+" << setw(14) << "+" << setw(14) << "+" << endl;
 
-	cout << "   " << setfill(' ') << setw(9) << "4 |" << setw(20) << "7h30-9h10 |" << setw(12) << mon[3].courseId << " |"
+	cout << "   " << setfill(' ') << setw(9) << "4 |" << setw(20) << "15h30-17h10 |" << setw(12) << mon[3].courseId << " |"
 		<< setw(12) << tue[3].courseId << " |" << setw(12) << wed[3].courseId << " |" << setw(12) << thu[3].courseId
 		<< " |" << setw(12) << fri[3].courseId << " |" << setw(12) << sat[3].courseId << " |" << endl;
-    cout << "   " << setfill(' ') << setw(9) << " |" << setw(20) << "LAB: 7h30-9h30 |" << setw(12) << mon[3].room << " |"
+    cout << "   " << setfill(' ') << setw(9) << " |" << setw(20) << "LAB: 15h30-17h30 |" << setw(12) << mon[3].room << " |"
 		<< setw(12) << tue[3].room << " |" << setw(12) << wed[3].room << " |" << setw(12) << thu[3].room
 		<< " |" << setw(12) << fri[3].room << " |" << setw(12) << sat[3].room << " |" << endl;
 

@@ -502,7 +502,7 @@ void editGradeOfStudent(string lecturerUsername) {
 	printStudentListTable(course->students);
 
 	// Ask for student ID to edit grade.
-	cout << "Please input student ID: ";
+	cout << "\tPlease input student ID: ";
 	string studentID;
 	cin >> studentID;
 	cout << "\n";
@@ -519,20 +519,20 @@ void editGradeOfStudent(string lecturerUsername) {
 
 	// If student doesn't exist.
 	if (curStudent == nullptr) {
-		cout << "Error: Can not find given student in your course.";
+		cout << "\tError: Can not find given student in your course.";
 		deleteCourse(course);
 		deleteCourseInfo(courseInfo);
 		return ;
 	}
 
 	// If yes, print student scoreboard.
-	cout << "Scoreboard of the student:\n";
+	cout << "\tScoreboard of the student:\n";
 	printScoreboardOfStudent(curStudentCourseInfo);
 
 	// Add what type of score lecturer want to edit and  edit them.
-	cout << "What types of score you want to edit?\n"
-		<< "\t1. Midterm \n\t2. Final \n\t3. Lab \n\t4. Bonus \n";
-	cout << "Please input in an increasing order with a space between. \n\t";
+	cout << "\tWhat types of score you want to edit?\n"
+		<< "\t\t1. Midterm \n\t\t2. Final \n\t\t3. Lab \n\t\t4. Bonus \n";
+	cout << "\tPlease input in an increasing order with a space between: \n\t\t";
 	string row;
 	cin.ignore();
 	getline(cin, row);
@@ -543,49 +543,53 @@ void editGradeOfStudent(string lecturerUsername) {
 	double score;
 	while (in >> choiceScore) {
 		if (choiceScore == 1) {
-			cout << "New midterm score: ";
+			cout << "\tNew midterm score: ";
 			cin >> score;
-			cout << "You want to change midterm score from " << curStudentCourseInfo->midterm << " to " << setprecision(2)<< score << "? Y/N \n\t";
+			cout << "\tYou want to change midterm score from " << curStudentCourseInfo->midterm << " to " << setprecision(2)<< score << "? Y/N: ";
 			cin >> row; toUpper(row);
 			if (row == "Y") {
 				curStudentCourseInfo->midterm = score;
-				cout << "The midterm score has been changed successfully.\n\n";
+				cout << "\tThe midterm score has been changed successfully.\n";
 			}
+			cout << "\n";
 		}
 		else if (choiceScore == 2) {
-			cout << "New final score: ";
+			cout << "\tNew final score: ";
 			cin >> score; 
-			cout << "You want to change final score from " << curStudentCourseInfo-> final << " to " << setprecision(2) << score << "? Y/N \n\t";
+			cout << "\tYou want to change final score from " << curStudentCourseInfo-> final << " to " << setprecision(2) << score << "? Y/N: ";
 			cin >> row; toUpper(row);
 			if (row == "Y") {
 				curStudentCourseInfo->final = score; 
-				cout << "The final score has been changed successfully.\n\n";
+				cout << "\tThe final score has been changed successfully.\n";
 			}
+			cout << "\n";
 		}
 		else if (choiceScore == 3) {
-			cout << "New lab score: ";
+			cout << "\tNew lab score: ";
 			cin >> score;
-			cout << "You want to change lab score from " << curStudentCourseInfo->lab << " to " << setprecision(2) << score << "? Y/N \n\t";
+			cout << "\tYou want to change lab score from " << curStudentCourseInfo->lab << " to " << setprecision(2) << score << "? Y/N: ";
 			cin >> row; toUpper(row);
 			if (row == "Y") {
 				curStudentCourseInfo->lab = score;
-				cout << "The lab score has been changed successfully.\n\n";
+				cout << "\tThe lab score has been changed successfully.\n";
 			}
+			cout << "\n";
 		}
 		else if (choiceScore == 4) {
-			cout << "New bonus score: ";
+			cout << "\tNew bonus score: ";
 			cin >> score;
-			cout << "You want to change bonus score from " << curStudentCourseInfo->bonus << " to " << setprecision(2) << score << "? Y/N \n\t";
+			cout << "\tYou want to change bonus score from " << curStudentCourseInfo->bonus << " to " << setprecision(2) << score << "? Y/N: \n";
 			cin >> row; toUpper(row);
 			if (row == "Y") {
 				curStudentCourseInfo->bonus = score;
-				cout << "The lab score has been changed successfully.\n\n";
+				cout << "\tThe lab score has been changed successfully.\n";
 			}
+			cout << "\n";
 		}
 	}
 
 	// Print scoreboard of student again.
-	cout << "The scoreboard of student after editing: \n";
+	cout << "\tThe scoreboard of student after editing: \n";
 	printScoreboardOfStudent(curStudentCourseInfo);
 
 	// Write course to file.

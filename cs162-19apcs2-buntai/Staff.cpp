@@ -706,10 +706,11 @@ void viewListOfStudentInAClass() {
 void manipulateAcademicYearsAndSemester() {
 	int academicYear;
 	string semester, action;
-	cout << "Please input the academic year and semester:\n" 
-		<< "\t(2018 for AY 2018-2019 and semester Summer/Fall/Spring/None to view AY only)\n" 
-		<< "\t<academic-year> <semester>\n\t";
+	cout << "Please input the academic year and semester:\n"
+		<< "\t(2018 for AY 2018-2019 and semester Summer/Fall/Spring/None to view AY only)\n";
+	cout << "\tAcademic Year: ";
 	cin >> academicYear;
+	cout << "\tSemester: ";
 	cin >> semester; 
 	semester = toFormalCase(semester);
 	if (semester != "Summer" && semester != "Fall" && semester != "Spring" && semester != "None") {

@@ -394,13 +394,13 @@ void clearScreen() {
 	cout << "Press any key to continue.\n";
 	getch();
 	system("cls");
-	cout << "\t\t\t=============== BUNTAI SCHOOL MANAGEMENT =============\n\n";
+	cout << "\t\t\t=============== BUNTAI SCHOOL MANAGEMENT ===============\n\n";
 }
 
 // Clear screen without press any key.
 void clearScreenWithoutPress() {
 	system("cls");
-	cout << "\t\t\t=============== BUNTAI SCHOOL MANAGEMENT =============\n\n";
+	cout << "\t\t\t=============== BUNTAI SCHOOL MANAGEMENT ===============\n\n";
 }
 
 
