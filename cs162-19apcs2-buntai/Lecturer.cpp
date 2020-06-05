@@ -234,11 +234,13 @@ void editAnAttendanceByLecturer(string lecturerUsername) {
 	printAttendanceListWithId(course);
 
 	// Ask for student ID and date to edit.
-	cout << "Please input student id and date with the same format:\n";
-	cout << "<student-id>,<yyyy-mm-dd>\n\t";
+	cout << "Please input the following information:\n";
 	string row, studentId, date;
-	cin.ignore();
-	getline(cin, row);
+	cout << "\tStudent ID: ";
+	cin >> studentId;
+	cout << "\tDate to edit: <yyyy>-<mm>-<dd>\n"
+		<< "\t              ";
+	cin >> date;
 	cout << "\n";
 	stringstream info(row);
 	getline(info, studentId, ',');
