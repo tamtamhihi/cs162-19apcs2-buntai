@@ -1,5 +1,4 @@
 #include "Function.h"
-#include<iostream>
 
 // ========= ALL-ROLES' FUNCTIONS DEFINITION =========
 
