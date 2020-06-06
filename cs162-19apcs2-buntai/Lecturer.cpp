@@ -241,10 +241,8 @@ void editAnAttendanceByLecturer(string lecturerUsername) {
 	cout << "\tDate to edit: <yyyy>-<mm>-<dd>\n"
 		<< "\t              ";
 	cin >> date;
+	cin.ignore();
 	cout << "\n";
-	stringstream info(row);
-	getline(info, studentId, ',');
-	getline(info, date, ',');
 	Date editedDate = getDate(date);
 
 	// Check if student exists in course.
