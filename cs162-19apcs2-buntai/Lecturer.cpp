@@ -121,7 +121,7 @@ void viewStudentListOfCourse(string lecturerUsername) {
 	cout << "\tPlease enter the number of the course to view student list: ";
 	int choice;
 	cin >> choice;
-	while (choice > currentLecturer->totalCourse) {
+	while (choice > currentLecturer->totalCourse || choice < 1) {
 		cout << "Course number not available. Please enter again: ";
 		cin >> choice;
 	}
@@ -161,7 +161,7 @@ void viewAttendanceListOfCourseByLecturer(string lecturerUsername) {
 	cout << "\tPlease enter the number of the course to view attendance list: ";
 	int choice;
 	cin >> choice;
-	while (choice > currentLecturer->totalCourse) {
+	while (choice > currentLecturer->totalCourse || choice < 1) {
 		cout << "Course number not available. Please enter again: ";
 		cin >> choice;
 	}
@@ -210,7 +210,7 @@ void editAnAttendanceByLecturer(string lecturerUsername) {
 	cout << "\tPlease enter the number of the course to view attendance list: ";
 	int choice;
 	cin >> choice;
-	while (choice > currentLecturer->totalCourse) {
+	while (choice > currentLecturer->totalCourse || choice < 1) {
 		cout << "Course number not available. Please enter again: ";
 		cin >> choice;
 	}
@@ -340,7 +340,7 @@ void importScoreboardFromCsv(string lecturerUsername) {
 	cout << "Please enter the number of the course to import scoreboard: ";
 	int choice;
 	cin >> choice;
-	while (choice > currentLecturer->totalCourse) {
+	while (choice > currentLecturer->totalCourse || choice < 1) {
 		cout << "Course number not available. Please enter again: ";
 		cin >> choice;
 	}
@@ -482,7 +482,7 @@ void editGradeOfStudent(string lecturerUsername) {
 	cout << "\tPlease enter the number of the course to edit grade: ";
 	int choice;
 	cin >> choice;
-	while (choice > currentLecturer->totalCourse) {
+	while (choice > currentLecturer->totalCourse || choice < 1) {
 		cout << "Course number not available. Please enter again: ";
 		cin >> choice;
 	}
@@ -622,7 +622,7 @@ void viewScoreboardOfCourse(string lecturerUsername) {
 	cout << "\tPlease enter the number of the course to view scoreboard: ";
 	int choice;
 	cin >> choice;
-	while (choice > currentLecturer->totalCourse) {
+	while (choice > currentLecturer->totalCourse || choice < 1) {
 		cout << "Course number not available. Please enter again: ";
 		cin >> choice;
 	}

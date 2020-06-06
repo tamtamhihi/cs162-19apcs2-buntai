@@ -2237,7 +2237,7 @@ void viewListOfStudentsOfCourse() {
 	cout << "\tPlease enter the number of the course to view student list: ";
 	int choice;
 	cin >> choice;
-	while (choice > totalCourse) {
+	while (choice > totalCourse || choice < 1) {
 		cout << "Course number not available. Please enter again: ";
 		cin >> choice;
 	}
@@ -2288,7 +2288,7 @@ void viewAttendanceListOfCourse() {
 	cout << "\tPlease enter the number of the course to view student list: ";
 	int choice;
 	cin >> choice;
-	while (choice > totalCourse) {
+	while (choice > totalCourse || choice < 1) {
 		cout << "Course number not available. Please enter again: ";
 		cin >> choice;
 	}
@@ -2612,7 +2612,7 @@ void searchAndViewScoreboard() {
 	cout << "Please enter the number of course to view scoreboard: ";
 	int choice;
 	cin >> choice;
-	while (choice > totalCourse) {
+	while (choice > totalCourse || choice < 1) {
 		cout << "\tThat course number does not exist. Please try again.\n";
 		cout << "Enter the number of course: ";
 		cin >> choice;
@@ -2745,7 +2745,7 @@ void searchAndViewAttendance() {
 	cout << "\tPlease enter the number of the course to view attendance: ";
 	int choice;
 	cin >> choice;
-	while (choice > totalCourse) {
+	while (choice > totalCourse || choice < 1) {
 		cout << "Course number not available. Please enter again: ";
 		cin >> choice;
 	}
@@ -2849,7 +2849,7 @@ void exportAttendanceListToCsv() {
 	cout << "\tPlease enter the number of the course to view student list: ";
 	int choice;
 	cin >> choice;
-	while (choice > totalCourse) {
+	while (choice > totalCourse || choice < 1) {
 		cout << "Course number not available. Please enter again: ";
 		cin >> choice;
 	}
