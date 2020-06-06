@@ -2152,13 +2152,13 @@ void viewListOfCourses() {
 		while (currentCourse != nullptr) {
 			if (!semesterCourse) {
 				cout << "\t\t\t\t\t\tLIST OF COURSES\n\n";
-				cout << "\t" << setw(15) << " Course ID |" << setw(16) << " Default class |"
+				cout << "\t" << setw(15) << " Course ID |" << setw(16) << " Default class |" << setw(15) << " Lecturer |"
 					<< setw(25) << " Duration |" << setw(25) << " Session |" << setw(8) << " Room |" << "\n";
-				cout << "\t" << setfill('-') << setw(15) << "+" << setw(16) << "+"
+				cout << "\t" << setfill('-') << setw(15) << "+" << setw(16) << "+" << setw(15) << "+"
 					<< setw(25) << "+" << setw(25) << "+" << setw(8) << "+" << "\n";
 			}
 			else
-				cout << "\t" << setfill('-') << setw(15) << "+" << setw(16) << "+"
+				cout << "\t" << setfill('-') << setw(15) << "+" << setw(16) << "+" << setw(15) << "+"
 				<< setw(25) << "+" << setw(25) << "+" << setw(8) << "+" << "\n" << setfill(' ');
 			Course* course = new Course;
 			readCourseFromFile(currentCourse, course);
@@ -2167,13 +2167,13 @@ void viewListOfCourses() {
 			string sessionInfo = numToDay(session->day) + ", " + timeToString(session->startTime)
 				+ " - " + timeToString(session->endTime);
 			cout << "\t" << setfill(' ') << setw(14) << currentCourse->courseName << "|" << setw(15)
-				<< currentCourse->defaultClass << "|" << setw(24) << duration << "|" << setw(24)
+				<< currentCourse->defaultClass << "|" << setw(14) << course->lecturer.username << "|" << setw(24) << duration << "|" << setw(24)
 				<< sessionInfo << "|" << setw(7) << course->room << "|\n";
 			session = session->next;
 			while (session != nullptr) {
 				sessionInfo = numToDay(session->day) + ", " + timeToString(session->startTime)
 					+ " - " + timeToString(session->endTime);
-				cout << "\t" << setw(14) << " " << "|" << setw(15)
+				cout << "\t" << setw(14) << " " << "|" << setw(15) << " " << "|" << setw(14)
 					<< " " << "|" << setw(24) << " " << "|" << setw(24)
 					<< sessionInfo << "|" << setw(7) << " " << "|\n";
 				session = session->next;
