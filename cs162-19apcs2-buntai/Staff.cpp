@@ -1549,7 +1549,7 @@ void editExistingCourse() {
 	cout << "\tPlease enter the number of the course to edit: ";
 	int choice;
 	cin >> choice;
-	while (choice > totalCourse) {
+	while (choice > totalCourse || choice < 1) {
 		cout << "Course number not available. Please enter again: ";
 		cin >> choice;
 	}
@@ -1699,43 +1699,59 @@ void removeCourse() {
 	cin >> academicYear; 
 	cout << "\tSemester: ";
 	cin >> semester; semester = toFormalCase(semester);
-	cout << "\tCourse ID: ";
-	cin >> courseID; toUpper(courseID);
-	cout << "\tDefault class: ";
-	cin >> defaultClass; toUpper(defaultClass);
 	cout << "\n";
 
-	// Read courses.txt to find removed course.
+	// Print all course to choose.
 	CourseInfo* courseList = nullptr;
 	readCourseListFromFile(courseList, academicYear, semester);
+	toUpper(semester);
+	cout << "\t\t\t\t\tLIST OF COURSE IN " << semester << " " << academicYear << "-" << academicYear + 1 << "\n\n";
+	semester = toFormalCase(semester);
+	int numberOfCourse = printCourseListTable(courseList);
 
-	// Find removed course.
-	if (courseList == nullptr) {
-		cout << "Error: Cannot find the course.\n\n";
+	// Ask for a specific course to remove.
+	cout << "Please enter no. of course to remove: ";
+	int choice;
+	cin >> choice;
+	while (choice > numberOfCourse || choice < 1) {
+		cout << "Course number not available. Please enter again: ";
+		cin >> choice;
+	}
+	CourseInfo* removeCourse = courseList;
+	CourseInfo* previous = removeCourse;
+	for (int i = 0; i < choice - 1; i++) {
+		previous = removeCourse;
+		removeCourse = removeCourse->next;
+	}
+
+	// Print chosen course info to confirm.
+	Course* course = new Course;
+	readCourseFromFile(removeCourse, course);
+	printCourseInfo(course);
+	cout << "Are you sure to remove this course? Y/N: ";
+	string confirm;
+	cin >> confirm;
+	toUpper(confirm);
+	if (confirm != "Y") {
+		cout << "Cancel remove course.\n\n";
+		deleteCourseInfo(courseList);
+		deleteCourse(course);
 		return;
 	}
-	CourseInfo* currentCourseList = courseList;
-	CourseInfo* previous = currentCourseList;
-	while (currentCourseList->courseName != courseID || currentCourseList->defaultClass!= defaultClass) {
-		previous = currentCourseList;
-		currentCourseList = currentCourseList->next;
-		if (currentCourseList == nullptr) {
-			cout << "Error: Cannot find the course.\n\n";
-			deleteCourseInfo(courseList);
-			return;
-		}
-	}
+	deleteCourse(course);
 
 	// Remove course name in file Courses.txt.
-	if (currentCourseList == courseList) {
-		CourseInfo* tem;
+	courseID = removeCourse->courseName;
+	defaultClass = removeCourse->defaultClass;
+	CourseInfo* tem;
+	if (removeCourse == courseList) {
 		tem = courseList;
 		courseList = courseList->next;
 		delete tem;
 	}
 	else {
-		previous->next = currentCourseList->next;
-		delete currentCourseList;
+		previous->next = removeCourse->next;
+		delete removeCourse;
 	}
 	writeCourseListToFile(courseList, academicYear, semester);
 	deleteCourseInfo(courseList);
