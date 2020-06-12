@@ -520,8 +520,8 @@ void editGradeOfStudent(string lecturerUsername) {
 	// If student doesn't exist.
 	if (curStudent == nullptr) {
 		cout << "\tError: Can not find given student in your course.";
+		deleteLecturers(lecturers);
 		deleteCourse(course);
-		deleteCourseInfo(courseInfo);
 		return ;
 	}
 
