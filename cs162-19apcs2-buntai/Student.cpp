@@ -213,6 +213,7 @@ void viewCheckinResult(string studentUsername) {
 	}
 	in.close();
 	// print out result
+	system("cls");
 	cout << "\n\t\t\t\tCHECKIN RESULTS\n";
 	cout << "\t" << setw(20) << "Date |" << setw(20) << "Study time |" << " Check-in time\n";
 	cout << "\t" << setfill('-') << setw(20) << "+" << setw(20) << "+" << setw(20) << "\n";
@@ -234,23 +235,46 @@ void viewCheckinResult(string studentUsername) {
 void viewSchedules(string studentUsername) {
 	Student newTurn;
 	getInfoOfStudent(newTurn, studentUsername);
+	string semester;
+	int year;
+	cout << "Please enter the academic year you want to view (the beginning year): ";
+	cin >> year;
+	cout << "Please enter the semester you want to view: ";
+	cin >> semester;
+	semester = toFormalCase(semester);
 
 	// Get all courses of a student.
 	CourseInfo* cur = newTurn.myCourse;
-	int  n = newTurn.numberOfCourse;
+	CourseInfo* count = newTurn.myCourse;
+	int n=0,t=0;
+	while (count != nullptr) {
+		if (count->semester == semester) { n = n + 1; }
+		if (count->academicYear == year) { t = 1; }
+		count = count->next;
+	}
 	if (n == 0) {
-		cout << "You are currently not taking any course." << endl;
+		cout << "You are currently not taking any course of this semester." << endl;
 		cout << endl;
 		return;
 	}
+	if (t == 0) {
+		cout << "You are currently not taking any course of this semester." << endl;
+		cout << endl;
+		return;
+	}
+	
 	Course* coursesOfStudent;
 	coursesOfStudent = new Course[n];
 	string day[4], startDay, endDay;
 	for (int i = 0; i < n; i++)
 	{
 		ifstream(fin);
-		fin.open("Database/" + to_string(cur->academicYear) + "-" + to_string(cur->academicYear + 1) + "/"
-			+ cur->semester + "/" + cur->courseName + "-" + cur->defaultClass + ".txt");
+		fin.open("Database/" + to_string(year) + "-" + to_string(year + 1) + "/"
+			+ semester + "/" + cur->courseName + "-" + cur->defaultClass + ".txt");
+		if (!fin) {
+			cur = cur->next;
+			i = i - 1;
+		}
 		while (fin) {
 			getline(fin, coursesOfStudent[i].courseId);
 			getline(fin, coursesOfStudent[i].courseName);
@@ -457,6 +481,7 @@ void viewSchedules(string studentUsername) {
 	}
 
 	// Print out schedule.
+	system("cls");
 	cout << "\t\t\t\t\t\t\tMY SCHEDULE\n\n";
 	cout << "   " << "Session |" << setw(20) << "Time |" << setw(14) << "Monday |" << setw(14) << "Tuesday |" << setw(14) << "Wednesday |"
 		<< setw(14) << "Thursday |" << setw(14) << "Friday |" << setw(14) << "Saturday |" << endl;
