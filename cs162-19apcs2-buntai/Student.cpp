@@ -23,38 +23,10 @@ void checkin(string studentUsername) {
 	cin >> choice;
 	cout << endl;
 	CourseInfo* current = newTurn.myCourse;
-	for (int j = 0; j < choice; j++) {
+	for (int j = 0; j < choice - 1; j++) {
 		current = current->next;
 	}
-	ifstream(in);
-	in.open("Database/" + to_string(cur->academicYear) + "-" + to_string(cur->academicYear +1 ) + "/"
-		+ cur->semester + "/" + cur->courseName + "-" + cur->defaultClass + ".txt");
-	if (in.is_open()) {
-		string waste;
-		int totalSessions;
-		Attendance* currentAttendance = nullptr;
-		for (int i = 0; i < 6; ++i) getline(in, waste); // 6 lines of irrelevant information.
-		in >> totalSessions;
-		for (int i = 0; i < 13; ++i) getline(in, waste); // 13 lines of irrelevant information.
-		for (int i = 0, day, month, year, hour, minute; i < totalSessions; ++i) {
-			in >> day >> month >> year >> hour >> minute;
-			if (currentAttendance == nullptr) {
-				attendanceDate = new Attendance;
-				currentAttendance = attendanceDate;
-			}
-			else {
-				currentAttendance->next = new Attendance;
-				currentAttendance = currentAttendance->next;
-			}
-			currentAttendance->date = Date{ day, month, year };
-			currentAttendance->startTime = Time{ hour, minute };
-			in >> hour >> minute;
-			currentAttendance->endTime = Time{ hour, minute };
-			currentAttendance->next = nullptr;
-			in >> hour >> minute;
-		}
-		in.close();
-	}
+	findAttendanceDateOfCourse(attendanceDate, current);
 
 	time_t t = time(0); // get time now 
 	struct tm* now = localtime(&t);

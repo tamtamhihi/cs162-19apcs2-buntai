@@ -1133,6 +1133,7 @@ void deleteCourse(Course*& myCourse) {
 	deleteSessionInfo(myCourse->sessionInfo);
 	deleteStudent(myCourse->students);
 	deleteStudentCourseInfo(myCourse->studentCourseInfo);
+	delete myCourse;
 }
 
 // Read "Courses.txt" file to a course list.
@@ -1623,11 +1624,12 @@ void findAttendanceDateOfCourse(Attendance*& attendanceDate, CourseInfo*& course
 		+ courseInfo->defaultClass + ".txt");
 	if (in.is_open()) {
 		string waste;
-		int totalSessions;
+		int totalSessions, sessionPerWeek;
 		Attendance* currentAttendance = nullptr;
 		for (int i = 0; i < 6; ++i) getline(in, waste); // 6 lines of irrelevant information.
-		in >> totalSessions;
-		for (int i = 0; i < 13; ++i) getline(in, waste); // 13 lines of irrelevant information.
+		in >> totalSessions >> sessionPerWeek;
+		for (int i = 0; i <= sessionPerWeek; ++i) getline(in, waste);
+		for (int i = 0; i < 9; ++i) getline(in, waste); // 9 lines of irrelevant information.
 		for (int i = 0, day, month, year, hour, minute; i < totalSessions; ++i) {
 			in >> day >> month >> year >> hour >> minute;
 			if (currentAttendance == nullptr) {

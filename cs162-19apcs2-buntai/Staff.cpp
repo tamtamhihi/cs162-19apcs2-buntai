@@ -162,9 +162,9 @@ void importStudentFromCsv() {
 						registerCourseForStudentList(studentList, currentCourse);
 					currentCourse = currentCourse->next;
 				}
-				currentYear = currentYear->next;
 				deleteCourseInfo(courseList);
 			}
+			currentYear = currentYear->next;
 		}
 		deleteAcademicYears(academicYears);
 
@@ -294,9 +294,9 @@ void manuallyAddStudent() {
 						registerCourseForStudentList(students, currentCourse);
 					currentCourse = currentCourse->next;
 				}
-				currentYear = currentYear->next;
 				deleteCourseInfo(courseList);
 			}
+			currentYear = currentYear->next;
 		}
 		deleteAcademicYears(academicYears);
 
@@ -645,9 +645,9 @@ void changeStudentClass() {
 					registerCourseForStudentList(changeStudent, currentCourse);
 				currentCourse = currentCourse->next;
 			}
-			currentYear = currentYear->next;
 			deleteCourseInfo(courseList);
 		}
+		currentYear = currentYear->next;
 	}
 	deleteAcademicYears(academicYears);
 
@@ -838,6 +838,10 @@ void manipulateAcademicYearsAndSemester() {
 			}
 			CourseInfo* courseList = nullptr;
 			readCourseListFromFile(courseList, academicYear, semester);
+			if (courseList == nullptr) {
+				cout << "Sorry, there's no course to view in this semester!\n\n";
+				return;
+			}
 			toUpper(semester);
 			cout << "\t\t\t\t\tSEMESTER " << semester << " AY " << academicYear << "-" << academicYear + 1 << "\n\n";
 			cout << "\t" << setw(15) << " Course ID |" << setw(16) << " Default class |" << setw(15) << " Lecturer |"
@@ -901,6 +905,16 @@ void importCourseFromCsv() {
 		in.open(filepath);
 	}
 	cin.ignore();
+
+	cout << "Are you sure to import courses from this CSV file? This action can't be undone.\nPlease double check the CSV file.\nY/N? ";
+	string confirm;
+	cin >> confirm; toUpper(confirm);
+	cin.ignore();
+	cout << "\n";
+	if (confirm == "N") {
+		cout << "Importing courses cancelled.\n\n";
+		return;
+	}
 
 	// Read all information from csv.
 	Course* currentCourse = nullptr;
@@ -1180,7 +1194,7 @@ void importCourseFromCsv() {
 
 		// Write to database.
 		writeCourseToFile(currentCourse);
-
+		cout << "Import successful course " << currentCourse->courseName << "-" << currentCourse->defaultClass << " by " << currentCourse->lecturer.username << ".\n\n";
 		// Because the default delete function for course linked list 
 		// does not delete course info of students.
 		currentStudent = currentCourse->students;
@@ -1487,7 +1501,8 @@ void manuallyAddCourse() {
 			currentAttendance->time = Time{ 0,0 };
 			currentAttendance->next = nullptr;
 			daysToNext = currentSession->next->day - currentSession->day;
-			daysToNext += (daysToNext > 0) ? 0 : 7;
+			if (currentSession->next == courseTmp->sessionInfo)
+				daysToNext += (daysToNext > 0) ? 0 : 7;
 			nextSession = dateAfterDays(nextSession, daysToNext);
 			currentSession = currentSession->next;
 		}
@@ -1552,6 +1567,10 @@ void editExistingCourse() {
 	// Print course list table.
 	CourseInfo* courseList = nullptr;
 	readCourseListFromFile(courseList, AY, semester);
+	if (courseList == nullptr) {
+		cout << "Sorry, there's no course in this semester!\n\n";
+		return;
+	}
 	toUpper(semester);
 	cout << "\t\t\t\t\tLIST OF COURSES IN " << semester << " "
 		<< AY << "-" << AY + 1 << "\n\n";
@@ -1717,6 +1736,10 @@ void removeCourse() {
 	// Print all course to choose.
 	CourseInfo* courseList = nullptr;
 	readCourseListFromFile(courseList, academicYear, semester);
+	if (courseList == nullptr) {
+		cout << "Sorry, there's no course in this semester!\n\n";
+		return;
+	}
 	toUpper(semester);
 	cout << "\t\t\t\t\tLIST OF COURSE IN " << semester << " " << academicYear << "-" << academicYear + 1 << "\n\n";
 	semester = toFormalCase(semester);
@@ -1897,6 +1920,11 @@ void removeStudentFromCourse() {
 			current = current->next;
 		else break;
 	}
+	if (current->myCourse == nullptr) {
+		cout << "This student is not enrolled in any course.\n\n";
+		deleteStudentList(studentList);
+		return;
+	}
 	cout << "\t\t\t\t\tLIST OF COURSE OF STUDENT\n\n";
 	int flag = printCourseListTable(current->myCourse);
 	if (flag == 0) {
@@ -2001,6 +2029,10 @@ void addAStudentToCourse() {
 	// Print all course to choose.
 	CourseInfo* courseList = nullptr;
 	readCourseListFromFile(courseList, academicYear, semester);
+	if (courseList == nullptr) {
+		cout << "Sorry, there's no course in this semester!\n\n";
+		return;
+	}
 	toUpper(semester);
 	cout << "\t\t\t\t\tLIST OF COURSE IN " << semester << " " << academicYear << "-" << academicYear + 1 << "\n\n";
 	semester = toFormalCase(semester);
@@ -2096,64 +2128,27 @@ void addAStudentToCourse() {
 	writeClassToFile(studentList, studentClass);
 
 	// Add student to course file.
-	Student* curStudent = course->students;
-	StudentCourseInfo* curStudentCourseInfo = course->studentCourseInfo;
-	while (curStudent->next != nullptr) {
-		curStudent=curStudent->next;
-		curStudentCourseInfo = curStudentCourseInfo->next;
-	}
-
-	curStudent->next = new Student;
-	curStudent->next->username = currentStudent->username;
-	curStudent->next->name = currentStudent->name;
-	curStudent->next->studentId = currentStudent->studentId;
-	curStudent->next->gender = currentStudent->gender;
-	curStudent->next->dob = currentStudent->dob;
-	curStudent->next->next = nullptr;
-
-	curStudentCourseInfo->next = new StudentCourseInfo;
-	curStudentCourseInfo->next->midterm = 0;
-	curStudentCourseInfo->next->lab = 0;
-	curStudentCourseInfo->next->final = 0;
-	curStudentCourseInfo->next->bonus = 0;
-	curStudentCourseInfo->next->status = 1;
-	curStudentCourseInfo->next->next = nullptr;
-	curStudentCourseInfo->next->attendance = nullptr;
-	Attendance* currentAttendance = nullptr;
-	Date nextSession = course->startDate;
-	int daysToNext;
-	SessionInfo* currentSession = course->sessionInfo;
-	// Link session info list circularly.
-	while (currentSession != nullptr && currentSession->next != nullptr)
-		currentSession = currentSession->next;
-	currentSession->next = course->sessionInfo;
-	currentSession = currentSession->next;
+	ofstream out("Database/" + to_string(academicYear) + "-"
+		+ to_string(academicYear + 1) + "/"
+		+ semester + "/" + course->courseId + "-"
+		+ course->defaultClass + ".txt", ios::app);
+	out << currentStudent->username << "\n" << currentStudent->name << "\n" 
+		<< currentStudent->studentId << "\n" << currentStudent->gender << "\n" 
+		<< currentStudent->dob.day << " " << currentStudent->dob.month << " " 
+		<< currentStudent->dob.year << "\n" << "1\n0 0 0 0\n";
+	Attendance* attendance = nullptr,* currentAttendance;
+	findAttendanceDateOfCourse(attendance, chosenCourse);
+	currentAttendance = attendance;
 	for (int i = 0; i < course->totalSessions; ++i) {
-		if (curStudentCourseInfo->next->attendance == nullptr) {
-			curStudentCourseInfo->next->attendance = new Attendance;
-			currentAttendance = curStudentCourseInfo->next->attendance;
-		}
-		else {
-			currentAttendance->next = new Attendance;
-			currentAttendance = currentAttendance->next;
-		}
-		currentAttendance->date = nextSession;
-		currentAttendance->startTime = currentSession->startTime;
-		currentAttendance->endTime = currentSession->endTime;
-		currentAttendance->time = Time{ 0,0 };
-		currentAttendance->next = nullptr;
-		daysToNext = currentSession->next->day - currentSession->day;
-		daysToNext += (daysToNext > 0) ? 0 : 7;
-		nextSession = dateAfterDays(nextSession, daysToNext);
-		currentSession = currentSession->next;
+		out << currentAttendance->date.day << " " << currentAttendance->date.month << " "
+			<< currentAttendance->date.year << " " << currentAttendance->startTime.hour << " "
+			<< currentAttendance->startTime.minute << " " << currentAttendance->endTime.hour << " "
+			<< currentAttendance->endTime.minute << " 0 0\n";
+		currentAttendance = currentAttendance->next;
 	}
-	// Unlink circularly.
-	currentSession = course->sessionInfo->next;
-	while (currentSession->next != course->sessionInfo)
-		currentSession = currentSession->next;
-	currentSession->next = nullptr;
-
-	writeCourseToFile(course);
+	out << "\n";
+	deleteAttendance(attendance);
+	out.close();
 
 	// Delete pointer.
 	deleteStudentList(studentList);
@@ -2191,6 +2186,10 @@ void viewListOfCourses() {
 
 	CourseInfo* courseList = nullptr;
 	readCourseListFromFile(courseList, academicYear, semester);
+	if (courseList == nullptr) {
+		cout << "Sorry, there's no course in this semester!\n\n";
+		return;
+	}
 	CourseInfo* currentCourse = courseList;
 	int semesterCourse = 0;
 	if (currentCourse != nullptr) {
@@ -2248,6 +2247,11 @@ void viewListOfStudentsOfCourse() {
 	// Print course list table.
 	CourseInfo* courseList = nullptr;
 	readCourseListFromFile(courseList, academicYear, semester);
+	if (courseList == nullptr) {
+		cout << "Sorry, there's no course in this semester!\n\n";
+		return;
+	}
+
 	toUpper(semester);
 	cout << "\t\t\t\t\tLIST OF COURSES IN " << semester << " "
 		<< academicYear << "-" << academicYear + 1 << "\n\n";
