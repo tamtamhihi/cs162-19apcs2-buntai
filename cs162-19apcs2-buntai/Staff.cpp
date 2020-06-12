@@ -1330,8 +1330,8 @@ void manuallyAddCourse() {
 	cout << "\tDefault class: " << defaultClass << "\n";
 	cout << "\tLecturer account: " << lecturerUsername << "\n";
 	Date start = getDate(startDate), end = getDate(endDate);
-	cout << "\tStart date: " << start.day << "-" << start.month << "-" << start.year << "\n";
-	cout << "\tEnd date: " << end.day << "-" << end.month << "-" << end.year << "\n";
+	cout << "\tStart date: " << dateToString(start) << "\n";
+	cout << "\tEnd date: " << dateToString(end) << "\n";
 	cout << "\tSessions per week: " << sessionsPerWeek << "\n";
 	cout << "\tSessions info:\n";
 	cout << "\t" << setw(20) << "Day of week |" << setw(20) << "Start time |" << " End time\n";
@@ -2288,9 +2288,26 @@ void viewAttendanceListOfCourse() {
 	semester = toFormalCase(semester);
 	cout << "\n";
 
+	// Check if academic year exists.
+	if (!isAcademicYearExist(academicYear)) {
+		cout << "View attendance list failed. Error: Academic year not exist.\n\n";
+		return;
+	}
+
+	// Check if semester exists.
+	if (!isSemesterExist(academicYear, semester)) {
+		cout << "View attendance list failed. Error: Semester not exist.\n\n";
+		return;
+	}
+
 	// Print course list table.
 	CourseInfo* courseList = nullptr;
 	readCourseListFromFile(courseList, academicYear, semester);
+	// Check if semester has no course.
+	if (courseList == nullptr) {
+		cout << "Sorry there's no courses to view.\n\n";
+		return;
+	}
 	toUpper(semester);
 	cout << "\t\t\t\t\tLIST OF COURSES IN " << semester << " "
 		<< academicYear << "-" << academicYear + 1 << "\n\n";
@@ -2727,7 +2744,6 @@ void searchAndViewAttendance() {
 	string studentId, className;
 	cout << "\tStudent ID: ";
 	cin >> studentId;
-	cout << "\n";
 
 	if (!isStudentIdExist(studentId)) {
 		cout << "Search attendance failed. Error: Student ID does not exist.\n\n";
@@ -2743,9 +2759,12 @@ void searchAndViewAttendance() {
 		return;
 	}
 
+	// Print student info.
+	cout << "\tStudent name: " << student->name << "\n\n";
+
 	// Check if student is studying or dropped out.
 	if (!student->status) {
-		cout << "View attendance failed. Error: Student as dropped out.\n\n";
+		cout << "View attendance failed. Error: Student has dropped out.\n\n";
 		deleteStudentList(student);
 		return;
 	}
@@ -2753,6 +2772,12 @@ void searchAndViewAttendance() {
 	// Print course list table.
 	cout << "\t\t\t\t\tLIST OF COURSES\n\n";
 	int totalCourse = printCourseListTable(student->myCourse);
+	// Check if student has no course.
+	if (totalCourse == 0) {
+		cout << "Sorry there's no courses to view.\n\n";
+		deleteStudentList(student);
+		return;
+	}
 
 	// Ask for specific course enrolled by the student.
 	cout << "\tPlease enter the number of the course to view attendance: ";

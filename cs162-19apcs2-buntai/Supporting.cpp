@@ -1948,8 +1948,8 @@ void printCourseInfo(Course* course) {
 	cout << "\tCourse name: " << course->courseName << "\n";
 	cout << "\tDefault class: " << course->defaultClass << "\n";
 	cout << "\tLecturer account: " << course->lecturer.title << " " << course->lecturer.name << "\n";
-	cout << "\tStart date: " << course->startDate.day << "-" << course->startDate.month << "-" << course->startDate.year << "\n";
-	cout << "\tEnd date: " << course->endDate.day << "-" << course->endDate.month << "-" << course->endDate.year << "\n";
+	cout << "\tStart date: " << dateToString(course->startDate) << "\n";
+	cout << "\tEnd date: " << dateToString(course->endDate) << "\n";
 	cout << "\tSessions per week: " << course->sessionsPerWeek << "\n";
 	cout << "\tSessions info:\n";
 	cout << "\t" << setw(20) << "Day of week |" << setw(20) << "Start time |" << " End time\n";
