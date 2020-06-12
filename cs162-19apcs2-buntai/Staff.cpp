@@ -559,18 +559,31 @@ void changeStudentClass() {
 	}
 
 	changeStudent->password = findPasswordFromUsername(changeStudent->username);
-	// Confirm student info.
+	// Print student info to confirm.
 	printStudentInfo(changeStudent);
-	cout << "\tOld class: " << oldClass << "\n";
+	cout << "\tOld class: " << oldClass << "\n\n";
+
+	// Print classes to choose new class.
+	viewListOfClasses();
 	cout << "\tNew class: ";
 	cin >> newClass; toUpper(newClass);
 	cout << "\n";
 
 	// Check if new class exists.
 	if (!isClassExist(newClass)) {
-		cout << "Edit failed. Error: Can't find new class.\n\n";
+		cout << "Error: Can't find new class.\n\n";
+		deleteStudent(studentList);
 		return;
 	}
+
+	// Check if user enters the old class.
+	if (newClass == oldClass) {
+		cout << "Error: You have enters the old class.\n\n";
+		deleteStudent(studentList);
+		return;
+	}
+
+	// Confirm before changing.
 	cout << "Are you sure to move this student from class " 
 		<< oldClass << " to " << newClass << "?\n";
 	cout << "It will remove him from enrolled courses and enroll in default courses of new class.\n";
@@ -685,7 +698,7 @@ void viewListOfStudentInAClass() {
 
 	// Check if class exists.
 	if (!isClassExist(className)) {
-		cout << "Edit failed. Error: Can't find class.\n\n";
+		cout << "Error: Can't find class.\n\n";
 		return;
 	}
 
