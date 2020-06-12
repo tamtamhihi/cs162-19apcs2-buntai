@@ -1721,6 +1721,10 @@ void removeCourse() {
 	cout << "\t\t\t\t\tLIST OF COURSE IN " << semester << " " << academicYear << "-" << academicYear + 1 << "\n\n";
 	semester = toFormalCase(semester);
 	int numberOfCourse = printCourseListTable(courseList);
+	if (numberOfCourse == 0) {
+		deleteCourseInfo(courseList);
+		return;
+	}
 
 	// Ask for a specific course to remove.
 	cout << "Please enter no. of course to remove: ";
@@ -2001,6 +2005,10 @@ void addAStudentToCourse() {
 	cout << "\t\t\t\t\tLIST OF COURSE IN " << semester << " " << academicYear << "-" << academicYear + 1 << "\n\n";
 	semester = toFormalCase(semester);
 	int numberOfCourse = printCourseListTable(courseList);
+	if (numberOfCourse == 0) {
+		deleteCourseInfo(courseList);
+		return;
+	}
 
 	// Ask for a specific course to add student.
 	cout << "Please enter no. of course to add student: ";
