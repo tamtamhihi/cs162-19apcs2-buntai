@@ -417,13 +417,13 @@ void clearScreen() {
 	cout << "Press any key to continue.\n";
 	getch();
 	system("cls");
-	cout << "\t\t\t=============== BUNTAI SCHOOL MANAGEMENT ===============\n\n";
+	cout << "\n\t\t\t=============== BUNTAI SCHOOL MANAGEMENT ===============\n\n";
 }
 
 // Clear screen without press any key.
 void clearScreenWithoutPress() {
 	system("cls");
-	cout << "\t\t\t=============== BUNTAI SCHOOL MANAGEMENT ===============\n\n";
+	cout << "\n\t\t\t=============== BUNTAI SCHOOL MANAGEMENT ===============\n\n";
 }
 
 
@@ -2150,6 +2150,7 @@ void printAttendanceListWithId(Course* course) {
 			cout << "+" << setw(6);
 		cout << "\n";
 		currentStudent = currentStudent->next;
+		currentStudentInfo = currentStudentInfo->next;
 	}
 	cout << "\t" << setfill(' ') << setw(20) << "Total |";
 	for (int i = 0; i < course->totalSessions - 1; ++i) {

@@ -1,7 +1,7 @@
 #include "Function.h"
 
 int main() {
-	cout << "\t\t\t=============== BUNTAI SCHOOL MANAGEMENT ===============\n\n";
+	cout << "\n\t\t\t=============== BUNTAI SCHOOL MANAGEMENT ===============\n\n";
 	string userName;
 	int userRole;
 	while (!login(userName, userRole)){
